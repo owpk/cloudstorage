@@ -3,7 +3,6 @@ package org.owpk.command;
 import org.owpk.core.ClientManager;
 import org.owpk.utils.FileUtility;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,10 +13,10 @@ public class CommandManager {
 
   private final Map<String, Command> commandList;
   private String rowCommand;
-  private ClientManager cm;
+  private final ClientManager clientManager;
 
   public CommandManager(ClientManager cm) {
-    this.cm = cm;
+    this.clientManager = cm;
     commandList = fillCommands();
   }
 
@@ -46,15 +45,14 @@ public class CommandManager {
     return commands;
   }
 
-
   //Парсим команду
   private static String parseCommand(String cmd) {
-    return cmd.split(" ")[0];
+    return cmd.split("\\s")[0];
   }
 
   //Парсим нагрузку к команде
   private static String parsePayload(String rowCmd) {
-    return Arrays.stream(rowCmd.split(" "))
+    return Arrays.stream(rowCmd.split("\\s"))
         .skip(1)
         .reduce("", (s1, s2) -> s1 + " " + s2)
         .trim();
@@ -66,7 +64,7 @@ public class CommandManager {
 
   private void closeConnection() {
     try {
-      cm.getSocket().close();
+      clientManager.getSocket().close();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -75,19 +73,19 @@ public class CommandManager {
   private void createFileCmd() throws IOException {
     String file = parsePayload(rowCommand);
     System.out.println(file);
-    FileUtility.createFile(cm.getUserDirectory() + "\\" + file);
+    FileUtility.createFile(clientManager.getUserDirectory() + "\\" + file);
   }
 
   private void createDirCmd() throws IOException {
     String dirName = parsePayload(rowCommand);
-    FileUtility.createDirectory(cm.getUserDirectory() + "\\" + dirName);
+    FileUtility.createDirectory(clientManager.getUserDirectory() + "\\" + dirName);
   }
 
   private void showDirCmd() {
     FileUtility.showDirs("")
         .forEach(x -> {
           try {
-            cm.getOut().writeUTF(x.getName());
+            clientManager.getOut().writeUTF(x.getName());
           } catch (IOException e) {
             e.printStackTrace();
           }
@@ -100,14 +98,14 @@ public class CommandManager {
         .reduce((first, second) -> second)
         .orElse(null);
     System.out.println(fileName);
-    File file = new File(cm.getUserDirectory() + "\\" + fileName);
+    File file = new File(clientManager.getUserDirectory() + "\\" + fileName);
     file.createNewFile();
-    FileUtility.placeUploadedFile(cm.getIn(), file);
+    FileUtility.placeUploadedFile(clientManager.getIn(), file);
   }
 
   private void downloadFileCmd() throws IOException {
     String filePath = parsePayload(rowCommand, 1);
-    FileUtility.downloadFile(cm.getOut(),filePath);
+    FileUtility.downloadFile(clientManager.getOut(),filePath);
   }
 
 }
