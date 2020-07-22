@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Client {
 
@@ -20,15 +22,14 @@ public class Client {
           if (cmd.equals("exit")) {
             socket.close();
             out.writeUTF("$close");
-            sc.close(); break;
+            sc.close();
+            break;
           }
           if (cmd.startsWith("$")) {
             if (cmd.startsWith("$upload")) {
               upload(cmd.substring(7).trim(), out);
-            }
-
-            else if (cmd.startsWith("$download")) {
-              download(parsePayload(cmd,1), parsePayload(cmd, 2), in);
+            } else if (cmd.startsWith("$download")) {
+              download(parsePayload(cmd, 1), parsePayload(cmd, 2), in);
             }
           }
           cmd = sc.nextLine();
@@ -36,16 +37,6 @@ public class Client {
         }
       } catch (IOException e) {
         e.printStackTrace();
-      }
-    }).start();
-
-    new Thread(() -> {
-      while (true) {
-        try {
-          System.out.println(in.readUTF());
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
       }
     }).start();
   }
@@ -58,7 +49,6 @@ public class Client {
       int readBytes = is.read(buffer);
       os.write(buffer, 0, readBytes);
     }
-
   }
 
   private static String parsePayload(String command, int region) {
@@ -71,6 +61,7 @@ public class Client {
         .reduce((first, second) -> second)
         .orElse(null);
     System.out.println(fileName);
+    System.out.println(outPath);
     File f = new File(outPath + "\\" + fileName);
     f.createNewFile();
     try (FileOutputStream fos = new FileOutputStream(f)) {
