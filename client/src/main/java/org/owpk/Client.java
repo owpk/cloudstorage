@@ -49,13 +49,12 @@ public class Client {
   private static void readObj(ObjectInputStream in) {
     Thread t = new Thread(() -> {
       try {
-        Messages<?> msg = (Messages<?>) in.readObject();
         while (true) {
+          Messages<?> msg = (Messages<?>) in.readObject();
           switch (msg.getType()) {
             case DIR :
               List<String> dirList = (ArrayList) msg.getPayload();
               dirList.forEach(System.out::println);
-              msg.setType(MessageType.OK);
               break;
           }
         }
