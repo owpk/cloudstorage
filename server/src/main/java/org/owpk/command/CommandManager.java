@@ -3,6 +3,7 @@ package org.owpk.command;
 import org.owpk.core.ClientManager;
 import org.owpk.utils.FileUtility;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,8 +42,10 @@ public class CommandManager {
     commands.put("$createD", this::createDirCmd);
     commands.put("$dir", this::showDirCmd);
     commands.put("$upload", this::uploadFileCmd);
+    commands.put("$download", this::downloadFileCmd);
     return commands;
   }
+
 
   //Парсим команду
   private static String parseCommand(String cmd) {
@@ -55,6 +58,10 @@ public class CommandManager {
         .skip(1)
         .reduce("", (s1, s2) -> s1 + " " + s2)
         .trim();
+  }
+
+  private static String parsePayload(String command, int region) {
+    return command.split("\\s")[region];
   }
 
   private void closeConnection() {
@@ -96,6 +103,11 @@ public class CommandManager {
     File file = new File(cm.getUserDirectory() + "\\" + fileName);
     file.createNewFile();
     FileUtility.placeUploadedFile(cm.getIn(), file);
+  }
+
+  private void downloadFileCmd() throws IOException {
+    String filePath = parsePayload(rowCommand, 1);
+    FileUtility.downloadFile(cm.getOut(),filePath);
   }
 
 }

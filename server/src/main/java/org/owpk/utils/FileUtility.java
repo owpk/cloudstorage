@@ -51,14 +51,13 @@ public class FileUtility {
     }
   }
 
-  public static void downloadFile(DataOutputStream os, File file) throws IOException {
-    try (FileInputStream fis = new FileInputStream(file)) {
-      byte[] buffer = new byte[8192];
-      while (true) {
-        int r = fis.read(buffer);
-        if (r == -1) break;
-        os.write(buffer, 0, r);
-      }
+  public static void downloadFile(DataOutputStream os, String path) throws IOException {
+    File file = new File(path);
+    InputStream is = new FileInputStream(file);
+    byte[] buffer = new byte[8192];
+    while (is.available() > 0) {
+      int readBytes = is.read(buffer);
+      os.write(buffer, 0, readBytes);
     }
   }
 

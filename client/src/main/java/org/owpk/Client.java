@@ -2,6 +2,7 @@ package org.owpk;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Client {
@@ -21,11 +22,15 @@ public class Client {
             out.writeUTF("$close");
             sc.close(); break;
           }
+          if (cmd.startsWith("$")) {
+            if (cmd.startsWith("$upload")) {
+              upload(cmd.substring(7).trim(), out);
+            }
 
-          if (cmd.startsWith("$upload")) {
-            upload(cmd.substring(7).trim(), out);
+            else if (cmd.startsWith("$download")) {
+              download(parsePayload(cmd,1), parsePayload(cmd, 2), in);
+            }
           }
-
           cmd = sc.nextLine();
           out.writeUTF(cmd);
         }
@@ -54,5 +59,27 @@ public class Client {
       os.write(buffer, 0, readBytes);
     }
 
+  }
+
+  private static String parsePayload(String command, int region) {
+    return command.split("\\s")[region].trim();
+  }
+
+  public static void download(String inPath, String outPath, DataInputStream is) throws IOException {
+    String fileName = Arrays.stream(inPath
+        .split("\\\\"))
+        .reduce((first, second) -> second)
+        .orElse(null);
+    System.out.println(fileName);
+    File f = new File(outPath + "\\" + fileName);
+    f.createNewFile();
+    try (FileOutputStream fos = new FileOutputStream(f)) {
+      byte[] buffer = new byte[8192];
+      while (true) {
+        int r = is.read(buffer);
+        if (r == -1) break;
+        fos.write(buffer, 0, r);
+      }
+    }
   }
 }
