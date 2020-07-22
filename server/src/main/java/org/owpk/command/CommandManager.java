@@ -13,7 +13,7 @@ import java.util.Map;
 public class CommandManager {
 
   private final Map<String, Command> commandList;
-  private static String rowCommand;
+  private String rowCommand;
   private ClientManager cm;
 
   public CommandManager(ClientManager cm) {
@@ -23,7 +23,7 @@ public class CommandManager {
 
   public void listen(String command) {
     System.out.println(command);
-    CommandManager.rowCommand = command;
+    this.rowCommand = command;
     String cmd = parseCommand(rowCommand);
     try {
       if (commandList.containsKey(cmd)) {
