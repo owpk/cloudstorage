@@ -2,10 +2,14 @@ package org.owpk;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.owpk.MessageType.DIR;
 
 public class Client {
 
@@ -39,6 +43,28 @@ public class Client {
         e.printStackTrace();
       }
     }).start();
+    readObj(new ObjectInputStream(socket.getInputStream()));
+  }
+
+  private static void readObj(ObjectInputStream in) {
+    Thread t = new Thread(() -> {
+      try {
+        Messages<?> msg = (Messages<?>) in.readObject();
+        while (true) {
+          switch (msg.getType()) {
+            case DIR :
+              List<String> dirList = (ArrayList) msg.getPayload();
+              dirList.forEach(System.out::println);
+              msg.setType(MessageType.OK);
+              break;
+          }
+        }
+      } catch (IOException | ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+    });
+    t.setDaemon(true);
+    t.start();
   }
 
   public static void upload(String path, DataOutputStream os) throws IOException {

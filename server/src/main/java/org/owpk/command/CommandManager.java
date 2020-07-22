@@ -1,13 +1,15 @@
 package org.owpk.command;
 
+import org.owpk.MessageType;
+import org.owpk.Messages;
 import org.owpk.core.ClientManager;
 import org.owpk.utils.FileUtility;
+import org.owpk.utils.NetworkUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommandManager {
 
@@ -81,15 +83,13 @@ public class CommandManager {
     FileUtility.createDirectory(clientManager.getUserDirectory() + "\\" + dirName);
   }
 
-  private void showDirCmd() {
-    FileUtility.showDirs("")
-        .forEach(x -> {
-          try {
-            clientManager.getOut().writeUTF(x.getName());
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        });
+  private void showDirCmd() throws IOException {
+    List<String> dirs =  FileUtility
+        .showDirs("")
+        .stream()
+        .map(File::getName)
+        .collect(Collectors.toList());
+    NetworkUtils.sendObj(clientManager.getOut(), new Messages(dirs, MessageType.DIR));
   }
 
   private void uploadFileCmd() throws IOException {

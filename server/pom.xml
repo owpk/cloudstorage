@@ -13,12 +13,13 @@
     <artifactId>server</artifactId>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
-            <scope>provided</scope>
-        </dependency>
 
+
+        <dependency>
+            <groupId>org.owpk</groupId>
+            <artifactId>messages</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

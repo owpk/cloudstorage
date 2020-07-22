@@ -9,15 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>client</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>org.owpk</groupId>
-            <artifactId>messages</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+    <artifactId>messages</artifactId>
 
 
 </project>
