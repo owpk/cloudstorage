@@ -1,5 +1,6 @@
 package org.owpk.core;
 
+import lombok.Data;
 import org.owpk.auth.AuthService;
 import org.owpk.command.CommandManager;
 import org.owpk.utils.ConfigReader;
@@ -8,7 +9,9 @@ import org.owpk.utils.FileUtility;
 import java.io.*;
 import java.net.Socket;
 
+@Data
 public class ClientManager {
+
   private static int user_count;
   private int user_id;
   //TODO authService
@@ -62,26 +65,6 @@ public class ClientManager {
     }
     server.deleteUser(this);
     socket.close();
-  }
-
-  public DataInputStream getIn() {
-    return in;
-  }
-
-  public DataOutputStream getOut() {
-    return out;
-  }
-
-  public Socket getSocket() {
-    return socket;
-  }
-
-  public static int getUser_count() {
-    return user_count;
-  }
-
-  public int getUser_id() {
-    return user_id;
   }
 
   public String getUserDirectory() {
