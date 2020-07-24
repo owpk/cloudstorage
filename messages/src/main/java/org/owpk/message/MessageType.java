@@ -1,10 +1,11 @@
-package org.owpk;
+package org.owpk.message;
 
 public enum  MessageType {
   OK("$ok"),
   DIR("$dir"),
   DOWNLOAD("$download"),
-  UPLOAD("$upload");
+  UPLOAD("$upload"),
+  CLOSE("$close");
 
   private String cmd;
 

@@ -1,4 +1,4 @@
-package org.owpk;
+package org.owpk.message;
 
 import lombok.Data;
 
@@ -7,9 +7,9 @@ import java.util.EnumMap;
 
 @Data
 public class Messages<T> implements Serializable {
-  private static final EnumMap<MessageType, String> activityMap;
+  private static final EnumMap<MessageType, String> typeMap;
   static {
-    activityMap = new EnumMap<>(MessageType.class);
+    typeMap = new EnumMap<>(MessageType.class);
   }
   private T payload;
   private MessageType type;
@@ -19,4 +19,7 @@ public class Messages<T> implements Serializable {
     this.type = type;
   }
 
+  public static EnumMap<MessageType, String> getTypeMap() {
+    return typeMap;
+  }
 }
