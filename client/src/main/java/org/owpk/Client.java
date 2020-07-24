@@ -1,15 +1,13 @@
 package org.owpk;
 
+import org.owpk.message.Messages;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static org.owpk.MessageType.DIR;
 
 public class Client {
 

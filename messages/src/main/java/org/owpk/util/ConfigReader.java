@@ -1,12 +1,14 @@
-package org.owpk.utils;
+package org.owpk.util;
 
 import java.io.InputStream;
 import java.util.Properties;
+
 
 public class ConfigReader {
 
   private static String sourceRoot;
   private static int port;
+  private static String host;
 
   static {
     Properties properties = new Properties();
@@ -14,6 +16,7 @@ public class ConfigReader {
              ConfigReader.class.getClassLoader()
                  .getResourceAsStream("app.properties")) {
       properties.load(in);
+      host = properties.getProperty("host");
       sourceRoot = properties.getProperty("rootDirectory");
       port = checkPort(properties.getProperty("port"));
     } catch (Exception e) {
@@ -37,5 +40,9 @@ public class ConfigReader {
 
   public static int getPort() {
     return port;
+  }
+
+  public static String getHost() {
+    return host;
   }
 }
