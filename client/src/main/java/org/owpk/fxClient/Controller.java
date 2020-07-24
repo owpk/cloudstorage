@@ -19,16 +19,25 @@ public class Controller implements Initializable {
   @FXML private Button send;
   @FXML private TextField txt;
   private AbsCommandHandler ch;
+  private Callback listViewCallBack;
 
   public void sendCommand(ActionEvent actionEvent) throws IOException {
     String command = txt.getText();
     ch.listen(command);
   }
 
+  private void initCallBacks() {
+    listViewCallBack = s -> lv.getItems().add(s);
+  }
+
   @SneakyThrows
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    initCallBacks();
     Network network = new Network();
     ch = new ClientCommandHandler(network);
+    OnReceiveMsg onMsg = new OnReceiveMsg(network, listViewCallBack);
+    network.initSocket();
+    network.onMessageThread(onMsg);
   }
 }

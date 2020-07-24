@@ -18,38 +18,21 @@ public class Network {
   public Network() throws IOException {
     host = ConfigReader.getHost();
     port = ConfigReader.getPort();
-    initSocket();
-    onMessageThread();
   }
 
-  private void initSocket() throws IOException {
+  public void initSocket() throws IOException {
     socket = new Socket(host, port);
     out = new ObjectOutputStream(socket.getOutputStream());
     in = new ObjectInputStream(socket.getInputStream());
   }
 
-
-  private void onMessageThread() {
-    Thread t = new Thread(() -> {
-      try {
-        while (true) {
-          Messages<?> msg = (Messages<?>) in.readObject();
-          switch (msg.getType()) {
-            case DIR:
-              List<File> dirList = (ArrayList) msg.getPayload();
-              dirList.forEach(x -> System.out.println(x.getName()));
-              break;
-          }
-        }
-      } catch (IOException | ClassNotFoundException e) {
-        e.printStackTrace();
-      }
-    });
+  public void onMessageThread(Runnable r) {
+    Thread t = new Thread(r);
     t.setDaemon(true);
     t.start();
   }
 
-  public InputStream getIn() {
+  public ObjectInputStream getIn() {
     return in;
   }
 
