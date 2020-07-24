@@ -1,10 +1,13 @@
 package org.owpk.core;
 
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.owpk.auth.AuthService;
-import org.owpk.command.CommandManager;
-import org.owpk.utils.ConfigReader;
-import org.owpk.utils.FileUtility;
+import org.owpk.command.ServerCommandHandler;
+import org.owpk.message.MessageType;
+import org.owpk.message.Messages;
+import org.owpk.util.ConfigReader;
+import org.owpk.util.FileUtility;
 
 import java.io.*;
 import java.net.Socket;
@@ -17,22 +20,22 @@ public class ClientManager {
   //TODO authService
   private AuthService authService;
   private Server server;
-  private DataInputStream in;
-  private DataOutputStream out;
+  private ObjectInputStream in;
+  private ObjectOutputStream out;
   private Socket socket;
-  private final CommandManager cmdListener;
+  private final ServerCommandHandler cmdListener;
 
   public ClientManager(Socket socket, Server server) {
     this.server = server;
     this.socket = socket;
     authService = new AuthService();
     try {
-      in = new DataInputStream(socket.getInputStream());
-      out = new DataOutputStream(socket.getOutputStream());
+      in = new ObjectInputStream(socket.getInputStream());
+      out = new ObjectOutputStream(socket.getOutputStream());
     } catch (IOException e) {
       e.printStackTrace();
     }
-    cmdListener = new CommandManager(this);
+    cmdListener = new ServerCommandHandler(this);
   }
 
   public void manage() {
@@ -56,13 +59,14 @@ public class ClientManager {
     }
   }
 
-  @lombok.SneakyThrows
+  @SneakyThrows
   private void startSession() {
-    String command = "";
-    while (!command.equals("$close")) {
-      command = in.readUTF();
-      cmdListener.listen(command);
-    }
+    Messages<?> command;
+    do {
+      command = (Messages<?>) in.readObject();
+      System.out.println(command.getType());
+      cmdListener.listen(command.getType().getCmd());
+    } while (command.getType() != MessageType.CLOSE);
     server.deleteUser(this);
     socket.close();
   }

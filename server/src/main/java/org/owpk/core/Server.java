@@ -1,6 +1,7 @@
 package org.owpk.core;
 
-import org.owpk.utils.ConfigReader;
+
+import org.owpk.util.ConfigReader;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -24,6 +25,7 @@ public class Server {
   public void run() {
     ExecutorService es = Executors.newCachedThreadPool();
     try (ServerSocket srv = new ServerSocket(port)) {
+      System.out.println("server started");
       while (isActive) {
         Socket socket = srv.accept();
         System.out.println("accepted: " + socket.getRemoteSocketAddress());
