@@ -1,19 +1,20 @@
 package org.owpk.fxClient;
 
-import org.owpk.message.Messages;
+import lombok.Data;
 import org.owpk.util.ConfigReader;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
+@Data
 public class Network {
   private String host;
   private int port;
   private Socket socket;
   private ObjectInputStream in;
   private ObjectOutputStream out;
+  private DataInputStream dataIn;
+  private DataOutputStream dataOut;
 
   public Network() throws IOException {
     host = ConfigReader.getHost();
@@ -24,6 +25,9 @@ public class Network {
     socket = new Socket(host, port);
     out = new ObjectOutputStream(socket.getOutputStream());
     in = new ObjectInputStream(socket.getInputStream());
+    dataIn = new DataInputStream(socket.getInputStream());
+    dataOut = new DataOutputStream(socket.getOutputStream());
+
   }
 
   public void onMessageThread(Runnable r) {
@@ -32,11 +36,4 @@ public class Network {
     t.start();
   }
 
-  public ObjectInputStream getIn() {
-    return in;
-  }
-
-  public ObjectOutputStream getOut() {
-    return out;
-  }
 }

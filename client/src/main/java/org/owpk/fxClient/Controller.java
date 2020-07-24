@@ -23,7 +23,8 @@ public class Controller implements Initializable {
 
   public void sendCommand(ActionEvent actionEvent) throws IOException {
     String command = txt.getText();
-    ch.listen(command);
+    ch.setRowCommand(command);
+    ch.listen();
   }
 
   private void initCallBacks() {
@@ -35,7 +36,7 @@ public class Controller implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
     initCallBacks();
     Network network = new Network();
-    ch = new ClientCommandHandler(network);
+    ch = new OutputCommandHandler(network);
     OnReceiveMsg onMsg = new OnReceiveMsg(network, listViewCallBack);
     network.initSocket();
     network.onMessageThread(onMsg);

@@ -39,24 +39,23 @@ public class FileUtility {
     }
   }
 
-  public static void placeUploadedFile(DataInputStream is, File file) throws IOException {
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      byte[] buffer = new byte[8192];
-      while (true) {
-        int r = is.read(buffer);
-        if (r == -1) break;
-        fos.write(buffer, 0, r);
-      }
+  public static void placeFile(DataInputStream is, File file) throws IOException {
+    byte [] buffer = new byte[8192];
+    try(FileOutputStream fos = new FileOutputStream(file)) {
+        for (long i = 0; i < buffer.length; i++) {
+          int count = is.read(buffer);
+          fos.write(buffer, 0, count);
+        }
     }
   }
 
-  public static void downloadFile(DataOutputStream os, String path) throws IOException {
-    File file = new File(path);
-    InputStream is = new FileInputStream(file);
-    byte[] buffer = new byte[8192];
-    while (is.available() > 0) {
-      int readBytes = is.read(buffer);
-      os.write(buffer, 0, readBytes);
+  public static void sendFile(DataOutputStream os, File file) throws IOException {
+    try(FileInputStream fis = new FileInputStream(file)) {
+      byte[] buffer = new byte[8192];
+      while (fis.available() > 0) {
+        int count = fis.read(buffer);
+        os.write(buffer, 0, count);
+      }
     }
   }
 

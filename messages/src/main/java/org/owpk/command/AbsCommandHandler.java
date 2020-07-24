@@ -17,8 +17,9 @@ public abstract class AbsCommandHandler implements CommandHandler {
   }
 
   @Override
-  public void listen(String cmd) throws IOException {
-    System.out.println(cmd);
+  public void listen() throws IOException {
+    System.out.println(rowCommand);
+    String cmd = parseCommand(rowCommand);
     try {
       if (commandMap.containsKey(cmd)) {
         commandMap.get(cmd).execute();
@@ -29,6 +30,14 @@ public abstract class AbsCommandHandler implements CommandHandler {
       System.out.println("command error");
       e.printStackTrace();
     }
+  }
+
+  public String getRowCommand() {
+    return rowCommand;
+  }
+
+  public void setRowCommand(String rowCommand) {
+    this.rowCommand = rowCommand;
   }
 
   //Мапа команд

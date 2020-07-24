@@ -22,8 +22,10 @@ public class ClientManager {
   private Server server;
   private ObjectInputStream in;
   private ObjectOutputStream out;
+  private DataInputStream dataIn;
+  private DataOutputStream dataOut;
   private Socket socket;
-  private final ServerCommandHandler cmdListener;
+  private final ServerCommandHandler serverCommandHandler;
 
   public ClientManager(Socket socket, Server server) {
     this.server = server;
@@ -32,10 +34,12 @@ public class ClientManager {
     try {
       in = new ObjectInputStream(socket.getInputStream());
       out = new ObjectOutputStream(socket.getOutputStream());
+      dataIn = new DataInputStream(socket.getInputStream());
+      dataOut = new DataOutputStream(socket.getOutputStream());
     } catch (IOException e) {
       e.printStackTrace();
     }
-    cmdListener = new ServerCommandHandler(this);
+    serverCommandHandler = new ServerCommandHandler(this);
   }
 
   public void manage() {
@@ -61,17 +65,18 @@ public class ClientManager {
 
   @SneakyThrows
   private void startSession() {
-    Messages<?> command;
+    Messages message;
     do {
-      command = (Messages<?>) in.readObject();
-      System.out.println(command.getType());
-      cmdListener.listen(command.getType().getCmd());
-    } while (command.getType() != MessageType.CLOSE);
+        message = (Messages) in.readObject();
+        System.out.println(message.getType());
+        serverCommandHandler.setMessage(message);
+        serverCommandHandler.listen();
+    } while (message.getType() != MessageType.CLOSE);
     server.deleteUser(this);
     socket.close();
   }
 
   public String getUserDirectory() {
-    return ConfigReader.getDir()+"\\"+user_id;
+    return ConfigReader.getDir()+"\\"+"1";
   }
 }

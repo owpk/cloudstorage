@@ -5,8 +5,9 @@ public enum  MessageType {
   DIR("$dir"),
   DOWNLOAD("$download"),
   UPLOAD("$upload"),
-  CLOSE("$close");
-
+  CLOSE("$close"),
+  ERROR(""),
+  DEFAULT("");
   private String cmd;
 
   MessageType(String cmd) {
