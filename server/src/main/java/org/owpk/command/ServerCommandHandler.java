@@ -49,7 +49,7 @@ public class ServerCommandHandler extends AbsCommandHandler {
 
   private void showDirCmd() throws IOException {
     List<File> list = new ArrayList<>(FileUtility.showDirs(""));
-    NetworkUtils.sendObj(clientManager.getOut(), new Messages(list, MessageType.DIR));
+    NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.DIR,list));
   }
 
 //  private void uploadFileCmd() throws IOException {
@@ -68,10 +68,10 @@ public class ServerCommandHandler extends AbsCommandHandler {
     System.out.println(message.getPayload());
     File file = new File(clientManager.getUserDirectory() + "\\" + message.getPayload());
     if (file.exists()) {
-      NetworkUtils.sendObj(clientManager.getOut(), new Messages("Starting download...", MessageType.OK));
-      NetworkUtils.sendObj(clientManager.getOut(), new Messages(message.getPayload(), MessageType.DOWNLOAD));
+      NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.OK, "Starting download..."));
+      NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.DOWNLOAD, message.getPayload()));
       FileUtility.sendFile(clientManager.getDataOut(), file);
-    } else NetworkUtils.sendObj(clientManager.getOut(), new Messages("File doesn't exist", MessageType.ERROR));
+    } else NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.ERROR, "File doesn't exist"));
   }
 
   public Messages getMessage() {

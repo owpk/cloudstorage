@@ -65,9 +65,9 @@ public class ClientManager {
 
   @SneakyThrows
   private void startSession() {
-    Messages message;
+    Messages<?> message;
     do {
-        message = (Messages) in.readObject();
+        message = (Messages<?>) in.readObject();
         System.out.println(message.getType());
         serverCommandHandler.setMessage(message);
         serverCommandHandler.listen();

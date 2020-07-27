@@ -42,6 +42,8 @@ public class OnReceiveMsg implements Runnable {
               break;
             case OK:
               System.out.println(msg.getPayload());
+            case ERROR:
+              System.out.println(msg.getPayload());
           }
       }
     } catch (IOException | ClassNotFoundException e) {
