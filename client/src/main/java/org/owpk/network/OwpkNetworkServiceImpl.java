@@ -1,9 +1,12 @@
-package org.owpk.app;
+package org.owpk.network;
+
+import org.owpk.message.MessageType;
+import org.owpk.message.Messages;
 
 import java.io.*;
 import java.net.Socket;
 
-public class OwpkNetworkServiceImpl implements NetworkServiceInt {
+public class  OwpkNetworkServiceImpl implements NetworkServiceInt {
   private String host;
   private int port;
   private Socket socket;
@@ -30,6 +33,7 @@ public class OwpkNetworkServiceImpl implements NetworkServiceInt {
   @Override
   public void disconnect() throws IOException {
     //TODO send exit code to server
+    out.writeObject(new Messages<>(MessageType.CLOSE, ""));
     socket.close();
     out.close();
     out.flush();

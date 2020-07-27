@@ -3,6 +3,7 @@ package org.owpk.command;
 import org.owpk.message.MessageType;
 import org.owpk.message.Messages;
 import org.owpk.core.ClientManager;
+import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 import org.owpk.util.NetworkUtils;
 import sun.nio.ch.Net;
@@ -11,6 +12,7 @@ import sun.nio.ch.Net;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 public class ServerCommandHandler extends AbsCommandHandler {
@@ -33,7 +35,17 @@ public class ServerCommandHandler extends AbsCommandHandler {
     commands.put("$dir", this::showDirCmd);
 //    commands.put("$upload", this::uploadFileCmd);
     commands.put("$download", this::downloadFileCmd);
+    commands.put("$close", this::close);
     return commands;
+  }
+
+  private void close() {
+    try {
+      clientManager.getSocket().close();
+      System.out.println("close");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private void createFileCmd() throws IOException {
@@ -48,8 +60,8 @@ public class ServerCommandHandler extends AbsCommandHandler {
   }
 
   private void showDirCmd() throws IOException {
-    List<File> list = new ArrayList<>(FileUtility.showDirs(""));
-    NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.DIR,list));
+    List<FileInfo> list = new ArrayList<>(FileUtility.showDirs(""));
+    NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.DIR, list));
   }
 
 //  private void uploadFileCmd() throws IOException {

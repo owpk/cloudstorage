@@ -1,4 +1,6 @@
-package org.owpk.app;
+package org.owpk.network;
+
+import org.owpk.app.Config;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -2,7 +2,7 @@ package org.owpk.network;
 
 import org.owpk.message.Messages;
 import org.owpk.app.Callback;
-import org.owpk.app.NetworkServiceInt;
+import org.owpk.util.FileInfo;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -13,12 +13,11 @@ import java.util.stream.Collectors;
 
 
 public class InputDataHandler implements Runnable {
-  private Callback listViewCallback;
+  private Callback<List<FileInfo>> tableViewCallback;
   private NetworkServiceInt networkServiceInt;
 
-  private static final String USER_FOLDER = "./common/src/main/java/client/folder/";
-
   public InputDataHandler(NetworkServiceInt networkServiceInt, Callback... callbacks) throws IOException {
+    this.tableViewCallback = callbacks[0];
     this.networkServiceInt = networkServiceInt;
     System.out.println("-:input reader object stream initialized:");
   }
@@ -32,8 +31,8 @@ public class InputDataHandler implements Runnable {
         msg = (Messages<?>) ((ObjectInputStream) networkServiceInt.getIn()).readObject();
         switch (msg.getType()) {
           case DIR:
-            List<Path> dirList = (ArrayList<Path>) msg.getPayload();
-            dirList.forEach(x -> System.out.println(x.getFileName()));
+            List<FileInfo> dirList = (List<FileInfo>) msg.getPayload();
+            tableViewCallback.call(dirList);
             break;
           case DOWNLOAD:
             String fileName = (String) msg.getPayload();
@@ -80,14 +79,6 @@ public class InputDataHandler implements Runnable {
 //    FileUtility.sendFile(os, new File(USER_FOLDER + fileName));
 //  }
 
-  private void appendServerDirs(String rowCmd) {
-    printLog(Commands.DIR, rowCmd);
-    List<String> serverFiles;
-    serverFiles = Arrays.stream(rowCmd.split(":"))
-        .skip(1)
-        .collect(Collectors.toList());
-    serverFiles.forEach(x -> listViewCallback.call(x));
-  }
 
 //  private void download(String[] rowCmd) throws IOException {
 //    String fileName = FileUtility.getFileName(rowCmd);

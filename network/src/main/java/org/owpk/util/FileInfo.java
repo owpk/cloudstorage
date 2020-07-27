@@ -6,6 +6,7 @@ import lombok.Data;
 import org.apache.tika.Tika;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -15,9 +16,9 @@ import java.util.EnumMap;
 import java.util.Map;
 
 @Data
-public class FileInfo {
+public class FileInfo implements Serializable {
 
-  public enum FileType {
+  public enum FileType implements Serializable {
     EXEC("icons/exe_ico.png","exe"),
     ARCH("icons/ar_ico.jpg", "arch"),
     IMAGE("icons/img_ico.png","image"),
@@ -44,7 +45,7 @@ public class FileInfo {
   private FileType fileType;
   private Long size;
   private LocalDateTime lastModified;
-  private ObjectProperty<FileType> imageType;
+  transient private ObjectProperty<FileType> imageType;
 
   public FileInfo(Path path) {
     this.filename = path.getFileName().toString();

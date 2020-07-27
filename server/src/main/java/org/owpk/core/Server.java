@@ -1,8 +1,6 @@
 package org.owpk.core;
 
-
-import org.owpk.util.ConfigReader;
-
+import org.owpk.util.Config;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,7 +16,7 @@ public class Server {
   private Set<ClientManager> connections;
 
   public Server() {
-    port = ConfigReader.getPort();
+    port = Config.getPort();
     connections = new HashSet<>();
   }
 

@@ -15,8 +15,8 @@ import org.owpk.message.MessageType;
 import org.owpk.message.Messages;
 import org.owpk.app.Callback;
 import org.owpk.app.Config;
-import org.owpk.app.NetworkHandlerFactory;
-import org.owpk.app.NetworkServiceInt;
+import org.owpk.network.NetworkHandlerFactory;
+import org.owpk.network.NetworkServiceInt;
 import org.owpk.network.InputDataHandler;
 
 import java.io.IOException;
@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,7 +42,7 @@ public class Controller implements Initializable {
   @FXML public Button client_refresh_btn;
   @FXML public TextField server_textFlow;
   @FXML public TextField client_textFlow;
-  private Callback<Stream<Path>> serverTableCallback;
+  private Callback<List<FileInfo>> serverTableCallback;
   private NetworkServiceInt networkServiceInt;
 
   private double xOffset = 0;
@@ -81,11 +82,9 @@ public class Controller implements Initializable {
         .collect(Collectors.toList()));
   }
 
-  private void serverRefresh(Stream<Path> files) {
+  private void serverRefresh(List<FileInfo> list) {
     server_panel.getItems().clear();
-    server_panel.getItems().addAll(files
-        .map(FileInfo::new)
-        .collect(Collectors.toList()));
+    server_panel.getItems().addAll(list);
   }
 
   public void refreshServerFolders(ActionEvent actionEvent) throws IOException {
@@ -94,7 +93,7 @@ public class Controller implements Initializable {
       path = "";
     System.out.println(path);
     if (networkServiceInt == null)
-    connect();
+      connect();
     ((ObjectOutputStream) networkServiceInt.getOut()).writeObject(new Messages<>(MessageType.DIR, path));
     System.out.println("-:get DIR cmd");
   }
@@ -103,7 +102,7 @@ public class Controller implements Initializable {
     try {
       networkServiceInt = NetworkHandlerFactory.getHandler("localhost");
       networkServiceInt.connect();
-      InputDataHandler inputDataHandler = new InputDataHandler(networkServiceInt);
+      InputDataHandler inputDataHandler = new InputDataHandler(networkServiceInt, serverTableCallback);
       networkServiceInt.onMessageReceived(inputDataHandler);
     } catch (IOException e) {
       System.out.println("-:connection error:");
@@ -119,6 +118,7 @@ public class Controller implements Initializable {
       }
     }
   }
+
   @SneakyThrows
   @Override
   public void initialize(URL location, ResourceBundle resources) {

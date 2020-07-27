@@ -16,7 +16,9 @@ public class Config {
       sourceRoot = properties.getProperty("root_directory");
       defaultServer = properties.getProperty("default_server");
       port = checkPort(properties.getProperty("port"));
+      System.out.println(sourceRoot);
     } catch (Exception e) {
+      System.out.println("-:config read error");
       e.printStackTrace();
     }
   }

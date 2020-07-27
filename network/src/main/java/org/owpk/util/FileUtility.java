@@ -1,8 +1,14 @@
 package org.owpk.util;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FileUtility {
 
@@ -20,9 +26,11 @@ public class FileUtility {
     }
   }
 
-  public static List<File> showDirs(String currentDir) {
-    File dir = new File(ConfigReader.getDir() + "/" + currentDir);
-    return Arrays.asList(dir.listFiles());
+  public static List<FileInfo> showDirs(String currentDir) throws IOException {
+    System.out.println(Config.getSourceRoot());
+    Path path = Paths.get(Config.getSourceRoot());
+    System.out.println(path);
+    return Files.list(path).map(FileInfo::new).collect(Collectors.toList());
   }
 
   public static void move(File dir, File file) throws IOException {
