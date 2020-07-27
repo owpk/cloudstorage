@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.Controller">
+   <children>
+      <HBox maxHeight="30.0" minHeight="30.0" prefHeight="30.0" VBox.vgrow="ALWAYS">
+         <children>
+            <MenuBar fx:id="drag_menu" styleClass="top_menu_bar" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Delete" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <Button fx:id="roll_up_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="—">
+               <styleClass>
+                  <String fx:value="main_window_ctrl_btn" />
+                  <String fx:value="roll_down_btn" />
+               </styleClass></Button>
+            <Button fx:id="roll_down_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="☐">
+               <styleClass>
+                  <String fx:value="main_window_ctrl_btn" />
+                  <String fx:value="roll_up_btn" />
+               </styleClass></Button>
+            <Button fx:id="shut_down_btn" graphicTextGap="1.0" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="✕">
+               <styleClass>
+                  <String fx:value="main_window_ctrl_btn" />
+                  <String fx:value="shut_down_btn" />
+               </styleClass></Button>
+         </children>
+      </HBox>
+      <ToolBar prefHeight="25.0" prefWidth="600.0" styleClass="top_tool_bar" stylesheets="@css_main_scene.css">
+        <items>
+          <Button mnemonicParsing="false" prefHeight="18.0" prefWidth="52.0" styleClass="top_tool_bar" stylesheets="@css_main_scene.css" text="Button" />
+        </items>
+      </ToolBar>
+      <SplitPane dividerPositions="0.5" prefHeight="500.0" prefWidth="900.0" styleClass="main_split_pane" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
+         <items>
+
+             <VBox styleClass="main_vbox" stylesheets="@css_main_scene.css">
+                 <children>
+                     <HBox prefHeight="18.0" prefWidth="296.0" styleClass="main_hbox" stylesheets="@css_main_scene.css">
+                         <children>
+                             <TextField fx:id="client_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
+                             <Button id="client_refresh_btn" fx:id="client_refresh_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#refreshClientFolders" prefHeight="2.0" prefWidth="25.0" styleClass="refresh_btn" stylesheets="@css_main_scene.css" HBox.hgrow="NEVER">
+                                 <graphic>
+                                     <ImageView fitHeight="31.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" styleClass="refresh_btn">
+                                         <image>
+                                             <Image url="@icons/refresh.png" />
+                                         </image>
+                                     </ImageView>
+                                 </graphic></Button>
+                         </children>
+                     </HBox>
+                     <fx:include fx:id="client_panel" source="client_table.fxml"/>
+                     <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
+                 </children>
+             </VBox>
+
+             <VBox styleClass="main_vbox" stylesheets="@css_main_scene.css">
+                 <children>
+                     <HBox prefHeight="18.0" prefWidth="296.0" styleClass="main_hbox" stylesheets="@css_main_scene.css">
+                         <children>
+                             <TextField fx:id="server_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
+                             <Button id="refresh_btn" fx:id="server_refresh_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#refreshServerFolders" prefHeight="2.0" prefWidth="25.0" styleClass="refresh_btn" stylesheets="@css_main_scene.css" HBox.hgrow="NEVER">
+                                 <graphic>
+                                     <ImageView fitHeight="31.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" styleClass="refresh_btn">
+                                         <image>
+                                             <Image url="@icons/refresh.png" />
+                                         </image>
+                                     </ImageView>
+                                 </graphic></Button>
+                         </children>
+                     </HBox>
+                     <fx:include fx:id="server_panel" source="client_table.fxml"/>
+                     <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
+                 </children>
+             </VBox>
+
+         </items>
+      </SplitPane>
+      <HBox prefHeight="18.0" prefWidth="818.0" styleClass="footer" stylesheets="@css_main_scene.css">
+         <children>
+            <Label text="UTF-8" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

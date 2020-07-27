@@ -6,7 +6,7 @@ import org.owpk.auth.AuthService;
 import org.owpk.command.ServerCommandHandler;
 import org.owpk.message.MessageType;
 import org.owpk.message.Messages;
-import org.owpk.util.ConfigReader;
+import org.owpk.util.Config;
 import org.owpk.util.FileUtility;
 
 import java.io.*;
@@ -77,6 +77,6 @@ public class ClientManager {
   }
 
   public String getUserDirectory() {
-    return ConfigReader.getDir()+"\\"+"1";
+    return Config.getSourceRoot()+"\\"+"1";
   }
 }
