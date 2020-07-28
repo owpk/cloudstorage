@@ -28,7 +28,39 @@
 .button:hover {
     -fx-background-color: lightskyblue;
 }
-
+.left_tree_panel {
+    -fx-border-color: black;
+    -fx-background-color: #282826;
+}
+.tree-view .virtual-flow .clipped-container .sheet .tree-cell:empty{
+    -fx-border-width: 0 0 1 0;
+    -fx-text-fill: white;
+    -fx-background-color: #282826;
+}
+.tree-view .tree-cell {
+    -fx-text-fill: white;
+    -fx-background-color: #282826;
+}
+.tree-view .column-header-background {
+    -fx-background-color: transparent;
+}
+.tree-cell:expanded  {
+    -fx-background-color: black ;
+}
+.tree-view .virtual-flow .scroll-bar {
+    -fx-background-color: #1d1d1d;
+}
+.tree-view .virtual-flow .scroll-bar .thumb {
+    -fx-border-radius: 0;
+    -fx-border-width: 0 0 0 0;
+    -fx-background-color: #282826;
+}
+.tree-view .virtual-flow .corner {
+    -fx-background-color: #282826;
+}
+.tree-view .tree-cell .arrow {
+    -fx-background-color: white;
+}
 .ctrl_btn {
     -fx-max-height: 25;
     -fx-min-height: 25;
@@ -94,14 +126,12 @@
 }
 
 .table-view {
-
     -fx-base: #1d1d1d;
     -fx-control-inner-background: #1d1d1d;
     -fx-background-color: #1d1d1d;
     -fx-table-cell-border-color: transparent;
     -fx-table-header-border-color: transparent;
     -fx-padding: 5;
-
 }
 .table-view .column-header-background {
     -fx-background-color: transparent;

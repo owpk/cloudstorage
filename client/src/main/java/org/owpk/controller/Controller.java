@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.owpk.app.Callback;
@@ -21,6 +22,8 @@ import org.owpk.network.NetworkHandlerFactory;
 import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.FileInfo;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URL;
@@ -28,6 +31,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Stack;
@@ -48,21 +52,28 @@ public class Controller implements Initializable {
   @FXML public Button client_forward_btn;
   @FXML public TextField server_textFlow;
   @FXML public TextField client_textFlow;
-  @FXML public Label connect_status_label;
+  @FXML public Label status_label;
   @FXML public Button connect_btn;
   @FXML public ComboBox<String> disk_list;
   @FXML public Button client_back;
+  @FXML public VBox main_window;
+  @FXML public VBox tree_window;
+  @FXML public TreeView<String> tree_view;
   private Callback<List<FileInfo>> serverTableCallback;
   private Callback<String> serverStatusLabel;
   private NetworkServiceInt networkServiceInt;
   private Stack<Path> clientBackInHistoryStack;
   private Stack<Path> clientForwardInHistoryStack;
   private Stack<Path> serverPathHistory;
+  private Stage stage;
   private static Path ROOT_PATH;
   private double xOffset = 0;
   private double yOffset = 0;
 
   public void setStageAndSetupListeners(Stage stage) {
+    this.stage = stage;
+    ResizeHelper.addResizeListener(stage);
+
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
       Config.setSourceRoot(clientBackInHistoryStack.peek().toString());
@@ -120,18 +131,17 @@ public class Controller implements Initializable {
       }
     };
     ser.setOnRunning((WorkerStateEvent event) ->
-        connect_status_label.setText("trying to connect " + Config.getDefaultServer() + "..."));
+        status_label.setText("trying to connect " + Config.getDefaultServer() + "..."));
     ser.setOnSucceeded((WorkerStateEvent event) ->
-        connect_status_label.setText("connected: " + networkServiceInt.getName()));
+        status_label.setText("connected: " + networkServiceInt.getName()));
     ser.setOnFailed((WorkerStateEvent event) ->
-        connect_status_label.setText("unable to connect"));
+        status_label.setText("unable to connect"));
     ser.start();
   }
 
   /**
-   * Отправляет серверу команду {@link MessageType.DIR}
+   * Отправляет серверу команду {@link MessageType}
    * сервер возвращает List<FileInfo>
-   *
    * @throws IOException
    */
   public void forwardServerFolders(ActionEvent actionEvent) throws IOException {
@@ -159,13 +169,19 @@ public class Controller implements Initializable {
           .collect(Collectors.toList()));
       client_panel.sort();
     } catch (IOException e) {
+      status_label.setText(e.getClass().getSimpleName());
       e.printStackTrace();
     }
   }
 
+  private void resetStatusLabel(int i) {
+    if (i == 0) client_textFlow.setText("");
+    else server_textFlow.setText("");
+  }
+
   @FXML
   public void onForwardInClientHistory() {
-      if (clientForwardInHistoryStack.size() > 1) {
+      if (clientForwardInHistoryStack.size() > 0) {
         Path p = clientForwardInHistoryStack.peek();
         clientBackInHistoryStack.push(clientForwardInHistoryStack.pop());
         clientRefresh(p);
@@ -224,14 +240,39 @@ public class Controller implements Initializable {
     FileSystems.getDefault().getFileStores().forEach(x -> disk_list.getItems().add(x.toString()));
   }
 
+  private void fillTreeView() {
+//    Arrays.stream(File.listRoots())
+//        .forEach(x ->
+    Platform.runLater(() -> {
+        tree_view.setRoot(getNodesForDirectory(
+            new File("C:\\Users")));
+    });
+  }
+
+  public TreeItem<String> getNodesForDirectory(File directory) {
+    TreeItem<String> root = new TreeItem<>(directory.getName());
+    File[] ff = directory.listFiles();
+    new Thread(() -> {
+      for (File f : ff) {
+        if (f.isDirectory() && f.listFiles() != null && !f.isHidden() && f.canRead()) {
+          root.getChildren().add(getNodesForDirectory(f));
+        } else {
+          root.getChildren().add(new TreeItem<>(f.getName()));
+        }
+      }
+    }).start();
+    return root;
+  }
+
   private void initCallbacks() {
     serverTableCallback = s -> Platform.runLater(() -> serverRefresh(s));
-    serverStatusLabel = s -> Platform.runLater(() -> connect_status_label.setText(s));
+    serverStatusLabel = s -> Platform.runLater(() -> status_label.setText(s));
   }
 
   @SneakyThrows
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    fillTreeView();
     fillCombobox();
     client_textFlow.setOnKeyPressed(event -> {
       Path p;

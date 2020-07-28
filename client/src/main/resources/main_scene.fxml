@@ -12,11 +12,12 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.Controller">
+<VBox fx:id="main_window" prefHeight="700.0" prefWidth="1000.0" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.Controller">
    <children>
       <HBox maxHeight="30.0" minHeight="30.0" prefHeight="30.0" VBox.vgrow="ALWAYS">
          <children>
@@ -56,115 +57,126 @@
                </styleClass></Button>
          </children>
       </HBox>
-      <SplitPane dividerPositions="0.5" prefHeight="500.0" prefWidth="900.0" styleClass="main_split_pane" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
-         <items>
-
-             <VBox styleClass="main_vbox" stylesheets="@css_main_scene.css">
-                 <children>
-                  <ToolBar fx:id="client_toolbar" prefWidth="200.0" styleClass="top_tool_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
-                    <items>
-                        <ComboBox fx:id="disk_list" prefWidth="150.0" stylesheets="@css_main_scene.css" />
-                      <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" text="Button" />
-                    </items>
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </ToolBar>
-                     <HBox prefHeight="15.0" prefWidth="296.0" styleClass="main_hbox" stylesheets="@css_main_scene.css">
-                         <children>
-                        <Button fx:id="up_btn" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
+      <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+         <children>
+            <VBox fx:id="tree_window" maxWidth="200.0" prefWidth="200.0" scaleShape="false" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
+               <children>
+                  <TreeView fx:id="tree_view" maxWidth="200.0" prefWidth="200.0" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+            <SplitPane dividerPositions="0.5" styleClass="main_split_pane" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
+               <items>
+      
+                   <VBox styleClass="main_vbox" stylesheets="@css_main_scene.css">
+                       <children>
+                        <ToolBar fx:id="client_toolbar" prefWidth="200.0" styleClass="top_tool_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
+                          <items>
+                              <ComboBox fx:id="disk_list" prefWidth="150.0" stylesheets="@css_main_scene.css" />
+                            <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" text="Button" />
+                          </items>
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </ToolBar>
+                           <HBox styleClass="main_hbox" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
+                               <children>
+                              <Button fx:id="up_btn" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="up_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                              <Button fx:id="client_back" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="27.0" mnemonicParsing="false" onAction="#onBackInClientHistory" prefHeight="27.0" prefWidth="25.0" stylesheets="@css_main_scene.css" underline="true">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="back_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                                   <Button id="client_refresh_btn" fx:id="client_forward_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#onForwardInClientHistory" prefHeight="25.0" prefWidth="25.0" stylesheets="@css_main_scene.css" underline="true" wrapText="true" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="refresh_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                                   <TextField fx:id="client_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
+                               </children>
+                           <VBox.margin>
+                              <Insets left="6.0" />
+                           </VBox.margin>
+                           </HBox>
+                           <fx:include fx:id="client_panel" source="client_table.fxml" />
+                           <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
+                       </children>
+                   </VBox>
+      
+                   <VBox styleClass="main_vbox" stylesheets="@css_main_scene.css">
+                       <children>
+                        <ToolBar fx:id="server_toolbar" prefHeight="40.0" prefWidth="200.0" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
+                          <items>
+                            <Button fx:id="connect_btn" mnemonicParsing="false" onAction="#connect" styleClass="connect_btn" stylesheets="@css_main_scene.css" text="connect" />
+                          </items>
                            <styleClass>
-                              <String fx:value="up_btn" />
-                              <String fx:value="ctrl_btn" />
+                              <String fx:value="top_tool_bar" />
+                              <String fx:value="server_tool_bar" />
                            </styleClass>
-                        </Button>
-                        <Button fx:id="client_back" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="27.0" mnemonicParsing="false" onAction="#onBackInClientHistory" prefHeight="27.0" prefWidth="25.0" stylesheets="@css_main_scene.css" underline="true">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                           <styleClass>
-                              <String fx:value="back_btn" />
-                              <String fx:value="ctrl_btn" />
-                           </styleClass>
-                        </Button>
-                             <Button id="client_refresh_btn" fx:id="client_forward_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#onForwardInClientHistory" prefHeight="25.0" prefWidth="25.0" stylesheets="@css_main_scene.css" underline="true" wrapText="true" HBox.hgrow="NEVER">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                           <styleClass>
-                              <String fx:value="refresh_btn" />
-                              <String fx:value="ctrl_btn" />
-                           </styleClass></Button>
-                             <TextField fx:id="client_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
-                         </children>
-                     <VBox.margin>
-                        <Insets left="6.0" />
-                     </VBox.margin>
-                     </HBox>
-                     <fx:include fx:id="client_panel" source="client_table.fxml" />
-                     <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
-                 </children>
-             </VBox>
-
-             <VBox styleClass="main_vbox" stylesheets="@css_main_scene.css">
-                 <children>
-                  <ToolBar fx:id="server_toolbar" prefHeight="40.0" prefWidth="200.0" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
-                    <items>
-                      <Button fx:id="connect_btn" mnemonicParsing="false" onAction="#connect" styleClass="connect_btn" stylesheets="@css_main_scene.css" text="connect" />
-                    </items>
-                     <styleClass>
-                        <String fx:value="top_tool_bar" />
-                        <String fx:value="server_tool_bar" />
-                     </styleClass>
-                  </ToolBar>
-                     <HBox prefHeight="15.0" prefWidth="296.0" styleClass="main_hbox" stylesheets="@css_main_scene.css">
-                         <children>
-                        <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                           <styleClass>
-                              <String fx:value="up_btn" />
-                              <String fx:value="ctrl_btn" />
-                           </styleClass>
-                        </Button>
-                        <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" underline="true">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                           <styleClass>
-                              <String fx:value="back_btn" />
-                              <String fx:value="ctrl_btn" />
-                           </styleClass>
-                        </Button>
-                             <Button id="refresh_btn" fx:id="server_forward_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#forwardServerFolders" prefHeight="2.0" prefWidth="25.0" stylesheets="@css_main_scene.css" textFill="WHITE" underline="true" HBox.hgrow="NEVER">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                           <styleClass>
-                              <String fx:value="refresh_btn" />
-                              <String fx:value="ctrl_btn" />
-                           </styleClass></Button>
-                             <TextField fx:id="server_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
-                         </children>
-                     <VBox.margin>
-                        <Insets left="6.0" />
-                     </VBox.margin>
-                     </HBox>
-                     <fx:include fx:id="server_panel" source="client_table.fxml" />
-                     <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
-                 </children>
-             </VBox>
-
-         </items>
-      </SplitPane>
+                        </ToolBar>
+                           <HBox styleClass="main_hbox" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
+                               <children>
+                              <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="up_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                              <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" underline="true">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="back_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                                   <Button id="refresh_btn" fx:id="server_forward_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#forwardServerFolders" prefHeight="2.0" prefWidth="25.0" stylesheets="@css_main_scene.css" textFill="WHITE" underline="true" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="refresh_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                                   <TextField fx:id="server_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
+                               </children>
+                           <VBox.margin>
+                              <Insets left="6.0" />
+                           </VBox.margin>
+                           </HBox>
+                           <fx:include fx:id="server_panel" source="client_table.fxml" />
+                           <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
+                       </children>
+                   </VBox>
+      
+               </items>
+            </SplitPane>
+         </children>
+      </HBox>
       <HBox prefHeight="18.0" prefWidth="818.0" styleClass="footer" stylesheets="@css_main_scene.css">
          <children>
             <Label text="UTF-8" />
-            <Label fx:id="connect_status_label" styleClass="status_lable" stylesheets="@css_main_scene.css">
+            <Label fx:id="status_label" styleClass="status_lable" stylesheets="@css_main_scene.css">
                <HBox.margin>
                   <Insets left="15.0" />
                </HBox.margin>
