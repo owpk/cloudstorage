@@ -10,14 +10,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>client</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>org.owpk</groupId>
-            <artifactId>messages</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+   <dependencies>
+       <dependency>
+           <groupId>org.owpk</groupId>
+           <artifactId>network</artifactId>
+           <version>1.0</version>
+           <scope>compile</scope>
+       </dependency>
+   </dependencies>
 
 
 </project>

@@ -1,5 +1,10 @@
 package org.owpk.controller;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.event.EventHandler;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableRow;
+import javafx.scene.input.MouseEvent;
 import org.owpk.util.FileInfo;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,15 +18,16 @@ import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
+/**
+ * Класс инициализирующий колонки для таблиц
+ */
 public class TableController implements Initializable {
   @FXML public TableView<FileInfo> table;
-
   public TableColumn<FileInfo, FileInfo.FileType> client_column_file_type;
   public TableColumn<FileInfo, String> client_column_file_name;
   public TableColumn<FileInfo, Long> client_column_file_size;
   public TableColumn<FileInfo, String> client_column_last_changed;
 
-  //инициализируем таблицу файлов
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     client_column_file_type = new TableColumn<>("Type");
@@ -51,6 +57,8 @@ public class TableController implements Initializable {
     table.getColumns().add(client_column_file_name);
     table.getColumns().add(client_column_file_size);
     table.getColumns().add(client_column_last_changed);
+    client_column_file_type.setSortType(TableColumn.SortType.DESCENDING);
+    table.getSortOrder().add(client_column_file_type);
   }
 
 }

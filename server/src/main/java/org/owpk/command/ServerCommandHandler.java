@@ -60,7 +60,8 @@ public class ServerCommandHandler extends AbsCommandHandler {
   }
 
   private void showDirCmd() throws IOException {
-    List<FileInfo> list = new ArrayList<>(FileUtility.showDirs(""));
+    String path =  message.getPayload() == null ? "" : (String) message.getPayload();
+    List<FileInfo> list = new ArrayList<>(FileUtility.showDirs(path));
     NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.DIR, list));
   }
 

@@ -15,9 +15,15 @@ public class  OwpkNetworkServiceImpl implements NetworkServiceInt {
   private DataInputStream dataIn;
   private DataOutputStream dataOut;
 
+
   public OwpkNetworkServiceImpl(String host, int port) {
     this.port = port;
     this.host = host;
+  }
+
+  @Override
+  public String getName() {
+    return "owpk";
   }
 
   @Override
@@ -32,16 +38,17 @@ public class  OwpkNetworkServiceImpl implements NetworkServiceInt {
 
   @Override
   public void disconnect() throws IOException {
-    //TODO send exit code to server
-    out.writeObject(new Messages<>(MessageType.CLOSE, ""));
-    socket.close();
-    out.close();
-    out.flush();
-    in.close();
-    dataIn.close();
-    dataOut.close();
-    dataOut.flush();
-    System.out.println("-:disconnected:");
+    if (socket != null) {
+      out.writeObject(new Messages<>(MessageType.CLOSE, ""));
+      socket.close();
+      out.close();
+      out.flush();
+      in.close();
+      dataIn.close();
+      dataOut.close();
+      dataOut.flush();
+      System.out.println("-:disconnected:");
+    }
   }
 
   @Override
@@ -60,4 +67,5 @@ public class  OwpkNetworkServiceImpl implements NetworkServiceInt {
   public InputStream getIn() {
     return in;
   }
+
 }

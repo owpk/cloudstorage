@@ -59,14 +59,13 @@ public class FileInfo implements Serializable {
     }
   }
 
+  /**MIME парсер {@link Tika}, метод возвращает FileType для расширений*/
   private FileInfo.FileType parseType(Path path) {
     Tika tika = new Tika();
     String mimeType = tika.detect(path.getFileName().toString());
     if (mimeType.startsWith("application")) {
       mimeType = applicationTypeParse(mimeType);
     } else mimeType = mimeType.substring(0, mimeType.indexOf("/")).trim();;
-    System.out.println(path.getFileName() + " : " + mimeType);
-
     final EnumMap<FileType, String> mimeTypeMap = new EnumMap<>(FileType.class);
     Arrays.stream(FileType.values())
         .forEach(x -> mimeTypeMap.put(x, x.mimeType));
@@ -79,7 +78,6 @@ public class FileInfo implements Serializable {
   }
 
   private String applicationTypeParse(String app) {
-    System.out.println(app);
     app = app.substring(app.indexOf("/") + 1).trim();
     if (app.startsWith("x-rar") || app.startsWith("zip"))
       return FileType.ARCH.mimeType;

@@ -1,36 +1,41 @@
 package org.owpk.controller;
 
+import javafx.application.Platform;
 import javafx.scene.control.TableCell;
 import org.owpk.util.FileInfo;
 
+/**
+ * Расчитывет единицы измерения размера файла {@link #computeSize(Long)}
+ * создает ячейку в таблице
+ */
 public class SizeCell extends TableCell<FileInfo, Long> {
-  final static String[] SIZES = {"b","Kb","Mb","Gb","Tb"};
-  private static int counter;
+  private final static String[] SIZES = {"B","KB","MB","GB","TB"};
+  private int counter;
 
   @Override
   protected void updateItem(Long item, boolean empty) {
     super.updateItem(item, empty);
-    if (item == null || empty) {
-      setText(null);
-      setStyle("");
-    } else {
-      String text;
-      if (item == -1) text = "dir";
-      else text = parseSize(item);
-      setText(text);
-    }
+      if (item == null || empty) {
+        setText(null);
+        setStyle("");
+      } else {
+        String text;
+        if (item == -1) text = "";
+        else text = computeSize(item);
+        setText(text);
+      }
   }
 
-  private String parseSize(Long res) {
-    if (res > 1024) {
-      res /= 1024;
+  private String computeSize(Long bytes) {
+    if (bytes > 1024) {
+      bytes /= 1024;
       if (counter < SIZES.length)
         counter++;
-      return parseSize(res);
+      return computeSize(bytes);
     } else {
-      String result = res + " " + SIZES[counter];
+      String s = bytes + " " + SIZES[counter];
       counter = 0;
-      return result;
+      return s;
     }
   }
 }

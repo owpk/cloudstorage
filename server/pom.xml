@@ -14,10 +14,9 @@
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 
-
         <dependency>
             <groupId>org.owpk</groupId>
-            <artifactId>messages</artifactId>
+            <artifactId>network</artifactId>
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>

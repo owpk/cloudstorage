@@ -27,8 +27,7 @@ public class FileUtility {
   }
 
   public static List<FileInfo> showDirs(String currentDir) throws IOException {
-    System.out.println(Config.getSourceRoot());
-    Path path = Paths.get(Config.getSourceRoot());
+    Path path = Paths.get(currentDir);
     System.out.println(path);
     return Files.list(path).map(FileInfo::new).collect(Collectors.toList());
   }

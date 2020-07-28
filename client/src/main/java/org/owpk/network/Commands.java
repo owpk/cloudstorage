@@ -1,5 +1,8 @@
 package org.owpk.network;
 
+/**
+ * стандартные команды
+ */
 public enum Commands {
   DOWNLOAD("./download"),
   UPLOAD("./upload"),

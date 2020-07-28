@@ -1,22 +1,31 @@
 package org.owpk.app;
 
-import java.io.InputStream;
+import lombok.SneakyThrows;
+
+import java.io.*;
+import java.nio.file.*;
 import java.util.Properties;
 
 public class Config {
-  private static String sourceRoot;
+  private static Path sourceRoot;
   private static String defaultServer;
   private static int port;
+  private static Properties properties;
   static {
-    Properties properties = new Properties();
+    properties = new Properties();
+    initProp(properties);
+    sourceRoot = Paths.get(properties.getProperty("root_directory"));
+    if (!Files.exists(sourceRoot))
+      sourceRoot = FileSystems.getDefault().getRootDirectories().iterator().next();
+    defaultServer = properties.getProperty("default_server");
+    port = checkPort(properties.getProperty("port"));
+  }
+
+  private static void initProp(Properties prop) {
     try (InputStream in =
-             Config.class.getClassLoader()
-                 .getResourceAsStream("app.properties")) {
-      properties.load(in);
-      sourceRoot = properties.getProperty("root_directory");
-      defaultServer = properties.getProperty("default_server");
-      port = checkPort(properties.getProperty("port"));
-    } catch (Exception e) {
+             new FileInputStream("./client.properties")) {
+      prop.load(in);
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }
@@ -31,12 +40,20 @@ public class Config {
     return p;
   }
 
-  public static String getSourceRoot() {
-    return sourceRoot;
+  public static void setSourceRoot(String sourceRoot) {
+    Config.sourceRoot = Paths.get(sourceRoot);
+    System.out.println(properties.getProperty("root_directory") + " <----------------");
+    try(FileWriter fw = new FileWriter(new File("client.properties"))) {
+      properties.setProperty("root_directory", sourceRoot);
+      properties.store(fw, "root_directory");
+      System.out.println(properties.getProperty("root_directory") + " <----------------");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
-  public static void setSourceRoot(String sourceRoot) {
-    Config.sourceRoot = sourceRoot;
+  public static Path getSourceRoot() {
+    return sourceRoot;
   }
 
   public static String getDefaultServer() {

@@ -5,8 +5,22 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.owpk.util.FileInfo;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * Создает иконку для ячейки в таблице в зависимости от типа файла
+ */
 public class TypeImageCell<T> extends TableCell<T, FileInfo.FileType> {
   private final ImageView image;
+  private static final Map<FileInfo.FileType, Image> iconMap;
+  static {
+    iconMap = new HashMap<>();
+    Arrays.stream(FileInfo.FileType.values())
+        .forEach(x -> iconMap.put(x, new Image(x.getUrl())));
+  }
 
   public TypeImageCell() {
     image = new ImageView();
@@ -23,7 +37,7 @@ public class TypeImageCell<T> extends TableCell<T, FileInfo.FileType> {
     if (empty || type == null)
       image.setImage(null);
     else {
-      image.setImage(new Image(type.getUrl()));
+      image.setImage(iconMap.get(type));
     }
   }
 }

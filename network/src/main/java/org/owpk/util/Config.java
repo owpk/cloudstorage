@@ -1,10 +1,15 @@
 package org.owpk.util;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Config {
-  private static String sourceRoot;
+  private static Path sourceRoot;
   private static String defaultServer;
   private static int port;
   static {
@@ -13,15 +18,18 @@ public class Config {
              Config.class.getClassLoader()
                  .getResourceAsStream("app.properties")) {
       properties.load(in);
-      sourceRoot = properties.getProperty("root_directory");
-      defaultServer = properties.getProperty("default_server");
-      port = checkPort(properties.getProperty("port"));
-      System.out.println(sourceRoot);
-    } catch (Exception e) {
-      System.out.println("-:config read error");
+    } catch (IOException e) {
       e.printStackTrace();
     }
+
+    sourceRoot = Paths.get(properties.getProperty("root_directory"));
+    if (!Files.exists(sourceRoot))
+      sourceRoot = FileSystems.getDefault().getRootDirectories().iterator().next();
+    defaultServer = properties.getProperty("default_server");
+    port = checkPort(properties.getProperty("port"));
+
   }
+
 
   private static int checkPort(String port) {
     int p;
@@ -33,11 +41,11 @@ public class Config {
     return p;
   }
 
-  public static String getSourceRoot() {
+  public static Path getSourceRoot() {
     return sourceRoot;
   }
 
-  public static void setSourceRoot(String sourceRoot) {
+  public static void setSourceRoot(Path sourceRoot) {
     Config.sourceRoot = sourceRoot;
   }
 

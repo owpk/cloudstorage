@@ -1,5 +1,6 @@
 package org.owpk.network;
 
+import org.owpk.app.Config;
 import org.owpk.message.Messages;
 import org.owpk.app.Callback;
 import org.owpk.util.FileInfo;
@@ -11,13 +12,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+/**
+ * класс обработчик входных данных
+ */
 public class InputDataHandler implements Runnable {
   private Callback<List<FileInfo>> tableViewCallback;
   private NetworkServiceInt networkServiceInt;
+  private Callback<String> serverStatusLabel;
 
   public InputDataHandler(NetworkServiceInt networkServiceInt, Callback... callbacks) throws IOException {
     this.tableViewCallback = callbacks[0];
+    this.serverStatusLabel = callbacks[1];
     this.networkServiceInt = networkServiceInt;
     System.out.println("-:input reader object stream initialized:");
   }
@@ -48,6 +53,7 @@ public class InputDataHandler implements Runnable {
       }
     } catch (IOException | ClassNotFoundException e) {
       System.out.println("-:oops server error:");
+      serverStatusLabel.call("server error " + Config.getDefaultServer());
     } finally {
       try {
         networkServiceInt.disconnect();

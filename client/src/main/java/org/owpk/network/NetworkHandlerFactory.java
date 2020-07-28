@@ -5,6 +5,10 @@ import org.owpk.app.Config;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Класс {@link OwpkNetworkServiceImpl} создающий подключение,
+ * по умолчанию использует параметры из конфиг файла client.properties
+ */
 public class NetworkHandlerFactory {
   private static final Map<String, OwpkNetworkServiceImpl> map;
   static {
