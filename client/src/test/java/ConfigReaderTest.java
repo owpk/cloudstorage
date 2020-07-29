@@ -3,6 +3,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.owpk.app.Config;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystems;
@@ -34,9 +36,18 @@ public class ConfigReaderTest {
       e.printStackTrace();
     }
   }
-  @Test
-  public void showDisk() {
-      FileSystems.getDefault().getFileStores().forEach(x -> System.out.println(x.name() + " : " + x.toString()));
+
+  public static void main(String[] args) throws IOException {
+    showDisk();
+  }
+
+  public static void showDisk() throws IOException {
+    File[] drives = File.listRoots();
+    if (drives != null && drives.length > 0) {
+      for (File aDrive : drives) {
+        System.out.println(aDrive);
+      }
+    }
   }
 
   @Test

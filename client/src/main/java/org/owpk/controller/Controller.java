@@ -253,8 +253,9 @@ public class Controller implements Initializable {
   }
 
   private void initCallbacks() {
-    textFlowCallback = s -> {clientBackInHistoryStack.push(Paths.get(s)); Platform.runLater(()-> {
+    textFlowCallback = s -> {Platform.runLater(()-> {
       client_textFlow.setText(s);
+      clientBackInHistoryStack.push(Paths.get(s));
     }); clientRefresh(Paths.get(s)); };
     serverTableCallback = s -> Platform.runLater(() -> serverRefresh(s));
     serverStatusLabel = s -> Platform.runLater(() -> status_label.setText(s));

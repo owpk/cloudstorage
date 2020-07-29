@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="main_window" prefHeight="700.0" prefWidth="1000.0" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.Controller">
+<VBox fx:id="main_window" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.Controller">
    <children>
       <HBox maxHeight="30.0" minHeight="30.0" prefHeight="30.0" VBox.vgrow="ALWAYS">
          <children>

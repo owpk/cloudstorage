@@ -29,7 +29,7 @@ public class Client extends Application {
 
 
 
-    primaryStage.setScene(new Scene(root, 1300, 700));
+    primaryStage.setScene(new Scene(root, 1500, 750));
     //инициализируем слушателей событий
     controller.setStageAndSetupListeners(primaryStage);
     primaryStage.show();
