@@ -1,7 +1,6 @@
 package org.owpk.controller;
 
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -16,17 +15,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Добавляет иконки к элементам {@link TreeView}
+ * Стилизатор для дерева каталогов {@link TreeView}
+ * Добавляет иконки к каждому элементу в зависмости от типа
+ * @see org.owpk.util.FileInfo
  */
 public class TreeViewStyler {
-  private static final ExecutorService es = Executors.newFixedThreadPool(5);
+  private static final ExecutorService executorService = Executors.newFixedThreadPool(5);
   private static Callback<String> textFlowCallBack;
+
   public static void setTextFlowCallBack(Callback<String> textFlowCallBack) {
     TreeViewStyler.textFlowCallBack = textFlowCallBack;
     System.out.println(textFlowCallBack);
   }
 
   public static void setupTreeView(TreeView<String> treeView) {
+    TreeItem<String> treeItemRoot = new TreeItem<>("Local FileSystem");
     treeView.setRoot(getNodesForDirectory(
         new File(FileSystems.getDefault().getRootDirectories().iterator().next().toString())));
     treeView.setOnMouseClicked(x -> {
@@ -51,13 +54,13 @@ public class TreeViewStyler {
   }
   /**
    * Рекурсивно добавляет рут элементы друг к другу
-   * создавая при этом новый поток, число потоков ограничено {@link ExecutorService}
+   * создавая при этом новый поток, число потоков ограничено {@link #executorService}
    */
   private static TreeItem<String> getNodesForDirectory(File directory) {
     TreeItem<String> root = new TreeItem<>(directory.getName());
       File[] ff = directory.listFiles();
       if (ff != null) {
-        Platform.runLater(() -> es.execute(() -> {
+        Platform.runLater(() -> executorService.execute(() -> {
           for (File f : ff) {
             if (!f.isHidden()) {
               if (f.isDirectory() && f.canRead()) {

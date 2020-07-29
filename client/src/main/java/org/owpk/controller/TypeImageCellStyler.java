@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * Стилизатор для колонки Type в таблице
  * Создает иконку для ячейки в таблице в зависимости от типа файла
  */
 public class TypeImageCellStyler<T> extends TableCell<T, FileInfo.FileType> {

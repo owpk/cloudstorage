@@ -41,6 +41,13 @@
     -fx-text-fill: white;
     -fx-background-color: #282826;
 }
+.tree-view .tree-cell:hover {
+    -fx-background-color: darkslategray;
+}
+.tree-view .tree-cell:selected {
+    -fx-background-color: lightseagreen;
+}
+
 .tree-view .column-header-background {
     -fx-background-color: transparent;
 }
@@ -69,7 +76,6 @@
     -fx-background-repeat: no-repeat;
     -fx-background-position: 50%;
     -fx-background-size: 18px;
-    -fx-opacity: 0.7;
 }
 
 .back_btn {
@@ -150,12 +156,38 @@
     -fx-text-fill: white;
     -fx-alignment: center-left;
 }
+.table-view .table-row-cell:hover {
+    -fx-background-color: darkslategray;
+}
+
 .table-view:focused .table-row-cell:filled:focused:selected {
-    -fx-background-color: -fx-focus-color;
+    -fx-background-color: lightseagreen;
 }
 .split-pane:horizontal > .split-pane-divider {
     -fx-border-color: #282826 #282826 #282826 #282826;
     -fx-background-color: #1d1d1d
+}
+
+.table-view *.scroll-bar:vertical,
+.table-view *.scroll-bar:horizontal  {
+    -fx-background-color: transparent;
+    -fx-border-width: 0 0 0 0;
+    -fx-border-color: #1d1d1d;
+
+}
+.table-view *.scroll-bar:vertical .thumb {
+    -fx-background-color: #282826;
+
+    -fx-border-width: 0 0 0 0;
+    -fx-border-color: #282826;
+
+}
+.table-view *.scroll-bar:horizontal .thumb {
+    -fx-background-color: #282826;
+
+    -fx-border-width: 0 0 0 0;
+    -fx-border-color: #282826;
+
 }
 .split-pane {
     -fx-padding: 1 0 0 0;

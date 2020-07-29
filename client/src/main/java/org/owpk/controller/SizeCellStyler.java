@@ -5,6 +5,7 @@ import javafx.scene.control.TableCell;
 import org.owpk.util.FileInfo;
 
 /**
+ * Стилизатор для колонки Size
  * Расчитывет единицы измерения размера файла {@link #computeSize(Long)}
  * создает ячейку в таблице
  */

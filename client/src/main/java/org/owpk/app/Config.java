@@ -42,11 +42,10 @@ public class Config {
 
   public static void setSourceRoot(String sourceRoot) {
     Config.sourceRoot = Paths.get(sourceRoot);
-    System.out.println(properties.getProperty("root_directory") + " <----------------");
     try(FileWriter fw = new FileWriter(new File("client.properties"))) {
       properties.setProperty("root_directory", sourceRoot);
       properties.store(fw, "root_directory");
-      System.out.println(properties.getProperty("root_directory") + " <----------------");
+      System.out.println(properties.getProperty("root_directory") + " <---- new Root directory");
     } catch (IOException e) {
       e.printStackTrace();
     }
