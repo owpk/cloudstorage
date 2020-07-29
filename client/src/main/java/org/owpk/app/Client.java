@@ -27,8 +27,6 @@ public class Client extends Application {
     //передаем контроллеру stage, чтобы можно было перемещать окно мышью
     Controller controller = loader.getController();
 
-
-
     primaryStage.setScene(new Scene(root, 1500, 750));
     //инициализируем слушателей событий
     controller.initWindowControls(primaryStage);

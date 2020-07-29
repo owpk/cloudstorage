@@ -80,6 +80,7 @@ public class Controller implements Initializable {
     shut_down_btn.setOnMouseClicked(event -> {
       Config.setSourceRoot(clientBackInHistoryStack.peek().toString());
       disconnect();
+      TreeViewFiller.shutDownExecutorService();
       Platform.exit();
     });
     //кнопка фул скрин/базовый размер
@@ -258,7 +259,7 @@ public class Controller implements Initializable {
     }); clientRefresh(Paths.get(s)); };
     serverTableCallback = s -> Platform.runLater(() -> serverRefresh(s));
     serverStatusLabel = s -> Platform.runLater(() -> status_label.setText(s));
-    TreeViewStylist.setTextFlowCallBack(textFlowCallback);
+    TreeViewFiller.setTextFlowCallBack(textFlowCallback);
   }
 
   private void initListeners() {
@@ -288,7 +289,7 @@ public class Controller implements Initializable {
 
   private void fillElements() {
     FileSystems.getDefault().getFileStores().forEach(x -> disk_list.getItems().add(x.toString()));
-    Platform.runLater(() -> TreeViewStylist.setupTreeView(tree_view));
+    Platform.runLater(() -> TreeViewFiller.setupTreeView(tree_view));
   }
 
   @SneakyThrows
