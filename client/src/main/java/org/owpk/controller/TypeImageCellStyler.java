@@ -13,16 +13,11 @@ import java.util.stream.Collectors;
 /**
  * Создает иконку для ячейки в таблице в зависимости от типа файла
  */
-public class TypeImageCell<T> extends TableCell<T, FileInfo.FileType> {
+public class TypeImageCellStyler<T> extends TableCell<T, FileInfo.FileType> {
   private final ImageView image;
-  private static final Map<FileInfo.FileType, Image> iconMap;
-  static {
-    iconMap = new HashMap<>();
-    Arrays.stream(FileInfo.FileType.values())
-        .forEach(x -> iconMap.put(x, new Image(x.getUrl())));
-  }
+  private static final Map<FileInfo.FileType, Image> iconMap = FileInfo.getIconMap();
 
-  public TypeImageCell() {
+  public TypeImageCellStyler() {
     image = new ImageView();
     image.setFitWidth(20);
     image.setFitHeight(20);

@@ -80,15 +80,6 @@
                         </ToolBar>
                            <HBox styleClass="main_hbox" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
                                <children>
-                              <Button fx:id="up_btn" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
-                                 <font>
-                                    <Font size="10.0" />
-                                 </font>
-                                 <styleClass>
-                                    <String fx:value="up_btn" />
-                                    <String fx:value="ctrl_btn" />
-                                 </styleClass>
-                              </Button>
                               <Button fx:id="client_back" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="27.0" mnemonicParsing="false" onAction="#onBackInClientHistory" prefHeight="27.0" prefWidth="25.0" stylesheets="@css_main_scene.css" underline="true">
                                  <font>
                                     <Font size="10.0" />
@@ -104,6 +95,15 @@
                                  </font>
                                  <styleClass>
                                     <String fx:value="refresh_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                              <Button fx:id="up_btn" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="up_btn" />
                                     <String fx:value="ctrl_btn" />
                                  </styleClass>
                               </Button>
@@ -131,15 +131,6 @@
                         </ToolBar>
                            <HBox styleClass="main_hbox" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
                                <children>
-                              <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
-                                 <font>
-                                    <Font size="10.0" />
-                                 </font>
-                                 <styleClass>
-                                    <String fx:value="up_btn" />
-                                    <String fx:value="ctrl_btn" />
-                                 </styleClass>
-                              </Button>
                               <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" underline="true">
                                  <font>
                                     <Font size="10.0" />
@@ -155,6 +146,15 @@
                                  </font>
                                  <styleClass>
                                     <String fx:value="refresh_btn" />
+                                    <String fx:value="ctrl_btn" />
+                                 </styleClass>
+                              </Button>
+                              <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="up_btn" />
                                     <String fx:value="ctrl_btn" />
                                  </styleClass>
                               </Button>

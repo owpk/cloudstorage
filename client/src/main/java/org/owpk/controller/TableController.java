@@ -1,10 +1,5 @@
 package org.owpk.controller;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.event.EventHandler;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableRow;
-import javafx.scene.input.MouseEvent;
 import org.owpk.util.FileInfo;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -36,7 +31,7 @@ public class TableController implements Initializable {
     client_column_last_changed = new TableColumn<>("Changed");
 
     client_column_file_type.setCellValueFactory(new PropertyValueFactory<>("fileType"));
-    client_column_file_type.setCellFactory(p -> new TypeImageCell<>());
+    client_column_file_type.setCellFactory(p -> new TypeImageCellStyler<>());
     client_column_file_type.setPrefWidth(40);
     client_column_file_type.setResizable(false);
 
@@ -46,7 +41,7 @@ public class TableController implements Initializable {
 
     client_column_file_size.setCellValueFactory(p -> new SimpleObjectProperty<>(
         p.getValue().getSize()));
-    client_column_file_size.setCellFactory(p -> new SizeCell());
+    client_column_file_size.setCellFactory(p -> new SizeCellStyler());
     client_column_file_size.setPrefWidth(110);
 
     DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");

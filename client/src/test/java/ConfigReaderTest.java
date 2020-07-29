@@ -53,5 +53,8 @@ public class ConfigReaderTest {
     System.out.println(properties.getProperty("connect_on_startup") + " <- new prop");
     Assert.assertEquals(arg, properties.getProperty("connect_on_startup"));
   }
+  @Test
+  public void getDiskName() {
 
+  }
 }

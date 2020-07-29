@@ -2,6 +2,8 @@ package org.owpk.util;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import lombok.Data;
 import org.apache.tika.Tika;
 
@@ -13,11 +15,17 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
 public class FileInfo implements Serializable {
-
+  private static transient final Map<FileInfo.FileType, Image> iconMap;
+  static {
+    iconMap = new HashMap<>();
+    Arrays.stream(FileInfo.FileType.values())
+        .forEach(x -> iconMap.put(x, new Image(x.getUrl())));
+  }
   public enum FileType implements Serializable {
     EXEC("icons/exe_ico.png","exe"),
     ARCH("icons/ar_ico.jpg", "arch"),
@@ -45,7 +53,7 @@ public class FileInfo implements Serializable {
   private FileType fileType;
   private Long size;
   private LocalDateTime lastModified;
-  transient private ObjectProperty<FileType> imageType;
+  private transient ObjectProperty<FileType> imageType;
 
   public FileInfo(Path path) {
     this.filename = path.getFileName().toString();
@@ -60,7 +68,7 @@ public class FileInfo implements Serializable {
   }
 
   /**MIME парсер {@link Tika}, метод возвращает FileType для расширений*/
-  private FileInfo.FileType parseType(Path path) {
+  public static FileInfo.FileType parseType(Path path) {
     Tika tika = new Tika();
     String mimeType = tika.detect(path.getFileName().toString());
     if (mimeType.startsWith("application")) {
@@ -77,7 +85,7 @@ public class FileInfo implements Serializable {
         .orElse(FileType.FILE);
   }
 
-  private String applicationTypeParse(String app) {
+  private static String applicationTypeParse(String app) {
     app = app.substring(app.indexOf("/") + 1).trim();
     if (app.startsWith("x-rar") || app.startsWith("zip"))
       return FileType.ARCH.mimeType;
@@ -86,4 +94,7 @@ public class FileInfo implements Serializable {
     else return app;
   }
 
+  public static Map<FileInfo.FileType, Image> getIconMap() {
+    return iconMap;
+  }
 }
