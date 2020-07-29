@@ -41,14 +41,13 @@
     -fx-text-fill: white;
     -fx-background-color: #282826;
 }
-/*tree view hover is very unstable/
+/*tree view hover is very unstable*/
 /*.tree-view .tree-cell:hover {*/
 /*    -fx-background-color: darkslategray;*/
 /*}*/
 .tree-view .tree-cell:selected {
     -fx-background-color: lightseagreen;
 }
-
 .tree-view .column-header-background {
     -fx-background-color: transparent;
 }
@@ -58,11 +57,16 @@
 .tree-view .virtual-flow .scroll-bar {
     -fx-background-color: #1d1d1d;
 }
-.tree-view .virtual-flow .scroll-bar .thumb {
+.tree-view .virtual-flow .scroll-bar:hover {
+    -fx-background-color: #1d1d1d;
+}
+.thumb {
     -fx-border-radius: 0;
     -fx-border-width: 0 0 0 0;
     -fx-background-color: #282826;
+    /*-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 0);*/
 }
+
 .tree-view .virtual-flow .corner {
     -fx-background-color: #282826;
 }
@@ -78,7 +82,6 @@
     -fx-background-position: 50%;
     -fx-background-size: 18px;
 }
-
 .back_btn {
     -fx-background-image: url('icons/back_ico.png');
 }
@@ -104,21 +107,17 @@
     -fx-font-family: "Eras ITC";
     -fx-background-color: transparent;
 }
-
 .main_window_ctrl_btn:hover {
     -fx-text-fill: white;
     -fx-font-family: "Eras ITC";
     -fx-background-color: lightskyblue;
 }
-
 .shut_down_btn:hover {
     -fx-background-color: red;
 }
-
 .top_menu_bar {
     -fx-background-color: #1d1d1d;
 }
-
 .top_tool_bar {
     -fx-background-color: #282826;
     -fx-text-fill: white;
@@ -127,11 +126,9 @@
     -fx-start-margin: 0;
     -fx-end-margin: 0;
 }
-
 .main_split_pane {
     -fx-background-color: #1d1d1d;
 }
-
 .table-view {
     -fx-base: #1d1d1d;
     -fx-control-inner-background: #1d1d1d;

@@ -28,7 +28,7 @@ public class FileInfo implements Serializable {
   }
   public enum FileType implements Serializable {
     EXEC("icons/exe_ico.png","exe"),
-    ARCH("icons/ar_ico.jpg", "arch"),
+    ARCH("icons/archive.png", "arch"),
     IMAGE("icons/img_ico.png","image"),
     VID("icons/vid_ico.png", "video"),
     FILE("icons/file_ico.png","default"),
@@ -67,7 +67,7 @@ public class FileInfo implements Serializable {
     }
   }
 
-  /**MIME парсер {@link Tika}, метод возвращает FileType для расширений*/
+  /**MIME парсер {@link Tika}, метод возвращает FileType для расширений файлов*/
   public static FileInfo.FileType parseType(Path path) {
     Tika tika = new Tika();
     String mimeType = tika.detect(path.getFileName().toString());

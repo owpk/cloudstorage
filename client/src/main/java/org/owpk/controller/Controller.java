@@ -68,7 +68,11 @@ public class Controller implements Initializable {
   private double xOffset = 0;
   private double yOffset = 0;
 
-  public void setStageAndSetupListeners(Stage stage) {
+  /**
+   * инициализация ресайзера, кнопок управления окном
+   * и драг опции для верхнего MenuBar элемента
+   */
+  public void initWindowControls(Stage stage) {
     this.stage = stage;
     ResizeHelper.addResizeListener(stage);
 
@@ -101,7 +105,7 @@ public class Controller implements Initializable {
    * {@link NetworkHandlerFactory} возвращает {@link NetworkServiceInt},
    * который создает подключение клиента к серверу,
    * потоки данных для созданного подключения обслуживает {@link InputDataHandler}
-   * команда выполняется в отедльном сервисном потоке, чтобы не мешать остальному интерфейсу
+   * команда выполняется в отедльном сервисном потоке, чтобы не мешать UI потоку
    */
   public void connect(ActionEvent actionEvent) {
     Service<Void> ser = new Service<Void>() {
@@ -127,6 +131,7 @@ public class Controller implements Initializable {
         };
       }
     };
+    //выводим информацию в текс лейбл по результату выполнения
     ser.setOnRunning((WorkerStateEvent event) ->
         status_label.setText("trying to connect " + Config.getDefaultServer() + "..."));
     ser.setOnSucceeded((WorkerStateEvent event) ->
@@ -157,38 +162,23 @@ public class Controller implements Initializable {
     ((ObjectOutputStream) networkServiceInt.getOut()).writeObject(messages);
   }
 
+  /**
+   * обновляет таблицу локальных файлов
+   */
   private void clientRefresh(Path p) {
-//    Service<Void> ser = new Service<Void>() {
-//      @Override
-//      protected Task<Void> createTask() {
-//        return new Task<Void>() {
-//          @Override
-//          protected Void call() throws InterruptedException {
-            try {
-              resetStatusLabel(0);
-              client_panel.getItems().clear();
-              client_panel.getItems().addAll(Files
-                  .list(p)
-                  .parallel()
-                  .map(FileInfo::new)
-                  .collect(Collectors.toList()));
-              client_panel.sort();
-            } catch (IOException e) {
-              status_label.setText("can't open");
-              e.printStackTrace();
-            }
-//            return null;
-//          }
-//        };
-//      }
-//    };
-//    ser.setOnRunning((WorkerStateEvent event) ->
-//        status_label.setText("opening " + p.toString() + "..."));
-//    ser.setOnSucceeded((WorkerStateEvent event) ->
-//        status_label.setText(""));
-//    ser.setOnFailed((WorkerStateEvent event) ->
-//        status_label.setText("can't open " + p.toString()));
-//    ser.start();
+    try {
+      resetStatusLabel(0);
+      client_panel.getItems().clear();
+      client_panel.getItems().addAll(Files
+          .list(p)
+          .parallel()
+          .map(FileInfo::new)
+          .collect(Collectors.toList()));
+      client_panel.sort();
+    } catch (IOException e) {
+      status_label.setText("can't open");
+      e.printStackTrace();
+    }
   }
 
   private void resetStatusLabel(int i) {
@@ -196,6 +186,9 @@ public class Controller implements Initializable {
     else server_textFlow.setText("");
   }
 
+  /**
+   * кнопка вперед по истории
+   */
   @FXML
   public void onForwardInClientHistory() {
       if (clientForwardInHistoryStack.size() > 0) {
@@ -207,6 +200,9 @@ public class Controller implements Initializable {
     showBhistory();
   }
 
+  /**
+   * кнопка назад по истории
+   */
   @FXML
   public void onBackInClientHistory(ActionEvent actionEvent) {
       if (clientBackInHistoryStack.size() > 1) {
@@ -218,6 +214,9 @@ public class Controller implements Initializable {
     showFhistory();
   }
 
+  /**
+  * кнопка вверх по директории
+  */
   @FXML
   public void onUpBtnClicked(ActionEvent actionEvent) {
     Path p = clientBackInHistoryStack.peek().getParent();
@@ -253,13 +252,13 @@ public class Controller implements Initializable {
   }
 
   private void initCallbacks() {
-    textFlowCallback = s -> {Platform.runLater(()-> {
+    textFlowCallback = s -> { Platform.runLater(()-> {
       client_textFlow.setText(s);
       clientBackInHistoryStack.push(Paths.get(s));
     }); clientRefresh(Paths.get(s)); };
     serverTableCallback = s -> Platform.runLater(() -> serverRefresh(s));
     serverStatusLabel = s -> Platform.runLater(() -> status_label.setText(s));
-    TreeViewStyler.setTextFlowCallBack(textFlowCallback);
+    TreeViewStylist.setTextFlowCallBack(textFlowCallback);
   }
 
   private void initListeners() {
@@ -289,7 +288,7 @@ public class Controller implements Initializable {
 
   private void fillElements() {
     FileSystems.getDefault().getFileStores().forEach(x -> disk_list.getItems().add(x.toString()));
-    Platform.runLater(() -> TreeViewStyler.setupTreeView(tree_view));
+    Platform.runLater(() -> TreeViewStylist.setupTreeView(tree_view));
   }
 
   @SneakyThrows

@@ -19,39 +19,52 @@ import java.util.concurrent.Executors;
  * Создает дерево каталогов и добавляет иконки к каждому элементу в зависмости от типа
  * @see org.owpk.util.FileInfo
  */
-public class TreeViewStyler {
+public class TreeViewStylist {
   private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
   private static Callback<String> textFlowCallBack;
   private static final String ROOT_NODE_NAME = "Local File System";
   public static void setTextFlowCallBack(Callback<String> textFlowCallBack) {
-    TreeViewStyler.textFlowCallBack = textFlowCallBack;
+    TreeViewStylist.textFlowCallBack = textFlowCallBack;
   }
+
   /**
-   * Детектит имена всех дисков на локальной машине
-   * добавляет заполненный child node с именем диска к root node
+   * Детектит имена всех дисков на локальной машине, заполняет дерево каталогов
+   * @see #getNodesForDirectory(File, String)
    */
   public static void setupTreeView(TreeView<String> treeView) {
+    final Object lock = new Object();
     TreeItem<String> treeItemRoot = new TreeItem<>(ROOT_NODE_NAME);
-
     Arrays.stream(File.listRoots())
-        .parallel()
+        .parallel() //check
         .filter(x -> Objects.nonNull(x) && x.length() > 0)
         .forEach(x ->
-            executorService.execute(() ->
-                treeItemRoot.getChildren()
-                    .add(getNodesForDirectory(x.getAbsoluteFile(), x.getAbsolutePath()))));
+            executorService.execute(() -> {
+                synchronized (lock) {
+                  treeItemRoot.getChildren()
+                      .add(getNodesForDirectory(x.getAbsoluteFile(), x.getAbsolutePath()));
+                }
+            }));
     treeItemRoot.setExpanded(true);
     treeView.setRoot(treeItemRoot);
     treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     treeView.setOnMouseClicked(x -> {
-      if (x.getClickCount() == 2 && x.getButton() == MouseButton.PRIMARY) {
+
         TreeItem<String> f = treeView.getSelectionModel().getSelectedItem();
-        textFlowCallBack.call(getPath(f).substring(ROOT_NODE_NAME.length() + 2));
+        if (f != null && f.getValue() != null && !f.getValue().isEmpty()) {
+          String p = getPath(f).substring(ROOT_NODE_NAME.length() + 2);
+          final File ff = new File(p);
+          if (ff.exists() && ff.isDirectory()) {
+            textFlowCallBack.call(p);
+          
+        }
       }
     });
   }
 
-  static StringBuffer sb = new StringBuffer();
+  private static StringBuffer sb = new StringBuffer();
+  /**
+   * рекурсивно аппендит имена директорий по событию клика
+   */
   private static String getPath(TreeItem<String> item) {
     if (item == null || item.getValue().isEmpty()) {
       String res = sb.toString();
@@ -76,6 +89,7 @@ public class TreeViewStyler {
     icon.setPreserveRatio(true);
     return icon;
   }
+
   /**
    * Рекурсивно добавляет рут элементы друг к другу
    * создавая при этом новый поток, число потоков ограничено {@link #executorService}

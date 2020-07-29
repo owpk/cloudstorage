@@ -31,7 +31,7 @@ public class TableController implements Initializable {
     client_column_last_changed = new TableColumn<>("Changed");
 
     client_column_file_type.setCellValueFactory(new PropertyValueFactory<>("fileType"));
-    client_column_file_type.setCellFactory(p -> new TypeImageCellStyler<>());
+    client_column_file_type.setCellFactory(p -> new TypeImageCellStylist<>());
     client_column_file_type.setPrefWidth(40);
     client_column_file_type.setResizable(false);
 
@@ -41,7 +41,7 @@ public class TableController implements Initializable {
 
     client_column_file_size.setCellValueFactory(p -> new SimpleObjectProperty<>(
         p.getValue().getSize()));
-    client_column_file_size.setCellFactory(p -> new SizeCellStyler());
+    client_column_file_size.setCellFactory(p -> new SizeCellStylist());
     client_column_file_size.setPrefWidth(110);
 
     DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");

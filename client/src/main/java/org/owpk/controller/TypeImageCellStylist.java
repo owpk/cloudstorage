@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
  * Стилизатор для колонки Type в таблице
  * Создает иконку для ячейки в таблице в зависимости от типа файла
  */
-public class TypeImageCellStyler<T> extends TableCell<T, FileInfo.FileType> {
+public class TypeImageCellStylist<T> extends TableCell<T, FileInfo.FileType> {
   private final ImageView image;
   private static final Map<FileInfo.FileType, Image> iconMap = FileInfo.getIconMap();
 
-  public TypeImageCellStyler() {
+  public TypeImageCellStylist() {
     image = new ImageView();
     image.setFitWidth(20);
     image.setFitHeight(20);

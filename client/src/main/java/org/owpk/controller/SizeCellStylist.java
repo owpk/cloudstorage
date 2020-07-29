@@ -9,7 +9,7 @@ import org.owpk.util.FileInfo;
  * Расчитывет единицы измерения размера файла {@link #computeSize(Long)}
  * создает ячейку в таблице
  */
-public class SizeCellStyler extends TableCell<FileInfo, Long> {
+public class SizeCellStylist extends TableCell<FileInfo, Long> {
   private final static String[] SIZES = {"B","KB","MB","GB","TB"};
   private int counter;
 

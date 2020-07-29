@@ -31,7 +31,7 @@ public class Client extends Application {
 
     primaryStage.setScene(new Scene(root, 1500, 750));
     //инициализируем слушателей событий
-    controller.setStageAndSetupListeners(primaryStage);
+    controller.initWindowControls(primaryStage);
     primaryStage.show();
   }
 

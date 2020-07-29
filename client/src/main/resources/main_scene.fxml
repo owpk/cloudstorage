@@ -61,7 +61,7 @@
          <children>
             <VBox fx:id="tree_window" maxWidth="200.0" prefWidth="200.0" scaleShape="false" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
                <children>
-                  <TreeView fx:id="tree_view" maxWidth="200.0" prefWidth="200.0" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
+                  <TreeView fx:id="tree_view" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
             <SplitPane dividerPositions="0.5" styleClass="main_split_pane" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
@@ -107,7 +107,7 @@
                                     <String fx:value="ctrl_btn" />
                                  </styleClass>
                               </Button>
-                                   <TextField fx:id="client_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
+                                   <TextField fx:id="client_textFlow" alignment="TOP_LEFT" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
                                </children>
                            <VBox.margin>
                               <Insets left="6.0" />
@@ -158,7 +158,7 @@
                                     <String fx:value="ctrl_btn" />
                                  </styleClass>
                               </Button>
-                                   <TextField fx:id="server_textFlow" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
+                                   <TextField fx:id="server_textFlow" alignment="TOP_LEFT" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
                                </children>
                            <VBox.margin>
                               <Insets left="6.0" />
