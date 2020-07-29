@@ -41,9 +41,10 @@
     -fx-text-fill: white;
     -fx-background-color: #282826;
 }
-.tree-view .tree-cell:hover {
-    -fx-background-color: darkslategray;
-}
+/*tree view hover is very unstable/
+/*.tree-view .tree-cell:hover {*/
+/*    -fx-background-color: darkslategray;*/
+/*}*/
 .tree-view .tree-cell:selected {
     -fx-background-color: lightseagreen;
 }

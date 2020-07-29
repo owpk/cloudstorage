@@ -98,7 +98,6 @@ public class Controller implements Initializable {
 
   /**
    * метод вызывается при нажатии на кнопку "connect"
-   * или при первом нажатии на кнопку "refresh".
    * {@link NetworkHandlerFactory} возвращает {@link NetworkServiceInt},
    * который создает подключение клиента к серверу,
    * потоки данных для созданного подключения обслуживает {@link InputDataHandler}
@@ -159,19 +158,37 @@ public class Controller implements Initializable {
   }
 
   private void clientRefresh(Path p) {
-    try {
-      resetStatusLabel(0);
-      client_panel.getItems().clear();
-      client_panel.getItems().addAll(Files
-          .list(p)
-          .parallel()
-          .map(FileInfo::new)
-          .collect(Collectors.toList()));
-      client_panel.sort();
-    } catch (IOException e) {
-      status_label.setText(e.getClass().getSimpleName());
-      e.printStackTrace();
-    }
+//    Service<Void> ser = new Service<Void>() {
+//      @Override
+//      protected Task<Void> createTask() {
+//        return new Task<Void>() {
+//          @Override
+//          protected Void call() throws InterruptedException {
+            try {
+              resetStatusLabel(0);
+              client_panel.getItems().clear();
+              client_panel.getItems().addAll(Files
+                  .list(p)
+                  .parallel()
+                  .map(FileInfo::new)
+                  .collect(Collectors.toList()));
+              client_panel.sort();
+            } catch (IOException e) {
+              status_label.setText("can't open");
+              e.printStackTrace();
+            }
+//            return null;
+//          }
+//        };
+//      }
+//    };
+//    ser.setOnRunning((WorkerStateEvent event) ->
+//        status_label.setText("opening " + p.toString() + "..."));
+//    ser.setOnSucceeded((WorkerStateEvent event) ->
+//        status_label.setText(""));
+//    ser.setOnFailed((WorkerStateEvent event) ->
+//        status_label.setText("can't open " + p.toString()));
+//    ser.start();
   }
 
   private void resetStatusLabel(int i) {
@@ -236,7 +253,9 @@ public class Controller implements Initializable {
   }
 
   private void initCallbacks() {
-    textFlowCallback = s -> Platform.runLater(() -> client_textFlow.setText(s));
+    textFlowCallback = s -> {clientBackInHistoryStack.push(Paths.get(s)); Platform.runLater(()-> {
+      client_textFlow.setText(s);
+    }); clientRefresh(Paths.get(s)); };
     serverTableCallback = s -> Platform.runLater(() -> serverRefresh(s));
     serverStatusLabel = s -> Platform.runLater(() -> status_label.setText(s));
     TreeViewStyler.setTextFlowCallBack(textFlowCallback);
@@ -270,7 +289,6 @@ public class Controller implements Initializable {
   private void fillElements() {
     FileSystems.getDefault().getFileStores().forEach(x -> disk_list.getItems().add(x.toString()));
     Platform.runLater(() -> TreeViewStyler.setupTreeView(tree_view));
-
   }
 
   @SneakyThrows
@@ -289,5 +307,4 @@ public class Controller implements Initializable {
     client_panel.setPlaceholder(new Label(""));
     server_panel.setPlaceholder(new Label(""));
   }
-
 }

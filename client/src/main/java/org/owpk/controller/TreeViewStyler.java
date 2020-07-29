@@ -1,8 +1,8 @@
 package org.owpk.controller;
 
 import javafx.application.Platform;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -15,8 +15,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Стилизатор для дерева каталогов {@link TreeView}
- * Добавляет иконки к каждому элементу в зависмости от типа
+ * Стилизатор и филлер для дерева каталогов {@link TreeView}
+ * Создает дерево каталогов и добавляет иконки к каждому элементу в зависмости от типа
  * @see org.owpk.util.FileInfo
  */
 public class TreeViewStyler {
@@ -25,19 +25,34 @@ public class TreeViewStyler {
 
   public static void setTextFlowCallBack(Callback<String> textFlowCallBack) {
     TreeViewStyler.textFlowCallBack = textFlowCallBack;
-    System.out.println(textFlowCallBack);
   }
 
   public static void setupTreeView(TreeView<String> treeView) {
     TreeItem<String> treeItemRoot = new TreeItem<>("Local FileSystem");
+
+//
+    treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     treeView.setRoot(getNodesForDirectory(
         new File(FileSystems.getDefault().getRootDirectories().iterator().next().toString())));
     treeView.setOnMouseClicked(x -> {
       if (x.getClickCount() == 2 && x.getButton() == MouseButton.PRIMARY) {
         TreeItem<String> f = treeView.getSelectionModel().getSelectedItem();
-        textFlowCallBack.call(f.getValue());
+        textFlowCallBack.call("C:"+getPath(f));
       }
     });
+  }
+
+  static StringBuffer sb = new StringBuffer();
+  private static String getPath(TreeItem<String> item) {
+    if (item == null || item.getValue().isEmpty()) {
+      String res = sb.toString();
+      sb = new StringBuffer();
+      return res;
+    } else {
+      sb.insert(0, "/"+item.getValue());
+      item = item.getParent();
+      return getPath(item);
+    }
   }
 
   private static ImageView getIco(File f) {
@@ -60,7 +75,7 @@ public class TreeViewStyler {
     TreeItem<String> root = new TreeItem<>(directory.getName());
       File[] ff = directory.listFiles();
       if (ff != null) {
-        Platform.runLater(() -> executorService.execute(() -> {
+        executorService.execute(() -> {
           for (File f : ff) {
             if (!f.isHidden()) {
               if (f.isDirectory() && f.canRead()) {
@@ -68,11 +83,11 @@ public class TreeViewStyler {
                 Platform.runLater(() -> root.setGraphic(
                     getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
               } else {
-                root.getChildren().add(new TreeItem<>(f.getName(), getIco(f)));
+                  root.getChildren().add(new TreeItem<>(f.getName(), getIco(f)));
               }
             }
           }
-        }));
+        });
       }
     Platform.runLater(() -> root.setGraphic(
         getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
