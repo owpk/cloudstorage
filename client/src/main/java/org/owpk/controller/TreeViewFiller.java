@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TreeViewFiller {
   private static Callback<String> textFlowCallBack;
-  private static final ExecutorService executorService = Executors.newFixedThreadPool(5);
+  private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
   private static final String ROOT_NODE_NAME = "Local File System";
   private static final int DEPTH = 2;
   private static AtomicInteger recursionDepth = new AtomicInteger();
@@ -60,7 +60,9 @@ public class TreeViewFiller {
         if (dirs != null) {
           for (File f : dirs) {
             if (!f.isHidden() && f.isDirectory()) {
-              item.getChildren().add(getNodesForDirectory(dirs, f.getName()));
+              executorService.submit(() -> {
+                item.getChildren().add(getNodesForDirectory(dirs, f.getName()));
+              });
             }
           }
         }
@@ -130,7 +132,6 @@ public class TreeViewFiller {
 
   /**
    * Рекурсивно добавляет рут элементы друг к другу
-   * создавая при этом новый поток, число потоков ограничено {@link #executorService}
    * глубина рекурсии ограничена {@link #DEPTH}
    * по клику на развертывание ветки активируется ее обновление на установленную глубину
    */
@@ -139,17 +140,17 @@ public class TreeViewFiller {
     Platform.runLater(() -> root.setGraphic(
         getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
     if (directory != null) {
-      executorService.execute(() -> {
         for (File f : directory) {
           if (!f.isHidden()) {
             if (f.isDirectory() && f.canRead()) {
-              if (rootCounter(root) < recursionDepth.get()) {
-                root.getChildren().add(getNodesForDirectory(f.listFiles(), f.getName()));
-              }
-            }
+              Platform.runLater(() -> {
+                if (rootCounter(root) < recursionDepth.get()) {
+                  root.getChildren().add(getNodesForDirectory(f.listFiles(), f.getName()));
+                }
+              });
           }
         }
-      });
+      }
     }
     return root;
   }
