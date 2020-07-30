@@ -32,6 +32,7 @@ public class FileInfo implements Serializable {
     IMAGE("icons/img_ico.png","image"),
     VID("icons/vid_ico.png", "video"),
     FILE("icons/file_ico.png","default"),
+    HDD("icons/hard-disk.png", "hard_drive"),
     DIRECTORY("icons/folder_ico.png", "folder");
 
     private final String url;

@@ -71,13 +71,14 @@ public class TreeViewFiller {
     });
 
     Arrays.stream(File.listRoots())
-        .parallel() //check
         .filter(x -> Objects.nonNull(x) && x.length() > 0)
         .forEach(x ->
             executorService.execute(() -> {
               synchronized (lock) {
-                treeItemRoot.getChildren()
-                    .add(getNodesForDirectory(x.listFiles(), x.getAbsolutePath()));
+                TreeItem<String> item = new TreeItem<>(x.getAbsolutePath());
+                item.setGraphic(getImageView(FileInfo.getIconMap().get(FileInfo.FileType.HDD)));
+                item.getChildren().add(getNodesForDirectory(x.listFiles(), x.getAbsolutePath()));
+                treeItemRoot.getChildren().add(item);
               }
             }));
     treeItemRoot.setExpanded(true);
@@ -101,7 +102,6 @@ public class TreeViewFiller {
    * аппендер имени директорий по событию клика
    */
   private static StringBuffer sb = new StringBuffer();
-
   private static String getPath(TreeItem<String> item) {
     if (item == null || item.getValue().isEmpty() || item.getValue().equals(ROOT_NODE_NAME)) {
       String res = sb.toString();
@@ -124,6 +124,7 @@ public class TreeViewFiller {
     icon.setFitWidth(17);
     icon.setFitHeight(17);
     icon.setPreserveRatio(true);
+    icon.setSmooth(true);
     return icon;
   }
 
