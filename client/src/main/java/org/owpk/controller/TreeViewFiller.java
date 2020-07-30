@@ -25,12 +25,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TreeViewFiller {
   private static Callback<String> textFlowCallBack;
-  private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
+  private static final ExecutorService executorService = Executors.newFixedThreadPool(5);
   private static final String ROOT_NODE_NAME = "Local File System";
+  private static final int DEPTH = 2;
   private static AtomicInteger recursionDepth = new AtomicInteger();
   static {
      //значение больше 2 сильно снижает производительность
-    recursionDepth.set(2);
+    recursionDepth.set(DEPTH);
   }
 
   public static void setTextFlowCallBack(Callback<String> textFlowCallBack) {
@@ -64,7 +65,8 @@ public class TreeViewFiller {
           }
         }
       } else if (event.getEventType().getName().equals("BranchCollapsedEvent")) {
-        recursionDepth.decrementAndGet();
+        TreeItem<String> item = (TreeItem<String>) event.getSource();
+        recursionDepth.set(rootCounter(item) + DEPTH);
       }
     });
 
@@ -128,36 +130,31 @@ public class TreeViewFiller {
   /**
    * Рекурсивно добавляет рут элементы друг к другу
    * создавая при этом новый поток, число потоков ограничено {@link #executorService}
-   * глубина рекурсии ограничена {@link #recursionDepth}
+   * глубина рекурсии ограничена {@link #DEPTH}
    * по клику на развертывание ветки активируется ее обновление на установленную глубину
    */
   private static TreeItem<String> getNodesForDirectory(File[] directory, String dirName) {
     TreeItem<String> root = new TreeItem<>(dirName);
+    Platform.runLater(() -> root.setGraphic(
+        getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
     if (directory != null) {
       executorService.execute(() -> {
         for (File f : directory) {
           if (!f.isHidden()) {
             if (f.isDirectory() && f.canRead()) {
-              counter = 0;
               if (rootCounter(root) < recursionDepth.get()) {
                 root.getChildren().add(getNodesForDirectory(f.listFiles(), f.getName()));
-                Platform.runLater(() -> root.setGraphic(
-                    getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
               }
             }
           }
         }
       });
     }
-    
-    Platform.runLater(() -> root.setGraphic(
-        getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
     return root;
   }
 
-  private static int counter;
-
   private static int rootCounter(TreeItem<String> item) {
+    int counter = 0;
     item = item.getParent();
     while (item != null) {
       counter++;
