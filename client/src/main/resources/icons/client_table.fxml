@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<TableView fx:id="table" prefWidth="296.0" styleClass="main_table" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.TableViewController"/>
+
+
+

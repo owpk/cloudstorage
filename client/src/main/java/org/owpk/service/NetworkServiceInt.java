@@ -1,4 +1,4 @@
-package org.owpk.network;
+package org.owpk.service;
 
 import java.io.IOException;
 import java.io.InputStream;

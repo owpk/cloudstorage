@@ -3,14 +3,12 @@ package org.owpk.network;
 import org.owpk.app.Config;
 import org.owpk.message.Messages;
 import org.owpk.app.Callback;
+import org.owpk.service.NetworkServiceInt;
 import org.owpk.util.FileInfo;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * класс обработчик входных данных

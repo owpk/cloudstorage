@@ -58,7 +58,7 @@
                 <Insets left="6.0" />
             </VBox.margin>
         </HBox>
-        <fx:include fx:id="client_panel" source="client_table.fxml"/>
+        <fx:include fx:id="client_panel" source="table.fxml"/>
         <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
     </children>
     <properties>

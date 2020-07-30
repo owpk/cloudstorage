@@ -1,7 +1,8 @@
-package org.owpk.network;
+package org.owpk.service;
 
 import org.owpk.message.MessageType;
 import org.owpk.message.Messages;
+import org.owpk.service.NetworkServiceInt;
 
 import java.io.*;
 import java.net.Socket;

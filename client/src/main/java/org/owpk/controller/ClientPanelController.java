@@ -36,7 +36,6 @@ public class ClientPanelController {
   public Stack<Path> clientForwardInHistoryStack;
   private static Path ROOT_PATH;
 
-
   /**
    * кнопка вперед по истории
    */

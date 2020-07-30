@@ -19,6 +19,7 @@
 
 <VBox fx:id="main_window" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.MainSceneController">
    <children>
+
       <HBox maxHeight="30.0" minHeight="30.0" prefHeight="30.0" VBox.vgrow="ALWAYS">
          <children>
             <MenuBar fx:id="drag_menu" styleClass="top_menu_bar" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
@@ -40,12 +41,12 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <Button fx:id="roll_up_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="—">
+            <Button fx:id="expand_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="—">
                <styleClass>
                   <String fx:value="main_window_ctrl_btn" />
                   <String fx:value="roll_down_btn" />
                </styleClass></Button>
-            <Button fx:id="roll_down_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="☐">
+            <Button fx:id="collapse_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="☐">
                <styleClass>
                   <String fx:value="main_window_ctrl_btn" />
                   <String fx:value="roll_up_btn" />
@@ -57,6 +58,7 @@
                </styleClass></Button>
          </children>
       </HBox>
+
       <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
          <children>
             <VBox fx:id="tree_window" maxWidth="200.0" prefWidth="200.0" scaleShape="false" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
@@ -66,64 +68,13 @@
             </VBox>
             <SplitPane dividerPositions="0.5" styleClass="main_split_pane" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
                <items>
-
                    <fx:include fx:id="client_panel_view" source="client_panel.fxml" />
-      
-                   <VBox styleClass="main_vbox" stylesheets="@css_main_scene.css">
-                       <children>
-                        <ToolBar fx:id="server_toolbar" prefHeight="40.0" prefWidth="200.0" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
-                          <items>
-                            <Button fx:id="connect_btn" mnemonicParsing="false" onAction="#connect" styleClass="connect_btn" stylesheets="@css_main_scene.css" text="connect" />
-                          </items>
-                           <styleClass>
-                              <String fx:value="top_tool_bar" />
-                              <String fx:value="server_tool_bar" />
-                           </styleClass>
-                        </ToolBar>
-                           <HBox styleClass="main_hbox" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
-                               <children>
-                              <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" underline="true">
-                                 <font>
-                                    <Font size="10.0" />
-                                 </font>
-                                 <styleClass>
-                                    <String fx:value="back_btn" />
-                                    <String fx:value="ctrl_btn" />
-                                 </styleClass>
-                              </Button>
-                                   <Button id="refresh_btn" fx:id="server_forward_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#forwardServerFolders" prefHeight="2.0" prefWidth="25.0" stylesheets="@css_main_scene.css" textFill="WHITE" underline="true" HBox.hgrow="NEVER">
-                                 <font>
-                                    <Font size="10.0" />
-                                 </font>
-                                 <styleClass>
-                                    <String fx:value="refresh_btn" />
-                                    <String fx:value="ctrl_btn" />
-                                 </styleClass>
-                              </Button>
-                              <Button mnemonicParsing="false" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
-                                 <font>
-                                    <Font size="10.0" />
-                                 </font>
-                                 <styleClass>
-                                    <String fx:value="up_btn" />
-                                    <String fx:value="ctrl_btn" />
-                                 </styleClass>
-                              </Button>
-                                   <TextField fx:id="server_textFlow" alignment="TOP_LEFT" promptText="Path..." styleClass="main_text_flow" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS" />
-                               </children>
-                           <VBox.margin>
-                              <Insets left="6.0" />
-                           </VBox.margin>
-                           </HBox>
-                           <fx:include fx:id="server_panel" source="client_table.fxml" />
-                           <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
-                       </children>
-                   </VBox>
-      
+                   <fx:include fx:id="cloud_panel_view" source="cloud_panel.fxml" />
                </items>
             </SplitPane>
          </children>
       </HBox>
+
       <HBox prefHeight="18.0" prefWidth="818.0" styleClass="footer" stylesheets="@css_main_scene.css">
          <children>
             <Label text="UTF-8" />
@@ -135,7 +86,4 @@
          </children>
       </HBox>
    </children>
-    <properties>
-        <main_view><fx:reference source="controller"/></main_view>
-    </properties>
 </VBox>
