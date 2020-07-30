@@ -42,29 +42,25 @@ public class MainSceneController implements Initializable {
   @FXML public Button roll_down_btn;
   @FXML public Button roll_up_btn;
   @FXML public TableView<FileInfo> server_panel;
-  @FXML public TableView<FileInfo> client_panel;
   @FXML public Button server_forward_btn;
-  @FXML public Button client_forward_btn;
   @FXML public TextField server_textFlow;
-  @FXML public TextField client_textFlow;
   @FXML public Label status_label;
   @FXML public Button connect_btn;
-  @FXML public ComboBox<String> disk_list;
-  @FXML public Button client_back;
   @FXML public VBox main_window;
   @FXML public VBox tree_window;
   @FXML public TreeView<String> tree_view;
+  @FXML public VBox client_panel_view;
+  private ClientPanelController clientPanelController;
 
   private Callback<List<FileInfo>> serverTableCallback;
   private Callback<String> serverStatusLabel;
-  private Callback<String> textFlowCallback;
+
+  private Callback<String> statusLabelCallback;
   private NetworkServiceInt networkServiceInt;
-  private Stack<Path> clientBackInHistoryStack;
-  private Stack<Path> clientForwardInHistoryStack;
+
   private Stack<Path> serverPathHistory;
   private Stage stage;
 
-  private static Path ROOT_PATH;
   private double xOffset = 0;
   private double yOffset = 0;
 
@@ -91,7 +87,7 @@ public class MainSceneController implements Initializable {
 
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
-      Config.setSourceRoot(clientBackInHistoryStack.peek().toString());
+      Config.setSourceRoot(clientPanelController.clientBackInHistoryStack.peek().toString());
       disconnect();
       Platform.exit();
     });
@@ -175,70 +171,11 @@ public class MainSceneController implements Initializable {
     ((ObjectOutputStream) networkServiceInt.getOut()).writeObject(messages);
   }
 
-  /**
-   * обновляет таблицу локальных файлов
-   */
-  private void clientRefresh(Path p) {
-    try {
-      resetStatusLabel();
-      client_panel.getItems().clear();
-      client_panel.getItems().addAll(Files
-          .list(p)
-          .parallel()
-          .map(FileInfo::new)
-          .collect(Collectors.toList()));
-      client_panel.sort();
-    } catch (IOException e) {
-      status_label.setText("can't open");
-      e.printStackTrace();
-    }
+  private void fillElements() {
+
+    Platform.runLater(() -> TreeViewController.setupTreeView(tree_view));
   }
 
-  private void resetStatusLabel() {
-    status_label.setText("");
-  }
-
-  /**
-   * кнопка вперед по истории
-   */
-  @FXML
-  public void onForwardInClientHistory() {
-      if (clientForwardInHistoryStack.size() > 0) {
-        Path p = clientForwardInHistoryStack.peek();
-        clientBackInHistoryStack.push(clientForwardInHistoryStack.pop());
-        clientRefresh(p);
-        client_textFlow.setText(p.toString());
-      }
-    showBhistory();
-  }
-
-  /**
-   * кнопка назад по истории
-   */
-  @FXML
-  public void onBackInClientHistory(ActionEvent actionEvent) {
-      if (clientBackInHistoryStack.size() > 1) {
-        clientForwardInHistoryStack.push(clientBackInHistoryStack.pop());
-        Path p = clientBackInHistoryStack.peek();
-        clientRefresh(p);
-        client_textFlow.setText(p.toString());
-      }
-    showFhistory();
-  }
-
-  /**
-  * кнопка вверх по директории
-  */
-  @FXML
-  public void onUpBtnClicked(ActionEvent actionEvent) {
-    Path p = clientBackInHistoryStack.peek().getParent();
-    if (p != null) {
-      clientRefresh(p);
-      clientBackInHistoryStack.push(p);
-      client_textFlow.setText(p.toString());
-      showBhistory();
-    }
-  }
 
   private void serverRefresh(List<FileInfo> list) {
     server_panel.getItems().clear();
@@ -256,67 +193,14 @@ public class MainSceneController implements Initializable {
     }
   }
 
-  private void showBhistory() {
-    System.out.println(clientBackInHistoryStack + " <--- back");
-  }
-  private void showFhistory() {
-    System.out.println(clientForwardInHistoryStack + " <--- forward");
-  }
-
-  private void initCallbacks() {
-    textFlowCallback = s -> { Platform.runLater(()-> {
-      client_textFlow.setText(s);
-      clientBackInHistoryStack.push(Paths.get(s));
-    }); clientRefresh(Paths.get(s)); };
-    serverTableCallback = s -> Platform.runLater(() -> serverRefresh(s));
-    serverStatusLabel = s -> Platform.runLater(() -> status_label.setText(s));
-    TreeViewController.setTextFlowCallBack(textFlowCallback);
-  }
-
-  private void initListeners() {
-    client_textFlow.setOnKeyPressed(event -> {
-      Path p;
-      if (event.getCode() == KeyCode.ENTER) {
-        p = Paths.get(client_textFlow.getText());
-        if (Files.exists(p)) {
-          clientRefresh(p);
-          clientBackInHistoryStack.push(p);
-        }
-      }
-    });
-    client_panel.setOnMouseClicked(x -> {
-      if (x.getClickCount() == 2 && x.getButton() == MouseButton.PRIMARY) {
-        FileInfo f = client_panel.getSelectionModel().getSelectedItem();
-        if (f.getFileType() == FileInfo.FileType.DIRECTORY) {
-          Path p = Paths.get(client_textFlow.getText() + "\\" + f.getFilename());
-          clientRefresh(p);
-          client_textFlow.setText(p.toString());
-          clientBackInHistoryStack.push(p);
-          showBhistory();
-        }
-      }
-    });
-  }
-
-  private void fillElements() {
-    FileSystems.getDefault().getFileStores().forEach(x -> disk_list.getItems().add(x.toString()));
-    Platform.runLater(() -> TreeViewController.setupTreeView(tree_view));
-  }
-
   @SneakyThrows
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    clientBackInHistoryStack = new Stack<>();
-    clientForwardInHistoryStack = new Stack<>();
-    serverPathHistory = new Stack<>();
-    ROOT_PATH = Config.getSourceRoot();
-    clientBackInHistoryStack.push(ROOT_PATH);
-    clientRefresh(ROOT_PATH);
-    client_textFlow.setText(ROOT_PATH.toString());
-    initCallbacks();
-    initListeners();
     fillElements();
-    client_panel.setPlaceholder(new Label(""));
-    server_panel.setPlaceholder(new Label(""));
+    clientPanelController = (ClientPanelController) client_panel_view.getProperties().get("ctrl");
+    clientPanelController.setMainSceneController(this);
+    clientPanelController.init();
+    serverPathHistory = new Stack<>();
+
   }
 }

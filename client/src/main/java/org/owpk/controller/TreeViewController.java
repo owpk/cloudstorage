@@ -49,14 +49,24 @@ public class TreeViewController {
         {
           TreeItem<String> item = new TreeItem<>(x.getAbsolutePath());
           item.setGraphic(getImageView(MainSceneController.getIconMap().get(FileInfo.FileType.HDD)));
-          if (checkIfDirectoriesExists(x.listFiles())) {
-            item.getChildren().add(new TreeItem<>());
-          }
+          expanded(item);
+          item.setExpanded(true);
           rootItem.getChildren().add(item);
 
         });
     treeView.setRoot(rootItem);
     treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+  }
+
+  private static void expanded(TreeItem<String> item) {
+    Thread t = new Thread(() -> {
+      populateItem(item);
+      for (TreeItem<String> child : item.getChildren()) {
+        populateItem(child);
+      }
+    });
+    t.setDaemon(true);
+    t.start();
   }
 
   /**
@@ -67,14 +77,7 @@ public class TreeViewController {
       if (event.getEventType().getName().equals("BranchExpandedEvent")) {
         TreeItem<String> item = (TreeItem<String>) event.getSource();
         item.getChildren().clear();
-        Thread t = new Thread(() -> {
-          populateItem(item);
-          for (TreeItem<String> child : item.getChildren()) {
-            populateItem(child);
-          }
-        });
-        t.setDaemon(true);
-        t.start();
+        expanded(item);
       }
     });
     treeView.setOnMouseClicked(x -> {
@@ -94,6 +97,10 @@ public class TreeViewController {
    */
   private static StringBuffer sb = new StringBuffer();
   private static String getPath(TreeItem<String> item) {
+//    item = item.getParent();
+//    while (item.getValue() != ROOT_NODE_NAME) {
+//
+//    }
     if (item == null || item.getValue().isEmpty() || item.getValue().equals(ROOT_NODE_NAME)) {
       String res = sb.toString();
       sb = new StringBuffer();
