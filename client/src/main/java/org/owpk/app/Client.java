@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.owpk.controller.Controller;
+import org.owpk.controller.MainSceneController;
 
 public class Client extends Application {
 
@@ -25,11 +25,11 @@ public class Client extends Application {
     primaryStage.initStyle(StageStyle.UNDECORATED);
 
     //передаем контроллеру stage, чтобы можно было перемещать окно мышью
-    Controller controller = loader.getController();
+    MainSceneController mainSceneController = loader.getController();
 
-    primaryStage.setScene(new Scene(root, 1500, 750));
+    primaryStage.setScene(new Scene(root, 1500, 850));
     //инициализируем слушателей событий
-    controller.initWindowControls(primaryStage);
+    mainSceneController.initWindowControls(primaryStage);
     primaryStage.show();
   }
 

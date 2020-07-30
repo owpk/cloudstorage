@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="main_window" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.Controller">
+<VBox fx:id="main_window" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.MainSceneController">
    <children>
       <HBox maxHeight="30.0" minHeight="30.0" prefHeight="30.0" VBox.vgrow="ALWAYS">
          <children>
@@ -98,7 +98,7 @@
                                     <String fx:value="ctrl_btn" />
                                  </styleClass>
                               </Button>
-                              <Button fx:id="up_btn" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
+                              <Button fx:id="up_btn_client" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@css_main_scene.css" textOverrun="CLIP" underline="true">
                                  <font>
                                     <Font size="10.0" />
                                  </font>
@@ -113,7 +113,7 @@
                               <Insets left="6.0" />
                            </VBox.margin>
                            </HBox>
-                           <fx:include fx:id="client_panel" source="client_table.fxml" />
+                           <fx:include fx:id="client_panel" source="client_table.fxml"/>
                            <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
                        </children>
                    </VBox>
@@ -176,7 +176,7 @@
       <HBox prefHeight="18.0" prefWidth="818.0" styleClass="footer" stylesheets="@css_main_scene.css">
          <children>
             <Label text="UTF-8" />
-            <Label fx:id="status_label" styleClass="status_lable" stylesheets="@css_main_scene.css">
+            <Label fx:id="status_label" styleClass="status_label" stylesheets="@css_main_scene.css">
                <HBox.margin>
                   <Insets left="15.0" />
                </HBox.margin>

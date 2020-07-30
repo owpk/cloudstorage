@@ -28,8 +28,8 @@ public class FileUtility {
 
   public static List<FileInfo> showDirs(String currentDir) throws IOException {
     Path path = Paths.get(currentDir);
-    System.out.println(path);
-    return Files.list(path).map(FileInfo::new).collect(Collectors.toList());
+    return Files.list(path).map(FileInfo::new)
+        .collect(Collectors.toList());
   }
 
   public static void move(File dir, File file) throws IOException {

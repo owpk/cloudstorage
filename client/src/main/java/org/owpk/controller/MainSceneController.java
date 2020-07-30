@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
@@ -29,16 +30,13 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * основной контроллер
  */
-public class Controller implements Initializable {
-
+public class MainSceneController implements Initializable {
   @FXML public MenuBar drag_menu;
   @FXML public Button shut_down_btn;
   @FXML public Button roll_down_btn;
@@ -56,6 +54,7 @@ public class Controller implements Initializable {
   @FXML public VBox main_window;
   @FXML public VBox tree_window;
   @FXML public TreeView<String> tree_view;
+
   private Callback<List<FileInfo>> serverTableCallback;
   private Callback<String> serverStatusLabel;
   private Callback<String> textFlowCallback;
@@ -64,9 +63,23 @@ public class Controller implements Initializable {
   private Stack<Path> clientForwardInHistoryStack;
   private Stack<Path> serverPathHistory;
   private Stage stage;
+
   private static Path ROOT_PATH;
   private double xOffset = 0;
   private double yOffset = 0;
+
+  private static final Map<FileInfo.FileType, Image> iconMap;
+  static {
+    iconMap = new HashMap<>();
+    Arrays.stream(FileInfo.FileType.values())
+        .forEach(x -> {
+          System.out.println(x.getUrl());
+          iconMap.put(x, new Image(x.getUrl()));
+        });
+  }
+  public static Map<FileInfo.FileType, Image> getIconMap() {
+    return iconMap;
+  }
 
   /**
    * инициализация ресайзера, кнопок управления окном
@@ -105,7 +118,7 @@ public class Controller implements Initializable {
    * {@link NetworkHandlerFactory} возвращает {@link NetworkServiceInt},
    * который создает подключение клиента к серверу,
    * потоки данных для созданного подключения обслуживает {@link InputDataHandler}
-   * команда выполняется в отедльном сервисном потоке, чтобы не мешать UI потоку
+   * команда выполняется в отедльном сервисном потоке, чтобы не мешать UI
    */
   public void connect(ActionEvent actionEvent) {
     Service<Void> ser = new Service<Void>() {
@@ -167,7 +180,7 @@ public class Controller implements Initializable {
    */
   private void clientRefresh(Path p) {
     try {
-      resetStatusLabel(0);
+      resetStatusLabel();
       client_panel.getItems().clear();
       client_panel.getItems().addAll(Files
           .list(p)
@@ -181,9 +194,8 @@ public class Controller implements Initializable {
     }
   }
 
-  private void resetStatusLabel(int i) {
-    if (i == 0) client_textFlow.setText("");
-    else server_textFlow.setText("");
+  private void resetStatusLabel() {
+    status_label.setText("");
   }
 
   /**
@@ -258,7 +270,7 @@ public class Controller implements Initializable {
     }); clientRefresh(Paths.get(s)); };
     serverTableCallback = s -> Platform.runLater(() -> serverRefresh(s));
     serverStatusLabel = s -> Platform.runLater(() -> status_label.setText(s));
-    TreeViewFiller.setTextFlowCallBack(textFlowCallback);
+    TreeViewController.setTextFlowCallBack(textFlowCallback);
   }
 
   private void initListeners() {
@@ -288,7 +300,7 @@ public class Controller implements Initializable {
 
   private void fillElements() {
     FileSystems.getDefault().getFileStores().forEach(x -> disk_list.getItems().add(x.toString()));
-    Platform.runLater(() -> TreeViewFiller.setupTreeView(tree_view));
+    Platform.runLater(() -> TreeViewController.setupTreeView(tree_view));
   }
 
   @SneakyThrows

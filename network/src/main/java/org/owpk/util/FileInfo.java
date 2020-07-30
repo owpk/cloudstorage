@@ -20,12 +20,8 @@ import java.util.Map;
 
 @Data
 public class FileInfo implements Serializable {
-  private static transient final Map<FileInfo.FileType, Image> iconMap;
-  static {
-    iconMap = new HashMap<>();
-    Arrays.stream(FileInfo.FileType.values())
-        .forEach(x -> iconMap.put(x, new Image(x.getUrl())));
-  }
+
+
   public enum FileType implements Serializable {
     EXEC("icons/exe_ico.png","exe"),
     ARCH("icons/archive.png", "arch"),
@@ -47,7 +43,6 @@ public class FileInfo implements Serializable {
     public String getUrl() {
       return url;
     }
-
   }
 
   private String filename;
@@ -95,7 +90,5 @@ public class FileInfo implements Serializable {
     else return app;
   }
 
-  public static Map<FileInfo.FileType, Image> getIconMap() {
-    return iconMap;
-  }
+
 }

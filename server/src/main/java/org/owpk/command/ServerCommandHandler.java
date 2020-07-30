@@ -3,6 +3,7 @@ package org.owpk.command;
 import org.owpk.message.MessageType;
 import org.owpk.message.Messages;
 import org.owpk.core.ClientManager;
+
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 import org.owpk.util.NetworkUtils;
@@ -61,6 +62,7 @@ public class ServerCommandHandler extends AbsCommandHandler {
 
   private void showDirCmd() throws IOException {
     String path =  message.getPayload() == null ? "" : (String) message.getPayload();
+    if (path.isEmpty()) path = "C:\\";
     List<FileInfo> list = new ArrayList<>(FileUtility.showDirs(path));
     NetworkUtils.sendObj(clientManager.getOut(), new Messages<>(MessageType.DIR, list));
   }
