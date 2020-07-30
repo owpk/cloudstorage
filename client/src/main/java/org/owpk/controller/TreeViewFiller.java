@@ -13,9 +13,6 @@ import org.owpk.util.FileInfo;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Стилизатор и филлер для дерева каталогов {@link TreeView}
@@ -25,74 +22,59 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TreeViewFiller {
   private static Callback<String> textFlowCallBack;
-  private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
   private static final String ROOT_NODE_NAME = "Local File System";
-  private static final int DEPTH = 2;
-  private static AtomicInteger recursionDepth = new AtomicInteger();
-  static {
-     //значение больше 2 сильно снижает производительность
-    recursionDepth.set(DEPTH);
-  }
+  private static TreeView<String> baseTree;
+  private static TreeItem<String> rootItem;
 
   public static void setTextFlowCallBack(Callback<String> textFlowCallBack) {
     TreeViewFiller.textFlowCallBack = textFlowCallBack;
   }
 
-  public static void shutDownExecutorService() {
-    executorService.shutdownNow();
+  public static void setupTreeView(TreeView<String> treeView) {
+    TreeViewFiller.baseTree = treeView;
+    rootItem = new TreeItem<>(ROOT_NODE_NAME);
+    rootItem.setExpanded(true);
+    setupListeners();
+    fillTreeItems();
   }
 
-  /**
-   * Детектит имена всех дисков на локальной машине, заполняет дерево каталогов
-   * по событию Expand пересчитывает путь
-   * @see #getNodesForDirectory(File[], String)
-   */
-  //TODO переписать обновление директорий по событию клика
-  public static void setupTreeView(TreeView<String> treeView) {
-    final Object lock = new Object();
-    TreeItem<String> treeItemRoot = new TreeItem<>(ROOT_NODE_NAME);
-    treeItemRoot.addEventHandler(EventType.ROOT, event -> {
-      if (event.getEventType().getName().equals("BranchExpandedEvent")) {
-        recursionDepth.incrementAndGet();
-        TreeItem<String> item = (TreeItem<String>) event.getSource();
-        item.getChildren().clear();
-        File[] dirs = new File(getPath(item)).listFiles();
-        if (dirs != null) {
-          for (File f : dirs) {
-            if (!f.isHidden() && f.isDirectory()) {
-              executorService.submit(() -> {
-                item.getChildren().add(getNodesForDirectory(dirs, f.getName()));
-              });
-            }
-          }
-        }
-      } else if (event.getEventType().getName().equals("BranchCollapsedEvent")) {
-        TreeItem<String> item = (TreeItem<String>) event.getSource();
-        recursionDepth.set(rootCounter(item) + DEPTH);
-      }
-    });
-
+  private static void fillTreeItems() {
     Arrays.stream(File.listRoots())
         .filter(x -> Objects.nonNull(x) && x.length() > 0)
         .forEach(x ->
-            executorService.execute(() -> {
-              synchronized (lock) {
-                TreeItem<String> item = new TreeItem<>(x.getAbsolutePath());
-                item.setGraphic(getImageView(FileInfo.getIconMap().get(FileInfo.FileType.HDD)));
-                item.getChildren().add(getNodesForDirectory(x.listFiles(), x.getAbsolutePath()));
-                treeItemRoot.getChildren().add(item);
-              }
-            }));
-    treeItemRoot.setExpanded(true);
-    treeView.setRoot(treeItemRoot);
-    treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-    treeView.setOnMouseClicked(x -> {
+        {
+          TreeItem<String> item = new TreeItem<>(x.getAbsolutePath());
+          item.setGraphic(getImageView(FileInfo.getIconMap().get(FileInfo.FileType.HDD)));
+          if (checkIfDirectoriesExists(x.listFiles())) {
+            item.getChildren().add(new TreeItem<>());
+          }
+          rootItem.getChildren().add(item);
 
-      TreeItem<String> f = treeView.getSelectionModel().getSelectedItem();
+        });
+    baseTree.setRoot(rootItem);
+    baseTree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+  }
+
+  private static void setupListeners() {
+    rootItem.addEventHandler(EventType.ROOT, event -> {
+      if (event.getEventType().getName().equals("BranchExpandedEvent")) {
+        TreeItem<String> item = (TreeItem<String>) event.getSource();
+        item.getChildren().clear();
+        Thread t = new Thread(() -> {
+          populateItem(item);
+          for (TreeItem<String> child : item.getChildren()) {
+            populateItem(child);
+          }
+        });
+        t.setDaemon(true);
+        t.start();
+      }
+    });
+    baseTree.setOnMouseClicked(x -> {
+      TreeItem<String> f = baseTree.getSelectionModel().getSelectedItem();
       if (f != null && f.getValue() != null && !f.getValue().isEmpty()) {
         String p = getPath(f);
         final File ff = new File(p);
-        System.out.println(p);
         if (ff.exists() && ff.isDirectory()) {
           textFlowCallBack.call(p);
         }
@@ -101,9 +83,10 @@ public class TreeViewFiller {
   }
 
   /**
-   * аппендер имени директорий по событию клика
+   * аппендер имени директории по событию клика
    */
   private static StringBuffer sb = new StringBuffer();
+
   private static String getPath(TreeItem<String> item) {
     if (item == null || item.getValue().isEmpty() || item.getValue().equals(ROOT_NODE_NAME)) {
       String res = sb.toString();
@@ -116,53 +99,38 @@ public class TreeViewFiller {
     }
   }
 
-  private static ImageView getIco(File f) {
-    Image img = FileInfo.getIconMap().get(FileInfo.parseType(f.toPath()));
-    return getImageView(img);
-  }
-
   private static ImageView getImageView(Image img) {
-    ImageView icon = new ImageView(img);
-    icon.setFitWidth(17);
-    icon.setFitHeight(17);
-    icon.setPreserveRatio(true);
-    icon.setSmooth(true);
-    return icon;
+    ImageView imageView = new ImageView(img);
+    imageView.setFitWidth(17);
+    imageView.setFitHeight(17);
+    imageView.setPreserveRatio(true);
+    imageView.setSmooth(true);
+    return imageView;
   }
 
-  /**
-   * Рекурсивно добавляет рут элементы друг к другу
-   * глубина рекурсии ограничена {@link #DEPTH}
-   * по клику на развертывание ветки активируется ее обновление на установленную глубину
-   */
-  private static TreeItem<String> getNodesForDirectory(File[] directory, String dirName) {
-    TreeItem<String> root = new TreeItem<>(dirName);
-    Platform.runLater(() -> root.setGraphic(
-        getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
-    if (directory != null) {
-        for (File f : directory) {
-          if (!f.isHidden()) {
-            if (f.isDirectory() && f.canRead()) {
-              Platform.runLater(() -> {
-                if (rootCounter(root) < recursionDepth.get()) {
-                  root.getChildren().add(getNodesForDirectory(f.listFiles(), f.getName()));
-                }
-              });
-          }
+  private static void populateItem(TreeItem<String> item) {
+    File[] dirs = new File(getPath(item)).listFiles();
+    if (dirs != null) {
+      for (File f : dirs) {
+        if (checkFileCondition(f)) {
+          TreeItem<String> child = new TreeItem<>(f.getName());
+          Platform.runLater(() ->
+              child.setGraphic(getImageView(FileInfo.getIconMap().get(FileInfo.FileType.DIRECTORY))));
+          item.getChildren().add(child);
         }
       }
     }
-    return root;
   }
 
-  private static int rootCounter(TreeItem<String> item) {
-    int counter = 0;
-    item = item.getParent();
-    while (item != null) {
-      counter++;
-      item = item.getParent();
-    }
-    return counter;
+  private static boolean checkFileCondition(File f) {
+    return f != null && f.exists() && !f.isHidden()
+        && f.isDirectory() && f.canRead() && f.listFiles() != null;
+  }
+
+  private static boolean checkIfDirectoriesExists(File[] f) {
+    return f != null && Arrays.stream(f)
+        .parallel()
+        .anyMatch(TreeViewFiller::checkFileCondition);
   }
 
 }

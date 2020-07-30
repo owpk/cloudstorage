@@ -80,7 +80,6 @@ public class Controller implements Initializable {
     shut_down_btn.setOnMouseClicked(event -> {
       Config.setSourceRoot(clientBackInHistoryStack.peek().toString());
       disconnect();
-      TreeViewFiller.shutDownExecutorService();
       Platform.exit();
     });
     //кнопка фул скрин/базовый размер
