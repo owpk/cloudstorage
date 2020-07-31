@@ -25,31 +25,19 @@ import java.util.Objects;
 public class TreeViewController {
   private static Callback<String> textFlowCallBack;
   private static final String ROOT_NODE_NAME = "Local File System";
-  private static TreeView<FileInfo.DirectoryInfo> treeView;
-  private static TreeItem<FileInfo.DirectoryInfo> rootItem;
+  private static TreeView<String> treeView;
+  private static TreeItem<String> rootItem;
 
   public static void setTextFlowCallBack(Callback<String> textFlowCallBack) {
     TreeViewController.textFlowCallBack = textFlowCallBack;
   }
 
-  public static void setupTreeView(TreeView<FileInfo.DirectoryInfo> treeView) {
+  public static void setupTreeView(TreeView<String> treeView) {
     TreeViewController.treeView = treeView;
-    rootItem = new TreeItem<>(new FileInfo.DirectoryInfo(ROOT_NODE_NAME));
+    rootItem = new TreeItem<>(ROOT_NODE_NAME);
     rootItem.setExpanded(true);
     setupListeners();
     fillTreeItems();
-  }
-
-  private static class CellValue extends TreeCell<FileInfo.DirectoryInfo> {
-    @Override
-    protected void updateItem(FileInfo.DirectoryInfo item, boolean empty) {
-//      super.updateItem(item, empty);
-//      if (empty || Paths.item.getPath())
-//        image.setImage(null);
-//      else {
-//        image.setImage(iconMap.get(type));
-//      }
-    }
   }
 
   /**
@@ -64,8 +52,7 @@ public class TreeViewController {
           item.setGraphic(getImageView(MainSceneController.getIconMap().get(FileInfo.FileType.HDD)));
           expanded(item);
           item.setExpanded(true);
-          treeView.setCellFactory(param -> new CellValue());
-//          rootItem.getChildren().add(item);
+          rootItem.getChildren().add(item);
         });
     treeView.setRoot(rootItem);
     treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

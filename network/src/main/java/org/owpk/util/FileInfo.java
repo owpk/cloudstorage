@@ -51,20 +51,6 @@ public class FileInfo implements Serializable {
   private LocalDateTime lastModified;
   private transient ObjectProperty<FileType> imageType;
 
-  @Data
-  public static class DirectoryInfo {
-    private String dirName;
-    private Path path;
-
-    public DirectoryInfo(String dirName) {
-      this.dirName = dirName;
-    }
-    public DirectoryInfo(String dirName, Path path) {
-      this.dirName = dirName;
-      this.path = path;
-    }
-
-  }
   public FileInfo(Path path) {
     this.filename = path.getFileName().toString();
     this.path = path;

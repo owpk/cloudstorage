@@ -29,11 +29,11 @@
     -fx-background-color: lightskyblue;
 }
 .left_tree_panel {
-    -fx-border-color: black;
+    -fx-border-width: 0;
     -fx-background-color: #282826;
 }
 .tree-view .virtual-flow .clipped-container .sheet .tree-cell:empty{
-    -fx-border-width: 0 0 1 0;
+    -fx-border-width: 0;
     -fx-text-fill: white;
     -fx-background-color: #282826;
 }
@@ -118,6 +118,13 @@
 .top_menu_bar {
     -fx-background-color: #1d1d1d;
 }
+.top_menu_bar .container .menu-item {
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-background-color: #1d1d1d;
+    -fx-text-fill: white;
+}
+
 .top_tool_bar {
     -fx-background-color: #282826;
     -fx-text-fill: white;
@@ -215,6 +222,10 @@
 }
 .progress_bar .bar {
 
+}
+.split-pane {
+    -fx-background-color: #1d1d1d;
+    -fx-border-width: 0;
 }
 .label {
     -fx-text-fill: white;

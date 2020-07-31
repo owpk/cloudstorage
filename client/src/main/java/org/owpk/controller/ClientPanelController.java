@@ -1,5 +1,6 @@
 package org.owpk.controller;
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,6 +13,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.owpk.app.Callback;
 import org.owpk.app.Config;
@@ -36,6 +38,7 @@ public class ClientPanelController {
   @FXML public TextField client_textFlow;
   @FXML public ComboBox<String> disk_list;
   @FXML public Button client_back;
+  public VBox client_panel_vbox;
   private MainSceneController mainSceneController;
   private Callback<String> textFlowCallback;
   public Stack<Path> clientBackInHistoryStack;
@@ -139,7 +142,9 @@ public class ClientPanelController {
     client_panel.setOnDragDetected(x -> {
       System.out.println("dragging");
       FileInfo f = client_panel.getSelectionModel().getSelectedItem();
-      File from = f.getPath().toFile();
+      File from;
+      if (f != null)
+       from = f.getPath().toFile();
     });
 
     client_panel.setOnDragEntered(x -> {
@@ -150,7 +155,7 @@ public class ClientPanelController {
       if (x.getClickCount() == 2 && x.getButton() == MouseButton.PRIMARY) {
         FileInfo f = client_panel.getSelectionModel().getSelectedItem();
         if (f.getFileType() == FileInfo.FileType.DIRECTORY) {
-          Path p = Paths.get(client_textFlow.getText() + "\\" + f.getFilename());
+          Path p = f.getPath();
           clientRefresh(p);
           client_textFlow.setText(p.toString());
           clientBackInHistoryStack.push(p);
@@ -196,5 +201,6 @@ public class ClientPanelController {
     initListeners();
     client_panel.setPlaceholder(new Label(""));
   }
+
 
 }
