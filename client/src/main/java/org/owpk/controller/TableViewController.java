@@ -97,7 +97,8 @@ public class TableViewController implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-//    fileChooser = new FileInputStream();
+
+
     client_column_file_type = new TableColumn<>("Type");
     client_column_file_name = new TableColumn<>("Name");
     client_column_file_size = new TableColumn<>("Size");

@@ -25,7 +25,7 @@ public class MainSceneController implements Initializable {
   @FXML public Label status_label;
   @FXML public VBox main_window;
   @FXML public VBox tree_window;
-  @FXML public TreeView<String> tree_view;
+  @FXML public TreeView<FileInfo.DirectoryInfo> tree_view;
   @FXML public VBox client_panel_view;
   @FXML public VBox cloud_panel_view;
 
@@ -49,6 +49,11 @@ public class MainSceneController implements Initializable {
   public static Map<FileInfo.FileType, Image> getIconMap() {
     return iconMap;
   }
+  private boolean draggable = true;
+
+  public Stage getStage() {
+    return stage;
+  }
 
   /**
    * инициализация ресайзера, кнопок управления окном
@@ -70,15 +75,30 @@ public class MainSceneController implements Initializable {
         .getScene()
         .getWindow())
         .setIconified(true));
+
+    drag_menu.setOnMouseClicked(event -> {
+      if (event.getClickCount() == 2) {
+        stage.setFullScreen(!stage.isFullScreen());
+      }
+    });
     //делаем окно draggable
     drag_menu.setOnMousePressed(event -> {
-       xOffset = event.getSceneX();
-       yOffset = event.getSceneY();
-    });
+      if (event.getY() < 5)
+        draggable = false;
+      else {
+        xOffset = event.getSceneX();
+        yOffset = event.getSceneY();
+        draggable = true;
+      }});
     drag_menu.setOnMouseDragged(event -> {
+      if (draggable) {
         stage.setX(event.getScreenX() - xOffset);
         stage.setY(event.getScreenY() - yOffset);
-    });
+    }});
+  }
+
+  private void dragAndDropListener() {
+//    clientPanelController.
   }
 
   private void fillElements() {

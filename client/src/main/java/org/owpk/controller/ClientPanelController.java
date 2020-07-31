@@ -5,14 +5,20 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import lombok.SneakyThrows;
 import org.owpk.app.Callback;
 import org.owpk.app.Config;
 import org.owpk.util.FileInfo;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.FileSystems;
@@ -35,6 +41,8 @@ public class ClientPanelController {
   public Stack<Path> clientBackInHistoryStack;
   public Stack<Path> clientForwardInHistoryStack;
   private static Path ROOT_PATH;
+  private FileChooser fileChooser;
+  private Desktop desktop;
 
   /**
    * кнопка вперед по истории
@@ -100,6 +108,7 @@ public class ClientPanelController {
       e.printStackTrace();
     }
   }
+
   private void showBhistory() {
     System.out.println(clientBackInHistoryStack + " <--- back");
   }
@@ -126,6 +135,17 @@ public class ClientPanelController {
         }
       }
     });
+
+    client_panel.setOnDragDetected(x -> {
+      System.out.println("dragging");
+      FileInfo f = client_panel.getSelectionModel().getSelectedItem();
+      File from = f.getPath().toFile();
+    });
+
+    client_panel.setOnDragEntered(x -> {
+
+    });
+
     client_panel.setOnMouseClicked(x -> {
       if (x.getClickCount() == 2 && x.getButton() == MouseButton.PRIMARY) {
         FileInfo f = client_panel.getSelectionModel().getSelectedItem();
@@ -135,9 +155,22 @@ public class ClientPanelController {
           client_textFlow.setText(p.toString());
           clientBackInHistoryStack.push(p);
           showBhistory();
+        } else {
+          File file = f.getPath().toFile();
+          if (file.exists()) {
+            openFile(file);
+          }
         }
       }
     });
+  }
+
+  private void openFile(File file) {
+    try {
+        desktop.open(file);
+    } catch (IOException ex) {
+      System.out.println(ex.getLocalizedMessage());
+    }
   }
 
   private void fillElements() {
@@ -150,9 +183,11 @@ public class ClientPanelController {
 
   @SneakyThrows
   public void init() {
-    fillElements();
+    desktop = Desktop.getDesktop();
+    fileChooser = new FileChooser();
     clientBackInHistoryStack = new Stack<>();
     clientForwardInHistoryStack = new Stack<>();
+    fillElements();
     ROOT_PATH = Config.getSourceRoot();
     clientBackInHistoryStack.push(ROOT_PATH);
     clientRefresh(ROOT_PATH);

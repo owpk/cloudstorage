@@ -2,6 +2,7 @@ package org.owpk.app;
 
 import lombok.SneakyThrows;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.*;
 import java.nio.file.*;
 import java.util.Properties;
@@ -10,13 +11,15 @@ public class Config {
   private static Path sourceRoot;
   private static String defaultServer;
   private static int port;
-  private static Properties properties;
+  private static final Properties properties;
   static {
     properties = new Properties();
     initProp(properties);
     sourceRoot = Paths.get(properties.getProperty("root_directory"));
-    if (!Files.exists(sourceRoot))
-      sourceRoot = FileSystems.getDefault().getRootDirectories().iterator().next();
+    if (!Files.exists(sourceRoot) || sourceRoot.toString().isEmpty()) {
+      sourceRoot = FileSystemView.getFileSystemView().getDefaultDirectory().toPath();
+      System.out.println("new default directory: " + sourceRoot.toString());
+    }
     defaultServer = properties.getProperty("default_server");
     port = checkPort(properties.getProperty("port"));
   }
@@ -45,7 +48,7 @@ public class Config {
     try(FileWriter fw = new FileWriter(new File("client.properties"))) {
       properties.setProperty("root_directory", sourceRoot);
       properties.store(fw, "root_directory");
-      System.out.println(properties.getProperty("root_directory") + " <---- new Root directory");
+      System.out.println(properties.getProperty("root_directory") + " <---- last visited directory");
     } catch (IOException e) {
       e.printStackTrace();
     }

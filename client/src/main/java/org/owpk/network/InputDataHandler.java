@@ -99,8 +99,8 @@ public class InputDataHandler implements Runnable {
   }
 
   private void printLog(Commands command, String payload) {
-    System.out.println(String.format(
-        "-:command: [%s] :payload: [%s]", command.getCmd(), payload));
+    System.out.printf(
+        "-:command: [%s] :payload: [%s]", command.getCmd(), payload);
   }
 
 }

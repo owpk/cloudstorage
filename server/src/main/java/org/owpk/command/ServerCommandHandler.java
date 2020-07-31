@@ -27,7 +27,7 @@ public class ServerCommandHandler extends AbsCommandHandler {
     commandList = fillCommands();
   }
 
-  //Мапа команд
+
   @Override
   protected Map<String, Command> fillCommands() {
     Map<String, Command> commands = new HashMap<>();

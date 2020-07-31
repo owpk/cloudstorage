@@ -21,7 +21,6 @@ import java.util.Map;
 @Data
 public class FileInfo implements Serializable {
 
-
   public enum FileType implements Serializable {
     EXEC("icons/exe_ico.png","exe"),
     ARCH("icons/archive.png", "arch"),
@@ -46,13 +45,29 @@ public class FileInfo implements Serializable {
   }
 
   private String filename;
+  private Path path;
   private FileType fileType;
   private Long size;
   private LocalDateTime lastModified;
   private transient ObjectProperty<FileType> imageType;
 
+  @Data
+  public static class DirectoryInfo {
+    private String dirName;
+    private Path path;
+
+    public DirectoryInfo(String dirName) {
+      this.dirName = dirName;
+    }
+    public DirectoryInfo(String dirName, Path path) {
+      this.dirName = dirName;
+      this.path = path;
+    }
+
+  }
   public FileInfo(Path path) {
     this.filename = path.getFileName().toString();
+    this.path = path;
     fileType = Files.isDirectory(path) ? FileType.DIRECTORY : parseType(path);
     this.imageType = new SimpleObjectProperty<>(fileType);
     try {
