@@ -8,6 +8,8 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -15,7 +17,7 @@
 <VBox fx:id="main_window" prefHeight="700.0" prefWidth="1300.0" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.MainSceneController">
    <children>
 
-      <HBox maxHeight="30.0" minHeight="30.0" prefHeight="30.0" VBox.vgrow="ALWAYS">
+      <HBox styleClass="header">
          <children>
             <MenuBar fx:id="drag_menu" styleClass="top_menu_bar" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
               <menus>
@@ -66,11 +68,28 @@
                   </VBox>
                   <VBox SplitPane.resizableWithParent="false">
                      <children>
-                        <HBox maxHeight="25.0" minHeight="25.0" prefHeight="25.0" stylesheets="@css_main_scene.css" />
                         <SplitPane fx:id="main_view" dividerPositions="0.5" styleClass="main_split_pane" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
                            <items>
-                               <fx:include fx:id="left_panel_view" prefHeight="700.0" source="client_panel.fxml" />
-                               <fx:include fx:id="right_panel_view" prefHeight="700.0" source="cloud_panel.fxml" />
+                              <VBox SplitPane.resizableWithParent="false">
+                                 <children>
+                                    <HBox maxHeight="36.0" minHeight="36.0" prefHeight="36.0" stylesheets="@css_main_scene.css" />
+                                     <fx:include fx:id="left_panel_view" source="client_panel.fxml" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                              <TabPane stylesheets="@css_main_scene.css" tabClosingPolicy="UNAVAILABLE" SplitPane.resizableWithParent="false">
+                                <tabs>
+                                  <Tab text="cloud">
+                                       <content>
+                                           <fx:include fx:id="right_cloud_panel_view" source="cloud_panel.fxml" />
+                                       </content>
+                                  </Tab>
+                                    <Tab text="local">
+                                        <content>
+                                            <fx:include fx:id="right_local_panel_view" prefHeight="700.0" source="client_panel.fxml" />
+                                        </content>
+                                    </Tab>
+                                </tabs>
+                              </TabPane>
                            </items>
                         </SplitPane>
                      </children>

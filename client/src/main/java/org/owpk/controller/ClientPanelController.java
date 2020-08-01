@@ -1,34 +1,28 @@
 package org.owpk.controller;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
+import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.owpk.app.Callback;
 import org.owpk.app.Config;
 import org.owpk.util.FileInfo;
+import org.owpk.util.FileUtility;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -38,12 +32,11 @@ public class ClientPanelController {
   @FXML public TextField client_textFlow;
   @FXML public ComboBox<String> disk_list;
   @FXML public Button client_back;
-  public VBox client_panel_vbox;
+  @FXML public VBox client_panel_vbox;
   private MainSceneController mainSceneController;
   private Callback<String> textFlowCallback;
   public Stack<Path> clientBackInHistoryStack;
   public Stack<Path> clientForwardInHistoryStack;
-  private static Path ROOT_PATH;
   private FileChooser fileChooser;
   private Desktop desktop;
 
@@ -112,6 +105,10 @@ public class ClientPanelController {
     }
   }
 
+  public void clientRefresh() {
+    clientRefresh(clientBackInHistoryStack.peek());
+  }
+
   private void showBhistory() {
     System.out.println(clientBackInHistoryStack + " <--- back");
   }
@@ -128,6 +125,8 @@ public class ClientPanelController {
   }
 
   private void initListeners() {
+    initDragAndDropListeners();
+
     client_textFlow.setOnKeyPressed(event -> {
       Path p;
       if (event.getCode() == KeyCode.ENTER) {
@@ -138,19 +137,6 @@ public class ClientPanelController {
         }
       }
     });
-
-    client_panel.setOnDragDetected(x -> {
-      System.out.println("dragging");
-      FileInfo f = client_panel.getSelectionModel().getSelectedItem();
-      File from;
-      if (f != null)
-       from = f.getPath().toFile();
-    });
-
-    client_panel.setOnDragEntered(x -> {
-
-    });
-
     client_panel.setOnMouseClicked(x -> {
       if (x.getClickCount() == 2 && x.getButton() == MouseButton.PRIMARY) {
         FileInfo f = client_panel.getSelectionModel().getSelectedItem();
@@ -170,6 +156,78 @@ public class ClientPanelController {
     });
   }
 
+  /**
+   * инициализирует DragAndDrop слушателей
+   */
+  private FileInfo tempItem;
+  private Path targetDirectory;
+  private void initDragAndDropListeners() {
+
+    client_panel.setOnDragDetected(x -> {
+      FileInfo f = client_panel.getSelectionModel().getSelectedItem();
+      File from;
+      if (f != null) {
+        from = f.getPath().toFile();
+        System.out.println(f.getPath());
+        Dragboard db = client_panel.startDragAndDrop(TransferMode.MOVE);
+        ClipboardContent content = new ClipboardContent();
+        content.putString(from.getAbsolutePath());
+        db.setContent(content);
+        x.consume();
+      }
+    });
+
+    client_panel.setOnDragOver(x -> {
+      x.acceptTransferModes(TransferMode.ANY);
+    });
+
+    //здесь отслеживается target путь, это можно сделать только через RowFactory
+    client_panel.setRowFactory(x -> {
+      TableRow<FileInfo> row = new TableRow<>();
+      row.setOnDragDropped(event -> {
+        tempItem = row.getItem();
+      });
+      return row;
+    });
+
+    //если событие пришло из другой панели то нужно взять текущий путь в этой панели
+    //иначе мы не сможем узнать target путь
+    client_panel.setOnDragEntered(x -> {
+        targetDirectory = clientBackInHistoryStack.peek();
+    });
+
+    //если событие завершено берем source путь из TreeItem, используем Files.move(),
+    // в этом случае обертку FileUtils, в которой дополнительно отслеживается -
+    // перемещается папка или файл и возможные Exception,
+    // после того как все успешно переместилось обновляем оба TableView через MainController
+    // иначе обновляется только одна таблица на которой фокус
+    client_panel.setOnDragDropped(x -> {
+          x.acceptTransferModes(TransferMode.ANY);
+          Dragboard db = x.getDragboard();
+          boolean success = false;
+          if (db.hasString()) {
+            Path source = Paths.get(db.getString());
+            Path target;
+            if (tempItem != null) {
+              target = tempItem.getPath();
+              System.out.println("Target directory: " + target);
+            } else target = targetDirectory;
+            try {
+              FileUtility.move(source, target);
+              mainSceneController.refreshAllClientPanels();
+              mainSceneController.status_label.setText("done");
+            } catch (IOException e) {
+              mainSceneController.status_label.setText(e.getLocalizedMessage());
+              e.printStackTrace();
+            }
+            success = true;
+        }
+      tempItem = null;
+      x.setDropCompleted(success);
+      x.consume();
+    });
+  }
+
   private void openFile(File file) {
     try {
         desktop.open(file);
@@ -180,6 +238,7 @@ public class ClientPanelController {
 
   private void fillElements() {
     FileSystems.getDefault().getFileStores().forEach(x -> disk_list.getItems().add(x.toString()));
+    disk_list.getSelectionModel().select(0);
   }
 
   public void setMainSceneController(MainSceneController mainSceneController) {
@@ -193,7 +252,7 @@ public class ClientPanelController {
     clientBackInHistoryStack = new Stack<>();
     clientForwardInHistoryStack = new Stack<>();
     fillElements();
-    ROOT_PATH = Config.getSourceRoot();
+    final Path ROOT_PATH = Config.getSourceRoot();
     clientBackInHistoryStack.push(ROOT_PATH);
     clientRefresh(ROOT_PATH);
     client_textFlow.setText(ROOT_PATH.toString());

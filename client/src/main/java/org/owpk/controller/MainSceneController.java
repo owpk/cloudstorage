@@ -27,28 +27,20 @@ import java.util.ResourceBundle;
  * основной контроллер
  */
 public class MainSceneController implements Initializable {
-  @FXML
-  public MenuBar drag_menu;
-  @FXML
-  public Button shut_down_btn;
-  @FXML
-  public Button collapse_btn;
-  @FXML
-  public Button expand_btn;
-  @FXML
-  public Label status_label;
-  @FXML
-  public VBox main_window;
-  @FXML
-  public VBox tree_window;
-  @FXML
-  public TreeView<String> tree_view;
-  @FXML
-  public VBox left_panel_view;
-  @FXML
-  public VBox right_panel_view;
+  @FXML public MenuBar drag_menu;
+  @FXML public Button shut_down_btn;
+  @FXML public Button collapse_btn;
+  @FXML public Button expand_btn;
+  @FXML public Label status_label;
+  @FXML public VBox main_window;
+  @FXML public VBox tree_window;
+  @FXML public TreeView<String> tree_view;
+  @FXML public VBox left_panel_view;
+  @FXML public VBox right_local_panel_view;
+  @FXML public VBox right_cloud_panel_view;
 
   private ClientPanelController clientPanelController;
+  private ClientPanelController rightTabClientController;
   private CloudPanelController cloudPanelController;
 
   private Stage stage;
@@ -56,19 +48,19 @@ public class MainSceneController implements Initializable {
   private double xOffset = 0;
   private double yOffset = 0;
 
-  private static final Map<FileInfo.FileType, Image> iconMap;
+  private static final Map<FileInfo.FileType, Image> ICON_MAP;
 
   static {
-    iconMap = new HashMap<>();
+    ICON_MAP = new HashMap<>();
     Arrays.stream(FileInfo.FileType.values())
         .forEach(x -> {
           System.out.println(x.getUrl());
-          iconMap.put(x, new Image(x.getUrl()));
+          ICON_MAP.put(x, new Image(x.getUrl()));
         });
   }
 
   public static Map<FileInfo.FileType, Image> getIconMap() {
-    return iconMap;
+    return ICON_MAP;
   }
 
   private boolean draggable = true;
@@ -132,23 +124,21 @@ public class MainSceneController implements Initializable {
     return parent;
   }
 
+  @Deprecated
   @FXML
   private void switchToLocal() throws IOException {
-    right_panel_view.getChildren().clear();
-    right_panel_view.getChildren().addAll(getClientView().getChildrenUnmodifiable());
 
-    left_panel_view.getChildren().clear();
-    left_panel_view.getChildren().addAll(getClientView().getChildrenUnmodifiable());
   }
 
+  @Deprecated
   @FXML
   private void switchToCloud() throws IOException {
-    right_panel_view.getChildren().clear();
-    final FXMLLoader loader = new FXMLLoader(MainSceneController.class.getResource("/cloud_panel.fxml"));
-    Parent parent = loader.load();
-    CloudPanelController cloudPanelController = loader.getController();
-    cloudPanelController.setMainSceneController(this);
-    right_panel_view.getChildren().addAll(parent.getChildrenUnmodifiable());
+
+  }
+
+  public void refreshAllClientPanels() {
+    clientPanelController.clientRefresh();
+    rightTabClientController.clientRefresh();
   }
 
   private void fillElements() {
@@ -159,11 +149,17 @@ public class MainSceneController implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     fillElements();
+
+    rightTabClientController = (ClientPanelController) right_local_panel_view.getProperties().get("ctrl");
+    rightTabClientController.setMainSceneController(this);
+    rightTabClientController.init();
+
     clientPanelController = (ClientPanelController) left_panel_view.getProperties().get("ctrl");
-    cloudPanelController = (CloudPanelController) right_panel_view.getProperties().get("cloud");
     clientPanelController.setMainSceneController(this);
-    cloudPanelController.setMainSceneController(this);
     clientPanelController.init();
+
+    cloudPanelController = (CloudPanelController) right_cloud_panel_view.getProperties().get("cloud");
+    cloudPanelController.setMainSceneController(this);
     cloudPanelController.init();
   }
 

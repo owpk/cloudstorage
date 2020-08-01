@@ -23,8 +23,9 @@ import java.util.Objects;
  * добавялется пустой узел заглушка для возможности вызова события "BranchExpandedEvent"
  */
 public class TreeViewController {
-  private static Callback<String> textFlowCallBack;
   private static final String ROOT_NODE_NAME = "Local File System";
+  private static final Image img = MainSceneController.getIconMap().get(FileInfo.FileType.DIRECTORY);
+  private static Callback<String> textFlowCallBack;
   private static TreeView<String> treeView;
   private static TreeItem<String> rootItem;
 
@@ -104,7 +105,6 @@ public class TreeViewController {
     }
   }
 
-  private static final Image img = MainSceneController.getIconMap().get(FileInfo.FileType.DIRECTORY);
   private static void populateItem(TreeItem<String> item) {
     File[] dirs = new File(getPath(item)).listFiles();
     if (dirs != null) {

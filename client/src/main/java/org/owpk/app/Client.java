@@ -22,7 +22,7 @@ public class Client extends Application {
     Parent root = loader.load();
 
     //убираем стандартные рамки окна ОС
-    primaryStage.initStyle(StageStyle.UNDECORATED);
+    primaryStage.initStyle(StageStyle.TRANSPARENT);
 
     //передаем контроллеру stage, чтобы можно было перемещать окно мышью
     MainSceneController mainSceneController = loader.getController();

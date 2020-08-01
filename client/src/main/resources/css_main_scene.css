@@ -9,15 +9,23 @@
     -fx-background-color: transparent;
     -fx-border-color: #1d1d1d;
 }
+.combo-box .list-cell:selected {
+    -fx-background-color: transparent;
+}
 .combo-box .arrow-button .arrow {
     -fx-background-color: white;
 }
+.combo-box .list-cell:filled:hover {
+    -fx-text-fill: white;
+    -fx-background-color: darkslategray;
+}
 .combo-box .list-cell:filled {
-    -fx-background-color: #1d1d1d;
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
 }
 .combo-box .list-view {
     -fx-background-color: #1d1d1d;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,1), 15, 0, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,1), 20, 0, 0, 0);
 }
 .button {
     -fx-background-radius: 0px;
@@ -41,10 +49,10 @@
     -fx-text-fill: white;
     -fx-background-color: #282826;
 }
-/*tree view hover is very unstable*/
-/*.tree-view .tree-cell:hover {*/
-/*    -fx-background-color: darkslategray;*/
-/*}*/
+
+.tree-view .tree-cell:hover {
+    -fx-background-color: darkslategray;
+}
 .tree-view .tree-cell:selected {
     -fx-background-color: lightseagreen;
 }
@@ -115,6 +123,10 @@
 .shut_down_btn:hover {
     -fx-background-color: red;
 }
+.header {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #282826;
+}
 .top_menu_bar {
     -fx-background-color: #1d1d1d;
 }
@@ -135,6 +147,12 @@
 }
 .main_split_pane {
     -fx-background-color: #1d1d1d;
+}
+.table-view:focused .table-row-cell:filled:focused:selected {
+    -fx-background-color: lightseagreen;
+}
+.table-view .table-row-cell:hover {
+    -fx-background-color: darkslategray;
 }
 .table-view {
     -fx-base: #1d1d1d;
@@ -161,13 +179,9 @@
     -fx-text-fill: white;
     -fx-alignment: center-left;
 }
-.table-view .table-row-cell:hover {
-    -fx-background-color: darkslategray;
-}
 
-.table-view:focused .table-row-cell:filled:focused:selected {
-    -fx-background-color: lightseagreen;
-}
+
+
 .split-pane:horizontal > .split-pane-divider {
     -fx-border-color: #282826 #282826 #282826 #282826;
     -fx-background-color: #1d1d1d
@@ -232,6 +246,44 @@
 }
 .footer {
     -fx-background-color: purple;
+}
+
+/*----- TAB PANE -------*/
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane {
+    -fx-tab-min-width:90px;
+}
+
+.tab {
+    -fx-background-insets: 0 1 0 1,0,0;
+    -fx-text-fill: white;
+}
+.tab-pane .tab {
+    -fx-background-color: darkslategray;
+    -fx-opacity: 0.5;
+    -fx-text-fill: white;
+
+}
+.tab-pane .tab:selected {
+    -fx-opacity: 1;
+    -fx-background-color: #282826;
+    -fx-font-weight: bold;
+    -fx-border-width: 0;
+}
+
+.tab .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+
+}
+
+.tab:selected .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: white;
 }
 /* colors:
 #383836
