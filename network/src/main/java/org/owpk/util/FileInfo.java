@@ -2,8 +2,6 @@ package org.owpk.util;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import lombok.Data;
 import org.apache.tika.Tika;
 
@@ -15,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -31,13 +28,13 @@ public class FileInfo implements Serializable {
     DIRECTORY("icons/folder_ico.png", "folder");
 
     private final String url;
-    private final String mimeType;
-    FileType(String url, String mimeType) {
-      this.mimeType = mimeType;
+    private final String type;
+    FileType(String url, String type) {
+      this.type = type;
       this.url = url;
     }
-    public String getMimeType() {
-      return mimeType;
+    public String getType() {
+      return type;
     }
     public String getUrl() {
       return url;
@@ -70,12 +67,12 @@ public class FileInfo implements Serializable {
     String mimeType = tika.detect(path.getFileName().toString());
     if (mimeType.startsWith("application")) {
       mimeType = applicationTypeParse(mimeType);
-    } else mimeType = mimeType.substring(0, mimeType.indexOf("/")).trim();;
-    final EnumMap<FileType, String> mimeTypeMap = new EnumMap<>(FileType.class);
+    } else mimeType = mimeType.substring(0, mimeType.indexOf("/")).trim();
+    final EnumMap<FileType, String> MIME_TYPE_MAP = new EnumMap<>(FileType.class);
     Arrays.stream(FileType.values())
-        .forEach(x -> mimeTypeMap.put(x, x.mimeType));
+        .forEach(x -> MIME_TYPE_MAP.put(x, x.type));
     String finalMimeType = mimeType;
-    return mimeTypeMap.entrySet().stream()
+    return MIME_TYPE_MAP.entrySet().stream()
         .filter(x -> x.getValue().equals(finalMimeType))
         .map(Map.Entry::getKey)
         .findFirst()
@@ -85,9 +82,9 @@ public class FileInfo implements Serializable {
   private static String applicationTypeParse(String app) {
     app = app.substring(app.indexOf("/") + 1).trim();
     if (app.startsWith("x-rar") || app.startsWith("zip"))
-      return FileType.ARCH.mimeType;
+      return FileType.ARCH.type;
     else if (app.equals("x-dosexec"))
-      return FileType.EXEC.mimeType;
+      return FileType.EXEC.type;
     else return app;
   }
 

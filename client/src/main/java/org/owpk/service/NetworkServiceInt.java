@@ -8,7 +8,7 @@ public interface NetworkServiceInt {
   String getName();
   void connect() throws IOException;
   void disconnect() throws IOException;
-  void onMessageReceived(Runnable runnable);
+  void initDataHandler(Runnable runnable);
   OutputStream getOut();
   InputStream getIn();
 

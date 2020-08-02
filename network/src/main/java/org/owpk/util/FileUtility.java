@@ -37,6 +37,7 @@ public class FileUtility {
 
   }
 
+  @Deprecated
   public static void move(File dir, File file) throws IOException {
     String path = dir.getAbsolutePath() + "/" + file.getName();
     createFile(path);
@@ -50,33 +51,18 @@ public class FileUtility {
     }
   }
 
-  public static void move(Path source, Path targetPath) throws IOException {
-    final File TARGET = targetPath.toFile();
-    final File SOURCE = source.toFile();
-    if (TARGET.isFile() && (!TARGET.exists() || !SOURCE.exists()))
-      throw new IOException("can't move to file");
-    else {
-      if (SOURCE.isDirectory())
-        moveDirectories(source, targetPath);
-      else {
-        final String SOURCE_FILE_NAME = SOURCE.getName();
-        final Path TARGET_PATH = Paths.get(targetPath.toString(), SOURCE_FILE_NAME);
-        Files.move(source, TARGET_PATH, REPLACE_EXISTING);
+  private static void move(Path sourceFile, Path destFile) throws IOException {
+    if (Files.isDirectory(sourceFile)) {
+      String targetDirName = sourceFile.getFileName().toString();
+      Files.createDirectory(Paths.get(destFile.toString(), targetDirName));
+      File[] files = sourceFile.toFile().listFiles();
+      if (files == null || files.length == 0) {
+        Files.delete(sourceFile);
+      } else {
+        for (File f : files)
+          move(f.toPath(), Paths.get(destFile.toString(), targetDirName));
       }
-    }
-  }
-
-  public static void moveDirectories(Path sourceDir, Path destinationDir) {
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sourceDir)) {
-      for (Path path : directoryStream) {
-        System.out.println("copying " + path.toString());
-        Path d2 = destinationDir.resolve(path.getFileName());
-        System.out.println("destination File=" + d2);
-        Files.move(path, d2, REPLACE_EXISTING);
-      }
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
+    } else Files.move(sourceFile,Paths.get(destFile.toString(), sourceFile.getFileName().toString()), REPLACE_EXISTING);
   }
 
   public static void placeFile(DataInputStream is, File file) throws IOException {

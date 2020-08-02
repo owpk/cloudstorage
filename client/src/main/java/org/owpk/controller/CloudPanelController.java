@@ -40,8 +40,7 @@ public class CloudPanelController {
    * метод вызывается при нажатии на кнопку "connect"
    * {@link NetworkServiceFactory} возвращает {@link NetworkServiceInt},
    * который создает подключение клиента к серверу,
-   * потоки данных для созданного подключения обслуживает {@link InputDataHandler}
-   * команда выполняется в отедльном сервисном потоке, чтобы не мешать UI
+   * данные для созданного подключения обслуживает {@link InputDataHandler}
    */
   public void connect(ActionEvent actionEvent) {
     Service<Void> ser = new Service<Void>() {
@@ -49,7 +48,7 @@ public class CloudPanelController {
       protected Task<Void> createTask() {
         return new Task<Void>() {
           @Override
-          protected Void call() throws InterruptedException {
+          protected Void call() throws InterruptedException, IOException {
             try {
               networkServiceInt = NetworkServiceFactory.getHandler(Config.getDefaultServer());
               networkServiceInt.connect();
@@ -57,8 +56,9 @@ public class CloudPanelController {
                   new InputDataHandler(networkServiceInt,
                       cloudTableCallback, statusLabelCallback);
               forwardServerFolders(actionEvent);
-              networkServiceInt.onMessageReceived(inputDataHandler);
+              networkServiceInt.initDataHandler(inputDataHandler);
             } catch (IOException e) {
+              disconnect();
               networkServiceInt = null;
               throw new InterruptedException();
             }

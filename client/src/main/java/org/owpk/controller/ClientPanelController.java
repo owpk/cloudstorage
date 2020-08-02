@@ -212,15 +212,18 @@ public class ClientPanelController {
               target = tempItem.getPath();
               System.out.println("Target directory: " + target);
             } else target = targetDirectory;
-            try {
-              FileUtility.move(source, target);
-              mainSceneController.refreshAllClientPanels();
-              mainSceneController.status_label.setText("done");
-            } catch (IOException e) {
-              mainSceneController.status_label.setText(e.getLocalizedMessage());
-              e.printStackTrace();
-            }
-            success = true;
+//            try {
+////              FileUtility.move(source, target);
+//              mainSceneController.refreshAllClientPanels();
+//              mainSceneController.status_label.setText("done");
+//              success = true;
+//            } catch (IOException e) {
+//              Alert alert = new Alert(Alert.AlertType.ERROR);
+//              alert.setTitle("Can't move file");
+//              alert.setContentText(e.toString());
+//              alert.showAndWait();
+//              e.printStackTrace();
+//            }
         }
       tempItem = null;
       x.setDropCompleted(success);

@@ -53,7 +53,7 @@ public class  OwpkNetworkServiceImpl implements NetworkServiceInt {
   }
 
   @Override
-  public void onMessageReceived(Runnable runnable) {
+  public void initDataHandler(Runnable runnable) {
     Thread t = new Thread(runnable);
     t.setDaemon(true);
     t.start();
