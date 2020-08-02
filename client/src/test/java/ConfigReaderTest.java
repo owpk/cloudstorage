@@ -39,7 +39,7 @@ public class ConfigReaderTest {
 
   public static void main(String[] args) throws IOException {
     Path source = Paths.get("C:\\Test\\1");
-    Path target = Paths.get("C:\\Test\\2");
+    Path target = Paths.get("C:\\Test\\2\\folder");
       new Thread(() -> {
         try {
           move(source, target);
@@ -49,32 +49,18 @@ public class ConfigReaderTest {
       }).start();
   }
 
-  private static void move(File sourceFile, File destFile) throws IOException {
-    if (sourceFile.isDirectory()) {
-      String targetDirName = sourceFile.getName();
-      Files.createDirectory(Paths.get(destFile.getPath(), targetDirName));
-      File[] files = sourceFile.listFiles();
-      if (files == null || files.length == 0) {
-        Files.delete(sourceFile.toPath());
-      } else {
-        for (File f : files)
-        move(f, Paths.get(destFile.getAbsolutePath(), targetDirName).toFile());
-      }
-    } else Files.move(sourceFile.toPath(),Paths.get(destFile.getAbsolutePath(), sourceFile.getName()), REPLACE_EXISTING);
-  }
-
   private static void move(Path sourceFile, Path destFile) throws IOException {
     if (Files.isDirectory(sourceFile)) {
       String targetDirName = sourceFile.getFileName().toString();
       Files.createDirectory(Paths.get(destFile.toString(), targetDirName));
       File[] files = sourceFile.toFile().listFiles();
-      if (files == null || files.length == 0) {
-        Files.delete(sourceFile);
-      } else {
+      if (files != null && files.length != 0) {
         for (File f : files)
           move(f.toPath(), Paths.get(destFile.toString(), targetDirName));
       }
-    } else Files.move(sourceFile,Paths.get(destFile.toString(), sourceFile.getFileName().toString()), REPLACE_EXISTING);
+        Files.deleteIfExists(sourceFile);
+      } else
+        Files.move(sourceFile, Paths.get(destFile.toString(), sourceFile.getFileName().toString()), REPLACE_EXISTING);
   }
 
   @Test

@@ -32,11 +32,6 @@ public class FileUtility {
         .collect(Collectors.toList());
   }
 
-  public static void move(File sourceFile, File targetDir, File fileName) throws IOException {
-    move(targetDir, fileName);
-
-  }
-
   @Deprecated
   public static void move(File dir, File file) throws IOException {
     String path = dir.getAbsolutePath() + "/" + file.getName();
@@ -51,18 +46,20 @@ public class FileUtility {
     }
   }
 
-  private static void move(Path sourceFile, Path destFile) throws IOException {
-    if (Files.isDirectory(sourceFile)) {
-      String targetDirName = sourceFile.getFileName().toString();
-      Files.createDirectory(Paths.get(destFile.toString(), targetDirName));
-      File[] files = sourceFile.toFile().listFiles();
-      if (files == null || files.length == 0) {
-        Files.delete(sourceFile);
-      } else {
+  public static void move(Path source, Path target) throws IOException {
+    if (Files.isDirectory(source)) {
+      String targetDirName = source.getFileName().toString();
+      Files.createDirectory(Paths.get(target.toString(), targetDirName));
+      File[] files = source.toFile().listFiles();
+      if (files != null && files.length != 0) {
         for (File f : files)
-          move(f.toPath(), Paths.get(destFile.toString(), targetDirName));
+          move(f.toPath(), Paths.get(target.toString(), targetDirName));
       }
-    } else Files.move(sourceFile,Paths.get(destFile.toString(), sourceFile.getFileName().toString()), REPLACE_EXISTING);
+      Files.deleteIfExists(source);
+    } else {
+      Files.move(source, Paths.get(
+          target.toString(), source.getFileName().toString()), REPLACE_EXISTING);
+    }
   }
 
   public static void placeFile(DataInputStream is, File file) throws IOException {
