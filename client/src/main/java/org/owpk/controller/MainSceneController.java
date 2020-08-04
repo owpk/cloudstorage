@@ -27,17 +27,17 @@ import java.util.ResourceBundle;
  * основной контроллер
  */
 public class MainSceneController implements Initializable {
-  @FXML public MenuBar drag_menu;
-  @FXML public Button shut_down_btn;
-  @FXML public Button collapse_btn;
-  @FXML public Button expand_btn;
-  @FXML public Label status_label;
-  @FXML public VBox main_window;
-  @FXML public VBox tree_window;
-  @FXML public TreeView<String> tree_view;
-  @FXML public VBox left_panel_view;
-  @FXML public VBox right_local_panel_view;
-  @FXML public VBox right_cloud_panel_view;
+  @FXML private MenuBar drag_menu;
+  @FXML private Button shut_down_btn;
+  @FXML private Button collapse_btn;
+  @FXML private Button expand_btn;
+  @FXML private Label status_label;
+  @FXML private VBox main_window;
+  @FXML private VBox tree_window;
+  @FXML private TreeView<String> tree_view;
+  @FXML private VBox left_panel_view;
+  @FXML private VBox right_local_panel_view;
+  @FXML private VBox right_cloud_panel_view;
 
   private ClientPanelController clientPanelController;
   private ClientPanelController rightTabClientController;
@@ -57,6 +57,10 @@ public class MainSceneController implements Initializable {
           System.out.println(x.getUrl());
           ICON_MAP.put(x, new Image(x.getUrl()));
         });
+  }
+
+  public void setStatusLabel(String text) {
+    Platform.runLater(() -> status_label.setText(text));
   }
 
   public static Map<FileInfo.FileType, Image> getIconMap() {
@@ -124,17 +128,11 @@ public class MainSceneController implements Initializable {
     return parent;
   }
 
-  @Deprecated
   @FXML
-  private void switchToLocal() throws IOException {
+  private void switchToLocal() throws IOException { }
 
-  }
-
-  @Deprecated
   @FXML
-  private void switchToCloud() throws IOException {
-
-  }
+  private void switchToCloud() throws IOException { }
 
   public void refreshAllClientPanels() {
     clientPanelController.clientRefresh();

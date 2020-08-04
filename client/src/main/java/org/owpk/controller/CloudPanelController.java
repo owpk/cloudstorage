@@ -22,12 +22,12 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 public class CloudPanelController {
-  @FXML public TableView<FileInfo> server_panel;
-  @FXML public Button back_btn;
-  @FXML public Button forward_btn;
-  @FXML public Button up_btn;
-  @FXML public TextField cloud_text_field;
-  @FXML public Button connect_btn;
+  @FXML private TableView<FileInfo> server_panel;
+  @FXML private Button back_btn;
+  @FXML private Button forward_btn;
+  @FXML private Button up_btn;
+  @FXML private TextField cloud_text_field;
+  @FXML private Button connect_btn;
 
 
   private NetworkServiceInt networkServiceInt;
@@ -69,11 +69,11 @@ public class CloudPanelController {
     };
     //выводим информацию в текс лейбл по результату выполнения
     ser.setOnRunning((WorkerStateEvent event) ->
-        mainSceneController.status_label.setText("trying to connect " + Config.getDefaultServer() + "..."));
+        mainSceneController.setStatusLabel("trying to connect " + Config.getDefaultServer() + "..."));
     ser.setOnSucceeded((WorkerStateEvent event) ->
-        mainSceneController.status_label.setText("connected: " + networkServiceInt.getName()));
+        mainSceneController.setStatusLabel("connected: " + networkServiceInt.getName()));
     ser.setOnFailed((WorkerStateEvent event) ->
-        mainSceneController.status_label.setText("unable to connect"));
+        mainSceneController.setStatusLabel("unable to connect"));
     ser.start();
   }
 
@@ -123,6 +123,6 @@ public class CloudPanelController {
       server_panel.getItems().addAll(x);
       server_panel.sort();
     };
-    statusLabelCallback = s -> mainSceneController.status_label.setText(s);
+    statusLabelCallback = s -> mainSceneController.setStatusLabel(s);
   }
 }

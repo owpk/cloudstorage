@@ -7,7 +7,7 @@ import org.owpk.service.NetworkServiceInt;
 import java.io.*;
 import java.net.Socket;
 
-public class  OwpkNetworkServiceImpl implements NetworkServiceInt {
+public class IONetworkServiceImpl implements NetworkServiceInt {
   private String host;
   private int port;
   private Socket socket;
@@ -17,7 +17,7 @@ public class  OwpkNetworkServiceImpl implements NetworkServiceInt {
   private DataOutputStream dataOut;
 
 
-  public OwpkNetworkServiceImpl(String host, int port) {
+  public IONetworkServiceImpl(String host, int port) {
     this.port = port;
     this.host = host;
   }

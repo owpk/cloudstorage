@@ -51,7 +51,7 @@ public class ResizeHelper {
     private Stage stage;
     protected Node node;
     protected Cursor cursorEvent = Cursor.DEFAULT;
-    protected int border = 5;
+    protected int border = 3;
     protected double startX = 0;
     protected double startY = 0;
 

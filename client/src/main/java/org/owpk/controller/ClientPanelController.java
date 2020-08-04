@@ -27,12 +27,12 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class ClientPanelController {
-  @FXML public TableView<FileInfo> client_panel;
-  @FXML public Button client_forward_btn;
-  @FXML public TextField client_textFlow;
-  @FXML public ComboBox<String> disk_list;
-  @FXML public Button client_back;
-  @FXML public VBox client_panel_vbox;
+  @FXML private TableView<FileInfo> client_panel;
+  @FXML private Button client_forward_btn;
+  @FXML private TextField client_textFlow;
+  @FXML private ComboBox<String> disk_list;
+  @FXML private Button client_back;
+  @FXML private VBox client_panel_vbox;
   private MainSceneController mainSceneController;
   private Callback<String> textFlowCallback;
   public Stack<Path> clientBackInHistoryStack;
@@ -83,7 +83,7 @@ public class ClientPanelController {
   }
 
   private void resetStatusLabel() {
-    Platform.runLater(() -> mainSceneController.status_label.setText(""));
+    mainSceneController.setStatusLabel("");
   }
 
   /**
@@ -100,7 +100,7 @@ public class ClientPanelController {
           .collect(Collectors.toList()));
       client_panel.sort();
     } catch (IOException e) {
-      Platform.runLater(() -> mainSceneController.status_label.setText("can't open"));
+      mainSceneController.setStatusLabel("can't open");
       e.printStackTrace();
     }
   }
@@ -190,7 +190,7 @@ public class ClientPanelController {
       return row;
     });
 
-    //если событие пришло из другой панели то нужно взять текущий путь в этой панели
+    //если событие пришло из другой панели то нужно взять текущий путь из истории в этой панеле
     //иначе мы не сможем узнать target путь
     client_panel.setOnDragEntered(x -> {
         targetDirectory = clientBackInHistoryStack.peek();
@@ -202,29 +202,32 @@ public class ClientPanelController {
     // после того как все успешно переместилось обновляем оба TableView через MainController
     // иначе обновляется только одна таблица на которой фокус
     client_panel.setOnDragDropped(x -> {
-          x.acceptTransferModes(TransferMode.ANY);
-          Dragboard db = x.getDragboard();
-          boolean success = false;
-          if (db.hasString()) {
-            Path source = Paths.get(db.getString());
-            Path target;
-            if (tempItem != null) {
-              target = tempItem.getPath();
-              System.out.println("Target directory: " + target);
-            } else target = targetDirectory;
-            try {
-              FileUtility.move(source, target);
-              mainSceneController.refreshAllClientPanels();
-              mainSceneController.status_label.setText("done");
-              success = true;
-            } catch (IOException e) {
-              Alert alert = new Alert(Alert.AlertType.ERROR);
-              alert.setTitle("Can't move file");
-              alert.setContentText(e.toString());
-              alert.showAndWait();
-              e.printStackTrace();
-            }
+      x.acceptTransferModes(TransferMode.ANY);
+      Dragboard db = x.getDragboard();
+      boolean success = false;
+      if (db.hasString()) {
+        Path source = Paths.get(db.getString());
+        Path target;
+        if (tempItem != null) {
+          target = tempItem.getPath();
+        } else target = targetDirectory;
+        if (!source.equals(target)) {
+          System.out.println("-Move from: " + source);
+          System.out.println("-Move to: " + target);
+          try {
+            FileUtility.move(source, target);
+            mainSceneController.refreshAllClientPanels();
+            mainSceneController.setStatusLabel("done");
+            success = true;
+          } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Can't move file");
+            alert.setContentText(e.toString());
+            alert.showAndWait();
+            e.printStackTrace();
+          }
         }
+      }
       tempItem = null;
       x.setDropCompleted(success);
       x.consume();
@@ -263,6 +266,4 @@ public class ClientPanelController {
     initListeners();
     client_panel.setPlaceholder(new Label(""));
   }
-
-
 }

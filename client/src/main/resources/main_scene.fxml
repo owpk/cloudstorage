@@ -97,6 +97,9 @@
               </items>
             </SplitPane>
          </children>
+         <VBox.margin>
+            <Insets left="3.0" right="3.0" />
+         </VBox.margin>
       </HBox>
 
       <HBox prefHeight="18.0" prefWidth="818.0" styleClass="footer" stylesheets="@css_main_scene.css">
