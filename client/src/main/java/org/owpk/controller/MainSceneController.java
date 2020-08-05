@@ -13,7 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
-import org.owpk.app.Config;
+import org.owpk.app.ClientConfig;
 import org.owpk.util.FileInfo;
 
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class MainSceneController implements Initializable {
 
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
-      Config.setSourceRoot(clientPanelController.clientBackInHistoryStack.peek().toString());
+      ClientConfig.setStartPath(clientPanelController.clientBackInHistoryStack.peek().toString());
       Platform.exit();
     });
 
@@ -120,7 +120,7 @@ public class MainSceneController implements Initializable {
   }
 
   private Parent getClientView() throws IOException {
-    final FXMLLoader loader = new FXMLLoader(MainSceneController.class.getResource("/client_panel.fxml"));
+    final FXMLLoader loader = new FXMLLoader(MainSceneController.class.getResource("/view/client_panel.fxml"));
     Parent parent = loader.load();
     ClientPanelController clientPanelController = loader.getController();
     clientPanelController.init();

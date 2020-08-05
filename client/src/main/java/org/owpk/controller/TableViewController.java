@@ -28,7 +28,6 @@ public class TableViewController implements Initializable {
   private TableColumn<FileInfo, String> client_column_file_name;
   private TableColumn<FileInfo, Long> client_column_file_size;
   private TableColumn<FileInfo, String> client_column_last_changed;
-  private FileChooser fileChooser;
 
   /**
    * Стилизатор для колонки Type в таблице

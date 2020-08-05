@@ -1,13 +1,14 @@
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.owpk.app.Config;
+import org.owpk.app.ClientConfig;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -23,7 +24,7 @@ public class ConfigReaderTest {
   public static void readProperty() {
     properties = new Properties();
     try (InputStream in =
-             Config.class.getClassLoader()
+             ClientConfig.class.getClassLoader()
                  .getResourceAsStream("client.properties")) {
       properties.load(in);
       source = properties.getProperty("root_directory");

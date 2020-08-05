@@ -1,60 +1,37 @@
 package org.owpk.util;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
+/**
+ * инициализирует {@link Properties}
+ */
 public class Config {
-  private static Path sourceRoot;
-  private static String defaultServer;
-  private static int port;
+  protected static int port;
+  protected static final Properties properties;
   static {
-    Properties properties = new Properties();
+    properties = new Properties();
+  }
+
+  protected static void initProp(String propName) {
     try (InputStream in =
-             Config.class.getClassLoader()
-                 .getResourceAsStream("app.properties")) {
-      properties.load(in);
+             new FileInputStream("./"+propName)) {
+      Config.properties.load(in);
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-    sourceRoot = Paths.get(properties.getProperty("root_directory"));
-    if (!Files.exists(sourceRoot))
-      sourceRoot = FileSystems.getDefault().getRootDirectories().iterator().next();
-    defaultServer = properties.getProperty("default_server");
-    port = checkPort(properties.getProperty("port"));
-
   }
 
-
-  private static int checkPort(String port) {
-    int p;
+  protected static int checkPort(String port) {
+    int p = 0;
     try {
       p = Integer.parseInt(port);
     } catch (NumberFormatException nfe) {
-      throw new NumberFormatException("check port");
+      System.out.println("check port");
     }
     return p;
-  }
-
-  public static Path getSourceRoot() {
-    return sourceRoot;
-  }
-
-  public static void setSourceRoot(Path sourceRoot) {
-    Config.sourceRoot = sourceRoot;
-  }
-
-  public static String getDefaultServer() {
-    return defaultServer;
-  }
-
-  public static void setDefaultServer(String defaultServer) {
-    Config.defaultServer = defaultServer;
   }
 
   public static int getPort() {

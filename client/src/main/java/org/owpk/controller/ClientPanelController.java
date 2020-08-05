@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import lombok.SneakyThrows;
 import org.owpk.app.Callback;
-import org.owpk.app.Config;
+import org.owpk.app.ClientConfig;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
@@ -159,9 +159,10 @@ public class ClientPanelController {
   /**
    * инициализирует DragAndDrop слушателей
    */
-  private FileInfo tempItem;
+
   private Path targetDirectory;
   private void initDragAndDropListeners() {
+    final FileInfo[] tempItem = new FileInfo[1];
 
     client_panel.setOnDragDetected(x -> {
       FileInfo f = client_panel.getSelectionModel().getSelectedItem();
@@ -185,7 +186,7 @@ public class ClientPanelController {
     client_panel.setRowFactory(x -> {
       TableRow<FileInfo> row = new TableRow<>();
       row.setOnDragDropped(event -> {
-        tempItem = row.getItem();
+        tempItem[0] = row.getItem();
       });
       return row;
     });
@@ -207,10 +208,7 @@ public class ClientPanelController {
       boolean success = false;
       if (db.hasString()) {
         Path source = Paths.get(db.getString());
-        Path target;
-        if (tempItem != null) {
-          target = tempItem.getPath();
-        } else target = targetDirectory;
+        Path target = tempItem[0] != null ? tempItem[0].getPath() : targetDirectory;
         if (!source.equals(target)) {
           System.out.println("-Move from: " + source);
           System.out.println("-Move to: " + target);
@@ -228,7 +226,7 @@ public class ClientPanelController {
           }
         }
       }
-      tempItem = null;
+      tempItem[0] = null;
       x.setDropCompleted(success);
       x.consume();
     });
@@ -258,10 +256,10 @@ public class ClientPanelController {
     clientBackInHistoryStack = new Stack<>();
     clientForwardInHistoryStack = new Stack<>();
     fillElements();
-    final Path ROOT_PATH = Config.getSourceRoot();
-    clientBackInHistoryStack.push(ROOT_PATH);
-    clientRefresh(ROOT_PATH);
-    client_textFlow.setText(ROOT_PATH.toString());
+    final Path START_PATH = ClientConfig.getStartPath();
+    clientBackInHistoryStack.push(START_PATH);
+    clientRefresh(START_PATH);
+    client_textFlow.setText(START_PATH.toString());
     initCallbacks();
     initListeners();
     client_panel.setPlaceholder(new Label(""));

@@ -14,12 +14,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="main_window" prefHeight="700.0" prefWidth="1300.0" styleClass="body" stylesheets="@css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.MainSceneController">
+<VBox fx:id="main_window" prefHeight="700.0" prefWidth="1300.0" styleClass="body" stylesheets="@../css/css_main_scene.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.MainSceneController">
    <children>
 
       <HBox styleClass="header">
          <children>
-            <MenuBar fx:id="drag_menu" styleClass="top_menu_bar" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
+            <MenuBar fx:id="drag_menu" styleClass="top_menu_bar" stylesheets="@../css/css_main_scene.css" HBox.hgrow="ALWAYS">
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
@@ -39,17 +39,17 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <Button fx:id="expand_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="—">
+            <Button fx:id="expand_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@../css/css_main_scene.css" text="—">
                <styleClass>
                   <String fx:value="main_window_ctrl_btn" />
                   <String fx:value="roll_down_btn" />
                </styleClass></Button>
-            <Button fx:id="collapse_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="☐">
+            <Button fx:id="collapse_btn" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@../css/css_main_scene.css" text="☐">
                <styleClass>
                   <String fx:value="main_window_ctrl_btn" />
                   <String fx:value="roll_up_btn" />
                </styleClass></Button>
-            <Button fx:id="shut_down_btn" graphicTextGap="1.0" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@css_main_scene.css" text="✕">
+            <Button fx:id="shut_down_btn" graphicTextGap="1.0" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" stylesheets="@../css/css_main_scene.css" text="✕">
                <styleClass>
                   <String fx:value="main_window_ctrl_btn" />
                   <String fx:value="shut_down_btn" />
@@ -59,24 +59,24 @@
 
       <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
          <children>
-            <SplitPane dividerPositions="0.15" stylesheets="@css_main_scene.css" HBox.hgrow="ALWAYS">
+            <SplitPane dividerPositions="0.15" stylesheets="@../css/css_main_scene.css" HBox.hgrow="ALWAYS">
               <items>
-                  <VBox fx:id="tree_window" prefWidth="200.0" scaleShape="false" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" SplitPane.resizableWithParent="false">
+                  <VBox fx:id="tree_window" prefWidth="200.0" scaleShape="false" styleClass="left_tree_panel" stylesheets="@../css/css_main_scene.css" SplitPane.resizableWithParent="false">
                      <children>
-                        <TreeView fx:id="tree_view" prefWidth="200.0" styleClass="left_tree_panel" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS" />
+                        <TreeView fx:id="tree_view" prefWidth="200.0" styleClass="left_tree_panel" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
                   <VBox SplitPane.resizableWithParent="false">
                      <children>
-                        <SplitPane fx:id="main_view" dividerPositions="0.5" styleClass="main_split_pane" stylesheets="@css_main_scene.css" VBox.vgrow="ALWAYS">
+                        <SplitPane fx:id="main_view" dividerPositions="0.5" styleClass="main_split_pane" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS">
                            <items>
                               <VBox SplitPane.resizableWithParent="false">
                                  <children>
-                                    <HBox maxHeight="36.0" minHeight="36.0" prefHeight="36.0" stylesheets="@css_main_scene.css" />
+                                    <HBox maxHeight="36.0" minHeight="36.0" prefHeight="36.0" stylesheets="@../css/css_main_scene.css" />
                                      <fx:include fx:id="left_panel_view" source="client_panel.fxml" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
-                              <TabPane stylesheets="@css_main_scene.css" tabClosingPolicy="UNAVAILABLE" SplitPane.resizableWithParent="false">
+                              <TabPane stylesheets="@../css/css_main_scene.css" tabClosingPolicy="UNAVAILABLE" SplitPane.resizableWithParent="false">
                                 <tabs>
                                   <Tab text="cloud">
                                        <content>
@@ -102,10 +102,10 @@
          </VBox.margin>
       </HBox>
 
-      <HBox prefHeight="18.0" prefWidth="818.0" styleClass="footer" stylesheets="@css_main_scene.css">
+      <HBox prefHeight="18.0" prefWidth="818.0" styleClass="footer" stylesheets="@../css/css_main_scene.css">
          <children>
             <Label text="UTF-8" />
-            <Label fx:id="status_label" styleClass="status_label" stylesheets="@css_main_scene.css">
+            <Label fx:id="status_label" styleClass="status_label" stylesheets="@../css/css_main_scene.css">
                <HBox.margin>
                   <Insets left="15.0" />
                </HBox.margin>

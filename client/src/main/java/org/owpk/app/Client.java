@@ -18,7 +18,7 @@ public class Client extends Application {
   public void start(Stage primaryStage) throws Exception {
     primaryStage.setResizable(true);
 
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_scene.fxml"));
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_scene.fxml"));
     Parent root = loader.load();
 
     //убираем стандартные рамки окна ОС

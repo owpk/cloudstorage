@@ -24,4 +24,5 @@ public class WritePropertyTest {
     props.load(new FileInputStream(file));
     Assert.assertEquals("World", props.getProperty("Hello"));
   }
+
 }

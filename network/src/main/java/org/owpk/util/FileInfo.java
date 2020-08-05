@@ -42,7 +42,7 @@ public class FileInfo implements Serializable {
   }
 
   private String filename;
-  private Path path;
+  private transient Path path;
   private FileType fileType;
   private Long size;
   private LocalDateTime lastModified;

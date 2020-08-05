@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+
+<TableView fx:id="table" prefHeight="700.0" prefWidth="296.0" styleClass="main_table" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:controller="org.owpk.controller.TableViewController"/>
+
+

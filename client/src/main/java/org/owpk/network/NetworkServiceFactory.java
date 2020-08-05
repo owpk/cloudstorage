@@ -1,6 +1,6 @@
-package org.owpk.service;
+package org.owpk.network;
 
-import org.owpk.app.Config;
+import org.owpk.app.ClientConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,8 @@ public class NetworkServiceFactory {
   private static final Map<String, IONetworkServiceImpl> map;
   static {
     map = new HashMap<>();
-    map.put("localhost", new IONetworkServiceImpl(Config.getDefaultServer(),Config.getPort()));
+    map.put("localhost", new IONetworkServiceImpl(
+        ClientConfig.getDefaultServer(), ClientConfig.getPort()));
   }
   public static NetworkServiceInt getHandler(String server) {
     return map.get(server);

@@ -1,16 +1,23 @@
 package org.owpk.util;
 
-import java.io.*;
-import java.nio.file.DirectoryStream;
+import org.owpk.message.DataInfo;
+import org.owpk.message.MessageType;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FileUtility {
+  private static final int BUFFER_SIZE = 500;
 
   public static void createFile(String fileName) throws IOException {
     File file = new File(fileName);
@@ -26,26 +33,13 @@ public class FileUtility {
     }
   }
 
-  public static List<FileInfo> showDirs(String currentDir) throws IOException {
+  public static List<FileInfo> getDirectories(String currentDir) throws IOException {
     Path path = Paths.get(currentDir);
     return Files.list(path).map(FileInfo::new)
         .collect(Collectors.toList());
   }
 
-  @Deprecated
-  public static void move(File dir, File file) throws IOException {
-    String path = dir.getAbsolutePath() + "/" + file.getName();
-    createFile(path);
-    InputStream is = new FileInputStream(file);
-    try (OutputStream os = new FileOutputStream(new File(path))) {
-      byte[] buffer = new byte[8192];
-      while (is.available() > 0) {
-        int readBytes = is.read(buffer);
-        os.write(buffer, 0, readBytes);
-      }
-    }
-  }
-
+  //перемещает всю директорию и файлы в ней или отдельный файл
   public static void move(Path source, Path target) throws IOException {
     if (Files.isDirectory(source)) {
       String targetDirName = source.getFileName().toString();
@@ -62,24 +56,23 @@ public class FileUtility {
     }
   }
 
-  public static void placeFile(DataInputStream is, File file) throws IOException {
-    byte[] buffer = new byte[8192];
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      for (long i = 0; i < buffer.length; i++) {
-        int count = is.read(buffer);
-        fos.write(buffer, 0, count);
-      }
-    }
-  }
-
-  public static void sendFile(DataOutputStream os, File file) throws IOException {
-    try (FileInputStream fis = new FileInputStream(file)) {
-      byte[] buffer = new byte[8192];
+  public static DataInfo[] getChunkedFile(File f, MessageType type) throws IOException {
+    DataInfo[] buffer;
+    int chunkCount;
+    try(FileInputStream fis = new FileInputStream(f)) {
+      byte[] buf = new byte[BUFFER_SIZE];
+      chunkCount = (int) Math.ceil((float) f.length() / BUFFER_SIZE);
+      System.out.println("Chunks : " + chunkCount + " Size: " + f.length());
+      buffer = new DataInfo[chunkCount ];
+      int chunkIndex = 0;
       while (fis.available() > 0) {
-        int count = fis.read(buffer);
-        os.write(buffer, 0, count);
+        int offset = fis.read(buf);
+        byte[] chunk = Arrays.copyOf(buf, offset);
+        buffer[chunkIndex] = new DataInfo(type, chunkCount, chunkIndex, f.getName(), chunk);
+        chunkIndex++;
       }
     }
+    return buffer;
   }
 
 }
