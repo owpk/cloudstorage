@@ -8,7 +8,6 @@ import org.owpk.message.MessageType;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,11 +38,11 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
     System.out.println(msg);
     switch (msg.getType()) {
       case DOWNLOAD:
-        download((DataInfo) msg);
+        downloadRequest((DataInfo) msg);
         break;
       case UPLOAD:
         System.out.println("Upload");
-        upload((DataInfo) msg, activeUsers.get(ctx.channel()).getUserFolder());
+        uploadRequest((DataInfo) msg, activeUsers.get(ctx.channel()).getUserFolder());
         break;
       case DIR:
         List<FileInfo> list = FileUtility.getDirectories(activeUsers.get(ctx.channel()).getUserFolder());
@@ -57,11 +56,11 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
     ctx.close();
   }
 
-  private void download(DataInfo ms) {
+  private void downloadRequest(DataInfo ms) {
     //TODO
   }
 
-  private void upload(DataInfo ms, String root) throws IOException {
+  private void uploadRequest(DataInfo ms, String root) throws IOException {
     System.out.println("Package accepted: " + ms.getChunkIndex());
     String userFolder = user.getUserFolder();
     String fileName = ms.getFile();
