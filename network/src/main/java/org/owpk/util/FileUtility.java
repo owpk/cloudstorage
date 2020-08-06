@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FileUtility {
-  private static final int BUFFER_SIZE = 500;
+  private static final int BUFFER_SIZE = 8192;
 
   public static void createFile(String fileName) throws IOException {
     File file = new File(fileName);

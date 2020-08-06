@@ -1,15 +1,13 @@
 package org.owpk.controller;
 
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
+import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import org.owpk.app.Callback;
@@ -24,7 +22,6 @@ import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -32,14 +29,15 @@ import java.util.Stack;
 
 public class CloudPanelController {
   private static final int BUFFER_SIZE = 8192;
+  @FXML private ProgressBar progress_cloud;
   @FXML private TableView<FileInfo> server_panel;
   @FXML private Button back_btn;
   @FXML private Button forward_btn;
   @FXML private Button up_btn;
   @FXML private TextField cloud_text_field;
   @FXML private Button connect_btn;
-  public Stack<Path> cloudBackInHistoryStack;
-  public Stack<Path> cloudForwardInHistoryStack;
+  private Stack<Path> cloudBackInHistoryStack;
+  private Stack<Path> cloudForwardInHistoryStack;
 
   private NetworkServiceInt networkServiceInt;
   private MainSceneController mainSceneController;
@@ -105,8 +103,12 @@ public class CloudPanelController {
       sendMessage(new Message<String>(MessageType.DIR));
   }
 
-  private void sendMessage(Message<?> messages) throws IOException {
-    ((ObjectEncoderOutputStream) networkServiceInt.getOut()).writeObject(messages);
+  private void sendMessage(Message<?> messages) {
+    try {
+      ((ObjectEncoderOutputStream) networkServiceInt.getOut()).writeObject(messages);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private void serverRefresh(List<FileInfo> list) {
@@ -136,7 +138,6 @@ public class CloudPanelController {
       if (f.isFile()) {
         try {
           upload(f);
-          sendMessage(new Message<String>(MessageType.DIR));
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -145,9 +146,35 @@ public class CloudPanelController {
   }
 
   public void upload(File f) throws IOException {
-    DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.UPLOAD);
-    for (DataInfo data: bufferedData)
-      sendMessage(data);
+    Service<Void> ser = new Service<Void>() {
+      @Override
+      protected Task<Void> createTask() {
+        return new Task<Void>() {
+          @Override
+          protected Void call() throws InterruptedException, IOException {
+            DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.UPLOAD);
+            float counter;
+            for (int i = 0; i < bufferedData.length; i++) {
+              sendMessage(bufferedData[i]);
+              counter = (float) i / bufferedData.length;
+              progress_cloud.setProgress(counter);
+            }
+            return null;
+          }
+        };
+      }
+    };
+    //выводим информацию в текс лейбл по результату выполнения
+    ser.setOnRunning((WorkerStateEvent event) ->
+        mainSceneController.setStatusLabel("uploading..."));
+    ser.setOnSucceeded((WorkerStateEvent event) -> {
+        mainSceneController.setStatusLabel("done");
+        sendMessage(new Message<String>(MessageType.DIR));
+        progress_cloud.setProgress(0);
+    });
+    ser.setOnFailed((WorkerStateEvent event) ->
+        mainSceneController.setStatusLabel("failed"));
+    ser.start();
   }
 
   public void setMainSceneController(MainSceneController mainSceneController) {
@@ -166,10 +193,7 @@ public class CloudPanelController {
 
   public void init() {
     initListeners();
-    cloudTableCallback = x -> {
-      server_panel.getItems().addAll(x);
-      server_panel.sort();
-    };
+    cloudTableCallback = this::serverRefresh;
     statusLabelCallback = s -> mainSceneController.setStatusLabel(s);
   }
 }

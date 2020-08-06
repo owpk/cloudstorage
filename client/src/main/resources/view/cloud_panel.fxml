@@ -61,7 +61,7 @@
         </VBox.margin>
     </HBox>
     <fx:include fx:id="server_panel" source="table.fxml" />
-    <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS" />
+    <ProgressBar fx:id="progress_cloud" minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS" />
 </children>
     <properties>
         <cloud><fx:reference source="controller"/> </cloud>
