@@ -157,7 +157,8 @@ public class CloudPanelController {
             for (int i = 0; i < bufferedData.length; i++) {
               sendMessage(bufferedData[i]);
               counter = (float) i / bufferedData.length;
-              progress_cloud.setProgress(counter);
+              float finalCounter = counter;
+              Platform.runLater(() -> progress_cloud.setProgress(finalCounter));
             }
             return null;
           }
