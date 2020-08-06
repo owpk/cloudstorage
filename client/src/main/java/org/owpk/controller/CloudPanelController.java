@@ -51,7 +51,7 @@ public class CloudPanelController {
    * который создает подключение клиента к серверу,
    * данные для созданного подключения обслуживает {@link InputDataHandler}
    */
-  public void connect(ActionEvent actionEvent) {
+  public void connect() {
     Service<Void> ser = new Service<Void>() {
       @Override
       protected Task<Void> createTask() {
@@ -65,7 +65,7 @@ public class CloudPanelController {
                   new InputDataHandler(networkServiceInt,
                       cloudTableCallback, statusLabelCallback);
               networkServiceInt.initDataHandler(inputDataHandler);
-              updateServerFolders(actionEvent);
+              updateServerFolders();
             } catch (IOException e) {
               disconnect();
               networkServiceInt = null;
@@ -91,14 +91,14 @@ public class CloudPanelController {
    * сервер возвращает List<FileInfo>
    * @throws IOException
    */
-  public void updateServerFolders(ActionEvent actionEvent) throws IOException {
+  public void updateServerFolders() throws IOException {
     String path = cloud_text_field.getText();
     if (path == null || path.isEmpty())
       //test
       path = "";
     //path = serverPathHistory.peek().toString();
     if (networkServiceInt == null) {
-      connect(actionEvent);
+      connect();
     } else
       sendMessage(new Message<String>(MessageType.DIR));
   }
@@ -193,6 +193,7 @@ public class CloudPanelController {
 
   public void init() {
     initListeners();
+    connect();
     cloudTableCallback = this::serverRefresh;
     statusLabelCallback = s -> mainSceneController.setStatusLabel(s);
   }
