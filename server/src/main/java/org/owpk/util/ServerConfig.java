@@ -2,12 +2,17 @@ package org.owpk.util;
 
 public class ServerConfig extends Config {
   private static final String CONFIG_NAME = "server.properties";
-  static {
-    initProp(CONFIG_NAME);
-    port = checkPort(properties.getProperty("port"));
+
+  public ServerConfig() {
+    super(CONFIG_NAME);
   }
 
-  public static int getPort() {
+  @Override
+  public void load() {
+    port = checkPort(properties.getProperty(ConfigParameters.PORT.getDescription(), null));
+  }
+
+  public int getPort() {
     return port;
   }
 }

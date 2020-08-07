@@ -33,10 +33,15 @@ public class ClientPanelController {
   @FXML private ComboBox<String> disk_list;
   @FXML private Button client_back;
   @FXML private VBox client_panel_vbox;
+
   private MainSceneController mainSceneController;
+
+  private Stack<Path> clientBackInHistoryStack;
+  private Stack<Path> clientForwardInHistoryStack;
+
   private Callback<String> textFlowCallback;
-  public Stack<Path> clientBackInHistoryStack;
-  public Stack<Path> clientForwardInHistoryStack;
+  private Callback<Path> refreshPanel;
+
   private FileChooser fileChooser;
   private Desktop desktop;
 
@@ -49,7 +54,6 @@ public class ClientPanelController {
       Path p = clientForwardInHistoryStack.peek();
       clientBackInHistoryStack.push(clientForwardInHistoryStack.pop());
       clientRefresh(p);
-      client_textFlow.setText(p.toString());
     }
     showBhistory();
   }
@@ -63,7 +67,6 @@ public class ClientPanelController {
       clientForwardInHistoryStack.push(clientBackInHistoryStack.pop());
       Path p = clientBackInHistoryStack.peek();
       clientRefresh(p);
-      client_textFlow.setText(p.toString());
     }
     showFhistory();
   }
@@ -77,9 +80,12 @@ public class ClientPanelController {
     if (p != null) {
       clientRefresh(p);
       clientBackInHistoryStack.push(p);
-      client_textFlow.setText(p.toString());
       showBhistory();
     }
+  }
+
+  public Stack<Path> getHistory() {
+    return clientBackInHistoryStack;
   }
 
   private void resetStatusLabel() {
@@ -89,9 +95,10 @@ public class ClientPanelController {
   /**
    * обновляет таблицу локальных файлов
    */
-  private void clientRefresh(Path p) {
+  public void clientRefresh(Path p) {
     try {
       resetStatusLabel();
+      client_textFlow.setText(p.toString());
       client_panel.getItems().clear();
       client_panel.getItems().addAll(Files
           .list(p)
@@ -122,6 +129,7 @@ public class ClientPanelController {
       clientBackInHistoryStack.push(Paths.get(s));
     }); clientRefresh(Paths.get(s)); };
     TreeViewController.setTextFlowCallBack(textFlowCallback);
+    refreshPanel = this::clientRefresh;
   }
 
   private void initListeners() {
@@ -249,6 +257,10 @@ public class ClientPanelController {
     this.mainSceneController = mainSceneController;
   }
 
+  public Callback<Path> getRefreshPanelCallback() {
+    return refreshPanel;
+  }
+
   @SneakyThrows
   public void init() {
     desktop = Desktop.getDesktop();
@@ -256,7 +268,7 @@ public class ClientPanelController {
     clientBackInHistoryStack = new Stack<>();
     clientForwardInHistoryStack = new Stack<>();
     fillElements();
-    final Path START_PATH = ClientConfig.getStartPath();
+    final Path START_PATH = mainSceneController.getConfig().getStartPath();
     clientBackInHistoryStack.push(START_PATH);
     clientRefresh(START_PATH);
     client_textFlow.setText(START_PATH.toString());

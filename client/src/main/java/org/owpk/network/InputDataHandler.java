@@ -1,34 +1,35 @@
 package org.owpk.network;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
-import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import org.owpk.app.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
-import org.owpk.message.MessageType;
 import org.owpk.message.Message;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * класс обработчик входных данных
  */
 public class InputDataHandler implements Runnable {
-  private NetworkServiceInt networkServiceInt;
-  private Callback<String> serverStatusLabel;
-  private Callback<List<FileInfo>> tableViewCallback;
+
+  private final NetworkServiceInt networkServiceInt;
+  private final Callback<String> serverStatusLabel;
+  private final Callback<List<FileInfo>> tableViewCallback;
+  private final Callback<Double> progressBarCallback;
+  private final Callback<Path> refreshClientCallback;
   private final Map<String, DataInfo[]> files = new HashMap<>();
 
   public InputDataHandler(NetworkServiceInt networkServiceInt, Callback... callbacks) throws IOException {
     this.tableViewCallback = callbacks[0];
     this.serverStatusLabel = callbacks[1];
+    this.progressBarCallback = callbacks[2];
+    this.refreshClientCallback = callbacks[3];
     this.networkServiceInt = networkServiceInt;
   }
 
@@ -71,9 +72,29 @@ public class InputDataHandler implements Runnable {
     }
   }
 
-  //TODO download directory config
-  private void download(DataInfo msg) throws IOException {
-    FileUtility.assembleChunkedFile(msg, files, "C:\\Test\\out\\");
+  private boolean sessionIsOver(String fileName) {
+    return Arrays.stream(files.get(fileName)).allMatch(Objects::nonNull);
   }
 
+  private void download(DataInfo ms) throws IOException {
+    FileUtility.assembleChunkedFile(ms, files);
+    String fileName = ms.getFile();
+    int chunkCount = ms.getChunkCount();
+    DataInfo[] data = files.get(fileName);
+    if (data != null) {
+      long percentage = Arrays.stream(data)
+          .filter(Objects::nonNull)
+          .count();
+      double count = (float) percentage / chunkCount;
+      progressBarCallback.call(count);
+      if (sessionIsOver(fileName)) {
+        final File f = new File(
+            ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
+        FileUtility.writeBufferToFile(data, f);
+        progressBarCallback.call(0D);
+        serverStatusLabel.call("done");
+        refreshClientCallback.call(ClientConfig.getConfig().getDownloadDirectory().toAbsolutePath());
+      }
+    }
+  }
 }

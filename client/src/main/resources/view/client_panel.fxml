@@ -17,7 +17,6 @@
         <ToolBar fx:id="client_toolbar" prefWidth="200.0" styleClass="top_tool_bar" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS">
             <items>
                 <ComboBox fx:id="disk_list" prefWidth="150.0" stylesheets="@../css/css_main_scene.css" />
-                <Button mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" text="Button" />
             </items>
             <VBox.margin>
                 <Insets />

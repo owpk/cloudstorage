@@ -8,14 +8,38 @@ import java.util.Properties;
 /**
  * инициализирует {@link Properties}
  */
-public class Config {
-  protected static int port;
+public abstract class Config {
   protected static final Properties properties;
+  protected int port;
   static {
     properties = new Properties();
   }
 
-  protected static void initProp(String propName) {
+  public enum ConfigParameters {
+    PORT("port"),
+    HOST("default_server"),
+    LAST_DIR("root_directory"),
+    CONNECT_ON_STARTUP("connect_on_startup"),
+    DOWNLOAD_DIR("download_directory");
+    private final String description;
+
+    ConfigParameters(String description) {
+      this.description = description;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  public Config(String propName) {
+    initProp(propName);
+    load();
+  }
+
+  public abstract void load();
+
+  private void initProp(String propName) {
     try (InputStream in =
              new FileInputStream("./"+propName)) {
       Config.properties.load(in);
@@ -24,7 +48,7 @@ public class Config {
     }
   }
 
-  protected static int checkPort(String port) {
+  protected int checkPort(String port) {
     int p = 0;
     try {
       p = Integer.parseInt(port);
@@ -34,11 +58,11 @@ public class Config {
     return p;
   }
 
-  public static int getPort() {
+  public int getPort() {
     return port;
   }
 
-  public static void setPort(int port) {
-    Config.port = port;
+  public void setPort(int port) {
+    this.port = port;
   }
 }

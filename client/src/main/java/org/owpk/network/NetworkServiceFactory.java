@@ -14,7 +14,7 @@ public class NetworkServiceFactory {
   static {
     map = new HashMap<>();
     map.put("localhost", new IONetworkServiceImpl(
-        ClientConfig.getDefaultServer(), ClientConfig.getPort()));
+        ClientConfig.getConfig().getHost(), ClientConfig.getConfig().getPort()));
   }
   public static NetworkServiceInt getHandler(String server) {
     return map.get(server);

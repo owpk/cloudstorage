@@ -74,18 +74,20 @@ public class FileUtility {
     return buffer;
   }
 
-  public static void assembleChunkedFile(DataInfo ms, Map<String, DataInfo[]> files, String folder) throws IOException {
+  public static void assembleChunkedFile(DataInfo ms, Map<String, DataInfo[]> files) throws IOException {
     System.out.println("Package accepted: " + ms.getChunkIndex());
-    String fileName = ms.getFile();
-    File f = new File(folder + "\\" + fileName);
+    final String fileName = ms.getFile();
     files.computeIfAbsent(fileName, k -> new DataInfo[ms.getChunkCount()]);
     files.get(fileName)[ms.getChunkIndex()] = ms;
-    if (Arrays.stream(files.get(fileName)).allMatch(Objects::nonNull)) {
-      try(FileOutputStream fos = new FileOutputStream(f)) {
-        for (DataInfo data : files.get(fileName))
-          fos.write(data.getPayload());
+  }
+
+  public static void writeBufferToFile(DataInfo[] data, File f) {
+    try (FileOutputStream fos = new FileOutputStream(f)) {
+      for (DataInfo dataInfo : data) {
+        fos.write(dataInfo.getPayload());
       }
-      files.remove(fileName);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }

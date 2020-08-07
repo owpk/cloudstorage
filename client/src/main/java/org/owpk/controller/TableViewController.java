@@ -1,9 +1,7 @@
 package org.owpk.controller;
 
 import javafx.scene.control.TableCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
 import org.owpk.util.FileInfo;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,10 +11,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.io.FileInputStream;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -34,14 +30,10 @@ public class TableViewController implements Initializable {
    * Создает иконку для ячейки в таблице в зависимости от типа файла
    */
   private static class TypeImageCellStylist<T> extends TableCell<T, FileInfo.FileType> {
-    private final ImageView image;
-    private static final Map<FileInfo.FileType, Image> iconMap = MainSceneController.getIconMap();
+    private ImageView image;
 
     public TypeImageCellStylist() {
-      image = new ImageView();
-      image.setFitWidth(20);
-      image.setFitHeight(20);
-      image.setPreserveRatio(true);
+      image = new IconBuilder().build();
       setGraphic(image);
       setMinHeight(20);
     }
@@ -52,7 +44,7 @@ public class TableViewController implements Initializable {
       if (empty || type == null)
         image.setImage(null);
       else {
-        image.setImage(iconMap.get(type));
+        image.setImage(IconBuilder.getFileTypeIconMap().get(type));
       }
     }
   }

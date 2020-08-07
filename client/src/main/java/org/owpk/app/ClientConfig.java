@@ -8,29 +8,51 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+
 /**
  * читает и перезаписывает файл {@link #CONFIG_NAME},
  * устанавливает последнюю посещенную диркеторию,
- * передает реализацию NetworkServiceInt для NetworkServiceFactory
+ * создает синглтон {@link ClientConfig}
  */
 public class ClientConfig extends Config {
   private static final String CONFIG_NAME = "client.properties";
-  private static final String DEFAULT_SERVER;
-  private static Path startPath;
+  private static final String DEFAULT_SERVER = "localhost";
+  private Path downloadDirectory;
+  private Path startPath;
+  private String host;
+  private static ClientConfig config;
 
-  static {
-    initProp(CONFIG_NAME);
-    DEFAULT_SERVER = properties.getProperty("default_server");
-    port = checkPort(properties.getProperty("port"));
-    startPath = Paths.get(properties.getProperty("root_directory"));
+  public static ClientConfig getConfig() {
+    return config == null? new ClientConfig() : config;
   }
 
-  public static void setStartPath(String path) {
+  private ClientConfig() {
+    super(CONFIG_NAME);
+  }
+
+  @Override
+  public void load() {
+    downloadDirectory = Paths.get(properties.getProperty(ConfigParameters.DOWNLOAD_DIR.getDescription(), null));
+    startPath = Paths.get(properties.getProperty(ConfigParameters.LAST_DIR.getDescription(), null));
+    port = checkPort(properties.getProperty(ConfigParameters.PORT.getDescription(), null));
+    host = properties.getProperty(ConfigParameters.HOST.getDescription(), DEFAULT_SERVER);
+  }
+
+  public void setDownloadDirectory(String path) {
+    downloadDirectory = Paths.get(path);
+    writeProperty(ConfigParameters.DOWNLOAD_DIR, path);
+  }
+
+  public void setStartPath(String path) {
     startPath = Paths.get(path);
-    try(FileWriter fw = new FileWriter(new File("client.properties"))) {
-      properties.setProperty("root_directory", path);
-      properties.store(fw, "root_directory");
-      System.out.println(properties.getProperty("root_directory") + " <---- last visited directory");
+    writeProperty(ConfigParameters.LAST_DIR, path);
+  }
+
+  public void writeProperty(ConfigParameters prop, String val) {
+    try(FileWriter fw = new FileWriter(new File(CONFIG_NAME))) {
+      properties.setProperty(prop.getDescription(), val);
+      properties.store(fw, prop.getDescription());
+      System.out.println(properties.getProperty(prop.getDescription()) + " -- " + prop.getDescription() + " : new property");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -40,7 +62,15 @@ public class ClientConfig extends Config {
     return DEFAULT_SERVER;
   }
 
-  public static Path getStartPath() {
+  public Path getDownloadDirectory() {
+    return downloadDirectory;
+  }
+
+  public Path getStartPath() {
     return startPath;
+  }
+
+  public String getHost() {
+    return host;
   }
 }

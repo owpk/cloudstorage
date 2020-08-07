@@ -28,7 +28,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   @Override
   public void initDataHandler(Runnable r) {
     Thread t = new Thread(r);
-    t.setDaemon(true);
     t.start();
   }
 

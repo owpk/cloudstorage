@@ -5,22 +5,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.owpk.app.ClientConfig;
-import org.owpk.util.FileInfo;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 /**
@@ -42,29 +37,14 @@ public class MainSceneController implements Initializable {
   private ClientPanelController clientPanelController;
   private ClientPanelController rightTabClientController;
   private CloudPanelController cloudPanelController;
-
+  private ClientConfig config;
   private Stage stage;
 
   private double xOffset = 0;
   private double yOffset = 0;
 
-  private static final Map<FileInfo.FileType, Image> ICON_MAP;
-
-  static {
-    ICON_MAP = new HashMap<>();
-    Arrays.stream(FileInfo.FileType.values())
-        .forEach(x -> {
-          System.out.println(x.getUrl());
-          ICON_MAP.put(x, new Image(x.getUrl()));
-        });
-  }
-
   public void setStatusLabel(String text) {
     Platform.runLater(() -> status_label.setText(text));
-  }
-
-  public static Map<FileInfo.FileType, Image> getIconMap() {
-    return ICON_MAP;
   }
 
   private boolean draggable = true;
@@ -83,7 +63,7 @@ public class MainSceneController implements Initializable {
 
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
-      ClientConfig.setStartPath(clientPanelController.clientBackInHistoryStack.peek().toString());
+      config.setStartPath(clientPanelController.getHistory().peek().toString());
       Platform.exit();
     });
 
@@ -143,9 +123,39 @@ public class MainSceneController implements Initializable {
     Platform.runLater(() -> TreeViewController.setupTreeView(tree_view));
   }
 
+  public void checkConfig() {
+    System.out.println("Checking config");
+    File p = new File(config.getDownloadDirectory().toString());
+    if (!p.exists()) {
+      p.mkdirs();
+      UserDialog.confirmDialog(p.getAbsolutePath());
+    }
+    Path path = Paths.get(p.getAbsolutePath());
+    clientPanelController.getHistory().push(path);
+    clientPanelController.clientRefresh(path);
+  }
+
+  public ClientConfig getConfig() {
+    return config;
+  }
+
+  public ClientPanelController getClientPanelController() {
+    return clientPanelController;
+  }
+
+  public ClientPanelController getRightTabClientController() {
+    return rightTabClientController;
+  }
+
+  public CloudPanelController getCloudPanelController() {
+    return cloudPanelController;
+  }
+
   @SneakyThrows
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    config = ClientConfig.getConfig();
+
     fillElements();
 
     rightTabClientController = (ClientPanelController) right_local_panel_view.getProperties().get("ctrl");
@@ -159,6 +169,9 @@ public class MainSceneController implements Initializable {
     cloudPanelController = (CloudPanelController) right_cloud_panel_view.getProperties().get("cloud");
     cloudPanelController.setMainSceneController(this);
     cloudPanelController.init();
+
+    Platform.runLater(this::checkConfig);
+
   }
 
 }

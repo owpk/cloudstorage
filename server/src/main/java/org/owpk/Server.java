@@ -10,6 +10,7 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.owpk.core.MessageHandler;
+import org.owpk.util.Config;
 import org.owpk.util.ServerConfig;
 
 public class Server {
@@ -47,7 +48,8 @@ public class Server {
   }
 
   public static void main(String[] args) throws InterruptedException {
-    int port = ServerConfig.getPort();
+    Config config = new ServerConfig();
+    int port = config.getPort();
     System.out.println(port);
     new Server(port).run(new MessageHandler());
 

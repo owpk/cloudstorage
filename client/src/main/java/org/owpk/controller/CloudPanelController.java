@@ -5,9 +5,10 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import org.owpk.app.Callback;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.Stack;
 
 public class CloudPanelController {
-
   @FXML private ProgressBar progress_cloud;
   @FXML private TableView<FileInfo> server_panel;
   @FXML private Button back_btn;
@@ -44,7 +44,7 @@ public class CloudPanelController {
 
   private Callback<List<FileInfo>> cloudTableCallback;
   private Callback<String> statusLabelCallback;
-
+  private Callback<Double> progressBarCallback;
   /**
    * метод вызывается при нажатии на кнопку "connect"
    * {@link NetworkServiceFactory} возвращает {@link NetworkServiceInt},
@@ -62,8 +62,13 @@ public class CloudPanelController {
               networkServiceInt = NetworkServiceFactory.getHandler(ClientConfig.getDefaultServer());
               networkServiceInt.connect();
               InputDataHandler inputDataHandler =
-                  new InputDataHandler(networkServiceInt,
-                      cloudTableCallback, statusLabelCallback);
+                  new InputDataHandler(
+                      networkServiceInt,
+                      cloudTableCallback,
+                      statusLabelCallback,
+                      progressBarCallback,
+                      mainSceneController.getClientPanelController().getRefreshPanelCallback()
+                  );
               networkServiceInt.initDataHandler(inputDataHandler);
               updateServerFolders();
             } catch (IOException e) {
@@ -81,8 +86,10 @@ public class CloudPanelController {
         mainSceneController.setStatusLabel("trying to connect " + ClientConfig.getDefaultServer() + "..."));
     ser.setOnSucceeded((WorkerStateEvent event) ->
         mainSceneController.setStatusLabel("connected: " + networkServiceInt.getName()));
-    ser.setOnFailed((WorkerStateEvent event) ->
-        mainSceneController.setStatusLabel("unable to connect"));
+    ser.setOnFailed((WorkerStateEvent event) -> {
+        mainSceneController.setStatusLabel("unable to connect");
+        UserDialog.errorDialog("Can't connect to server");
+        });
     ser.start();
   }
 
@@ -187,10 +194,54 @@ public class CloudPanelController {
     }
   }
 
+  /**
+   * Добавляет колонку с кнопкой "скачать" в cloud таблицу
+   * Посылает на сервер команду {@link MessageType} DOWNLOAD и имя файла
+   */
+  private void initDownloadAction() {
+    TableColumn<FileInfo, FileInfo.FileType> server_column_action = new TableColumn<>("Action");
+    server_column_action.setCellValueFactory(new PropertyValueFactory<>("fileType"));
+
+
+    javafx.util.Callback<TableColumn<FileInfo, FileInfo.FileType>, TableCell<FileInfo, FileInfo.FileType>> cellFactory
+        = param -> {
+      final TableCell<FileInfo, FileInfo.FileType> cell = new TableCell<FileInfo, FileInfo.FileType>() {
+        final Button btn = new Button();
+        {
+          btn.setMaxWidth(30);
+          btn.setPadding(Insets.EMPTY);
+          btn.setGraphic(new IconBuilder()
+              .setIconImage("download")
+              .setFitHeight(15)
+              .build());
+        }
+        @Override
+        protected void updateItem(FileInfo.FileType item, boolean empty) {
+          super.updateItem(item, empty);
+          if (empty || item == FileInfo.FileType.DIRECTORY) {
+            setGraphic(null);
+          } else {
+            btn.setOnAction(event -> {
+              FileInfo info = getTableView().getItems().get(getIndex());
+              sendMessage(new Message<>(MessageType.DOWNLOAD, info.getFilename()));
+            });
+            setGraphic(btn);
+          }
+          setText(null);
+        }
+      };
+      return cell;
+    };
+    server_column_action.setCellFactory(cellFactory);
+    server_panel.getColumns().add(server_column_action);
+  }
+
   public void init() {
     initListeners();
     connect();
     cloudTableCallback = this::serverRefresh;
+    initDownloadAction();
     statusLabelCallback = s -> mainSceneController.setStatusLabel(s);
+    progressBarCallback = i -> Platform.runLater(() -> progress_cloud.setProgress(i));
   }
 }

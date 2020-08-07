@@ -3,7 +3,6 @@ package org.owpk.controller;
 import javafx.application.Platform;
 import javafx.event.EventType;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -24,7 +23,7 @@ import java.util.Objects;
  */
 public class TreeViewController {
   private static final String ROOT_NODE_NAME = "Local File System";
-  private static final Image img = MainSceneController.getIconMap().get(FileInfo.FileType.DIRECTORY);
+  private static final Image img = IconBuilder.getFileTypeIconMap().get(FileInfo.FileType.DIRECTORY);
   private static Callback<String> textFlowCallBack;
   private static TreeView<String> treeView;
   private static TreeItem<String> rootItem;
@@ -50,7 +49,7 @@ public class TreeViewController {
         .forEach(x ->
         {
           TreeItem<String> item = new TreeItem<>(x.getAbsolutePath());
-          item.setGraphic(getImageView(MainSceneController.getIconMap().get(FileInfo.FileType.HDD)));
+          item.setGraphic(getImageView(IconBuilder.getFileTypeIconMap().get(FileInfo.FileType.HDD)));
           expanded(item);
           item.setExpanded(true);
           rootItem.getChildren().add(item);

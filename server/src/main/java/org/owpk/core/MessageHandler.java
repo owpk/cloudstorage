@@ -27,7 +27,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     System.out.println("active");
-    String path = "./server/client_folder/user" + counter;
+    String path = "./server/client_folder/user" /*+ counter*/;
     File f = new File(path);
     if (!f.exists())
       System.out.println(f.mkdirs());
@@ -46,7 +46,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
     System.out.println(msg);
     switch (msg.getType()) {
       case DOWNLOAD:
-        downloadRequest(ctx.channel(), (DataInfo) msg);
+        downloadRequest(ctx.channel(), msg);
         break;
       case UPLOAD:
         System.out.println("Upload");
@@ -64,18 +64,26 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
     ctx.close();
   }
 
-  private void downloadRequest(Channel channel, DataInfo ms) throws IOException {
-    File f = new File(user.getUserFolder() + "\\" + ms.getFile());
+  private void downloadRequest(Channel channel, Message<?> ms) throws IOException {
+    File f = new File(user.getUserFolder() + "\\" + ms.getPayload());
     if (f.exists()) {
     DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.DOWNLOAD);
-      for (DataInfo bufferedDatum : bufferedData) {
-        channel.writeAndFlush(bufferedDatum);
+      for (DataInfo data : bufferedData) {
+        channel.writeAndFlush(data);
       }
     }
   }
 
+  private boolean sessionIsOver(String fileName) {
+    return Arrays.stream(files.get(fileName)).allMatch(Objects::nonNull);
+  }
+
   private void uploadRequest(DataInfo ms) throws IOException {
-    FileUtility.assembleChunkedFile(ms, files, user.getUserFolder());
+    FileUtility.assembleChunkedFile(ms, files);
+    if (sessionIsOver(ms.getFile())) {
+      File f = new File(user.getUserFolder() + "\\" + ms.getFile());
+      FileUtility.writeBufferToFile(files.get(ms.getFile()), f);
+    }
   }
 
 }
