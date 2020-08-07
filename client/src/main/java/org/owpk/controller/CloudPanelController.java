@@ -28,14 +28,14 @@ import java.util.List;
 import java.util.Stack;
 
 public class CloudPanelController {
-  private static final int BUFFER_SIZE = 8192;
+
   @FXML private ProgressBar progress_cloud;
   @FXML private TableView<FileInfo> server_panel;
   @FXML private Button back_btn;
   @FXML private Button forward_btn;
-  @FXML private Button up_btn;
-  @FXML private TextField cloud_text_field;
+  @FXML private Button update_btn;
   @FXML private Button connect_btn;
+  @FXML private TextField cloud_text_field;
   private Stack<Path> cloudBackInHistoryStack;
   private Stack<Path> cloudForwardInHistoryStack;
 
@@ -86,17 +86,45 @@ public class CloudPanelController {
     ser.start();
   }
 
+  private void upload(File f) throws IOException {
+    Service<Void> ser = new Service<Void>() {
+      @Override
+      protected Task<Void> createTask() {
+        return new Task<Void>() {
+          @Override
+          protected Void call() throws InterruptedException, IOException {
+            DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.UPLOAD);
+            float counter;
+            for (int i = 0; i < bufferedData.length; i++) {
+              sendMessage(bufferedData[i]);
+              counter = (float) i / bufferedData.length;
+              float finalCounter = counter;
+              Platform.runLater(() -> progress_cloud.setProgress(finalCounter));
+            }
+            return null;
+          }
+        };
+      }
+    };
+    //выводим информацию в текс лейбл по результату выполнения
+    ser.setOnRunning((WorkerStateEvent event) ->
+        mainSceneController.setStatusLabel("uploading..."));
+    ser.setOnSucceeded((WorkerStateEvent event) -> {
+      mainSceneController.setStatusLabel("done");
+      sendMessage(new Message<String>(MessageType.DIR));
+      progress_cloud.setProgress(0);
+    });
+    ser.setOnFailed((WorkerStateEvent event) ->
+        mainSceneController.setStatusLabel("failed"));
+    ser.start();
+  }
+
   /**
    * Отправляет серверу команду {@link MessageType}
    * сервер возвращает List<FileInfo>
    * @throws IOException
    */
   public void updateServerFolders() throws IOException {
-    String path = cloud_text_field.getText();
-    if (path == null || path.isEmpty())
-      //test
-      path = "";
-    //path = serverPathHistory.peek().toString();
     if (networkServiceInt == null) {
       connect();
     } else
@@ -143,39 +171,6 @@ public class CloudPanelController {
         }
       }
     });
-  }
-
-  public void upload(File f) throws IOException {
-    Service<Void> ser = new Service<Void>() {
-      @Override
-      protected Task<Void> createTask() {
-        return new Task<Void>() {
-          @Override
-          protected Void call() throws InterruptedException, IOException {
-            DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.UPLOAD);
-            float counter;
-            for (int i = 0; i < bufferedData.length; i++) {
-              sendMessage(bufferedData[i]);
-              counter = (float) i / bufferedData.length;
-              float finalCounter = counter;
-              Platform.runLater(() -> progress_cloud.setProgress(finalCounter));
-            }
-            return null;
-          }
-        };
-      }
-    };
-    //выводим информацию в текс лейбл по результату выполнения
-    ser.setOnRunning((WorkerStateEvent event) ->
-        mainSceneController.setStatusLabel("uploading..."));
-    ser.setOnSucceeded((WorkerStateEvent event) -> {
-        mainSceneController.setStatusLabel("done");
-        sendMessage(new Message<String>(MessageType.DIR));
-        progress_cloud.setProgress(0);
-    });
-    ser.setOnFailed((WorkerStateEvent event) ->
-        mainSceneController.setStatusLabel("failed"));
-    ser.start();
   }
 
   public void setMainSceneController(MainSceneController mainSceneController) {

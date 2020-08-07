@@ -45,7 +45,7 @@
                     <String fx:value="ctrl_btn" />
                 </styleClass>
             </Button>
-            <Button fx:id="up_btn" mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" underline="true">
+            <Button fx:id="update_btn" mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" underline="true">
                 <font>
                     <Font size="10.0" />
                 </font>

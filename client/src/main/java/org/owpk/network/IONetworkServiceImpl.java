@@ -32,14 +32,9 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
     t.start();
   }
 
-
-  private void download(DataInfo msg) {
-
-  }
-
   @Override
   public String getName() {
-    return "owpk";
+    return "localhost";
   }
 
   @Override
@@ -61,8 +56,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
       System.out.println("-:disconnected:");
     }
   }
-
-
 
   @Override
   public OutputStream getOut() {

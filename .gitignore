@@ -1,5 +1,6 @@
 .idea
 client/target
+server/client_folder
 server/target
 server/out
 *.iml

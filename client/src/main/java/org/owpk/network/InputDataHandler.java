@@ -8,11 +8,14 @@ import org.owpk.message.DataInfo;
 import org.owpk.message.MessageType;
 import org.owpk.message.Message;
 import org.owpk.util.FileInfo;
+import org.owpk.util.FileUtility;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * класс обработчик входных данных
@@ -21,19 +24,18 @@ public class InputDataHandler implements Runnable {
   private NetworkServiceInt networkServiceInt;
   private Callback<String> serverStatusLabel;
   private Callback<List<FileInfo>> tableViewCallback;
-  private Callback<Integer> progressbarCallback;
+  private final Map<String, DataInfo[]> files = new HashMap<>();
 
   public InputDataHandler(NetworkServiceInt networkServiceInt, Callback... callbacks) throws IOException {
     this.tableViewCallback = callbacks[0];
     this.serverStatusLabel = callbacks[1];
     this.networkServiceInt = networkServiceInt;
-    System.out.println("-:input reader object stream initialized:");
   }
 
   @Override
   public void run() {
     try {
-      System.out.println("-:input thread initialized:");
+      System.out.println("-:input thread init:");
       Message<?> msg;
       ObjectDecoderInputStream in = (ObjectDecoderInputStream) networkServiceInt.getIn();
       while (true) {
@@ -69,23 +71,9 @@ public class InputDataHandler implements Runnable {
     }
   }
 
-
-    private void download(DataInfo msg) {
-
-  }
-
-
-  private String readBuffer(byte[] data, int off) {
-    StringBuilder cmd = new StringBuilder();
-    for (int i = 0; i < off; i++) {
-      cmd.append((char) data[i]);
-    }
-    return cmd.toString();
-  }
-
-  private void printLog(MessageType command, String payload) {
-    System.out.printf(
-        "-:command: [%s] :payload: [%s]", command.getDescription(), payload);
+  //TODO download directory config
+  private void download(DataInfo msg) throws IOException {
+    FileUtility.assembleChunkedFile(msg, files, "C:\\Test\\out\\");
   }
 
 }

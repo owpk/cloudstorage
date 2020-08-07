@@ -3,15 +3,14 @@ package org.owpk.util;
 import org.owpk.message.DataInfo;
 import org.owpk.message.MessageType;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -75,4 +74,18 @@ public class FileUtility {
     return buffer;
   }
 
+  public static void assembleChunkedFile(DataInfo ms, Map<String, DataInfo[]> files, String folder) throws IOException {
+    System.out.println("Package accepted: " + ms.getChunkIndex());
+    String fileName = ms.getFile();
+    File f = new File(folder + "\\" + fileName);
+    files.computeIfAbsent(fileName, k -> new DataInfo[ms.getChunkCount()]);
+    files.get(fileName)[ms.getChunkIndex()] = ms;
+    if (Arrays.stream(files.get(fileName)).allMatch(Objects::nonNull)) {
+      try(FileOutputStream fos = new FileOutputStream(f)) {
+        for (DataInfo data : files.get(fileName))
+          fos.write(data.getPayload());
+      }
+      files.remove(fileName);
+    }
+  }
 }
