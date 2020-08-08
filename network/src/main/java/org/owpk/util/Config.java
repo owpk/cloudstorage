@@ -20,7 +20,8 @@ public abstract class Config {
     HOST("default_server"),
     LAST_DIR("root_directory"),
     CONNECT_ON_STARTUP("connect_on_startup"),
-    DOWNLOAD_DIR("download_directory");
+    DOWNLOAD_DIR("download_directory"),
+    SERVER_ROOT("root_folder");
     private final String description;
 
     ConfigParameters(String description) {

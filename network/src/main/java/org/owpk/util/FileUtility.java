@@ -3,14 +3,16 @@ package org.owpk.util;
 import org.owpk.message.DataInfo;
 import org.owpk.message.MessageType;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -61,7 +63,6 @@ public class FileUtility {
     try(FileInputStream fis = new FileInputStream(f)) {
       byte[] buf = new byte[BUFFER_SIZE];
       chunkCount = (int) Math.ceil((float) f.length() / BUFFER_SIZE);
-      System.out.println("Chunks : " + chunkCount + " Size: " + f.length());
       buffer = new DataInfo[chunkCount ];
       int chunkIndex = 0;
       while (fis.available() > 0) {
@@ -75,7 +76,6 @@ public class FileUtility {
   }
 
   public static void assembleChunkedFile(DataInfo ms, Map<String, DataInfo[]> files) throws IOException {
-    System.out.println("Package accepted: " + ms.getChunkIndex());
     final String fileName = ms.getFile();
     files.computeIfAbsent(fileName, k -> new DataInfo[ms.getChunkCount()]);
     files.get(fileName)[ms.getChunkIndex()] = ms;

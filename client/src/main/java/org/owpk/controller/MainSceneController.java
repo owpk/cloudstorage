@@ -64,6 +64,7 @@ public class MainSceneController implements Initializable {
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
       config.setStartPath(clientPanelController.getHistory().peek().toString());
+      cloudPanelController.disconnect();
       Platform.exit();
     });
 
@@ -124,7 +125,6 @@ public class MainSceneController implements Initializable {
   }
 
   public void checkConfig() {
-    System.out.println("Checking config");
     File p = new File(config.getDownloadDirectory().toString());
     if (!p.exists()) {
       p.mkdirs();

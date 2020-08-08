@@ -1,13 +1,12 @@
 package org.owpk.app;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.owpk.util.Config;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 /**
  * читает и перезаписывает файл {@link #CONFIG_NAME},
@@ -15,6 +14,7 @@ import java.util.Properties;
  * создает синглтон {@link ClientConfig}
  */
 public class ClientConfig extends Config {
+  private final Logger log = LogManager.getLogger(ClientConfig.class.getName());
   private static final String CONFIG_NAME = "client.properties";
   private static final String DEFAULT_SERVER = "localhost";
   private Path downloadDirectory;
@@ -52,8 +52,9 @@ public class ClientConfig extends Config {
     try(FileWriter fw = new FileWriter(new File(CONFIG_NAME))) {
       properties.setProperty(prop.getDescription(), val);
       properties.store(fw, prop.getDescription());
-      System.out.println(properties.getProperty(prop.getDescription()) + " -- " + prop.getDescription() + " : new property");
+      log.info(properties.getProperty(prop.getDescription()) + " -- " + prop.getDescription() + " : new property");
     } catch (IOException e) {
+      log.error(e);
       e.printStackTrace();
     }
   }

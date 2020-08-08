@@ -1,73 +1,69 @@
 package org.owpk.core;
 
-import io.netty.channel.*;
-import javafx.application.Platform;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.owpk.auth.User;
 import org.owpk.message.DataInfo;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
+import org.owpk.util.ServerConfig;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @ChannelHandler.Sharable
 public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
-  private static final ConcurrentHashMap<Channel, User> activeUsers = new ConcurrentHashMap<>();
+  private final Logger log = LogManager.getLogger(MessageHandler.class.getName());
   private final Map<String, DataInfo[]> files = new HashMap<>();
+  private final File userFolder;
   private User user;
-  private static int counter;
+
+
+  public MessageHandler(User user) {
+    this.user = user;
+    this.userFolder = new File(ServerConfig.getConfig().getRoot().toAbsolutePath() + "\\" + user.getServer_folder());
+  }
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    System.out.println("active");
-    String path = "./server/client_folder/user" /*+ counter*/;
-    File f = new File(path);
-    if (!f.exists())
-      System.out.println(f.mkdirs());
-    user = new User(
-        1,
-        f.getAbsolutePath(),
-        12345,
-        "User",
-        "test@email.ru");
-    activeUsers.put(ctx.channel(), user);
-    counter++;
+
   }
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Message<?> msg) throws Exception {
-    System.out.println(msg);
+    log.info(msg);
     switch (msg.getType()) {
       case DOWNLOAD:
         downloadRequest(ctx.channel(), msg);
         break;
       case UPLOAD:
-        System.out.println("Upload");
         uploadRequest((DataInfo) msg);
         break;
       case DIR:
-        List<FileInfo> list = FileUtility.getDirectories(activeUsers.get(ctx.channel()).getUserFolder());
+        List<FileInfo> list = FileUtility.getDirectories(userFolder.getAbsolutePath());
         ctx.channel().writeAndFlush(new Message<>(MessageType.DIR, list));
     }
   }
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    log.error(cause);
     cause.printStackTrace();
     ctx.close();
   }
 
   private void downloadRequest(Channel channel, Message<?> ms) throws IOException {
-    File f = new File(user.getUserFolder() + "\\" + ms.getPayload());
+    log.debug(ms);
+    final File f = new File(userFolder + "\\" + ms.getPayload());
     if (f.exists()) {
-    DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.DOWNLOAD);
+    final DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.DOWNLOAD);
       for (DataInfo data : bufferedData) {
         channel.writeAndFlush(data);
       }
@@ -75,14 +71,16 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
   }
 
   private boolean sessionIsOver(String fileName) {
-    return Arrays.stream(files.get(fileName)).allMatch(Objects::nonNull);
+    return Arrays.stream(files.get(fileName)).parallel().allMatch(Objects::nonNull);
   }
 
   private void uploadRequest(DataInfo ms) throws IOException {
+    log.debug("package accepted: " + ms);
     FileUtility.assembleChunkedFile(ms, files);
     if (sessionIsOver(ms.getFile())) {
-      File f = new File(user.getUserFolder() + "\\" + ms.getFile());
+      final File f = new File(userFolder + "\\" + ms.getFile());
       FileUtility.writeBufferToFile(files.get(ms.getFile()), f);
+      files.remove(ms.getFile());
     }
   }
 

@@ -1,6 +1,8 @@
 package org.owpk.network;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.owpk.app.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
@@ -8,16 +10,16 @@ import org.owpk.message.Message;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
  * класс обработчик входных данных
  */
 public class InputDataHandler implements Runnable {
-
+  private final Logger log = LogManager.getLogger(InputDataHandler.class.getName());
   private final NetworkServiceInt networkServiceInt;
   private final Callback<String> serverStatusLabel;
   private final Callback<List<FileInfo>> tableViewCallback;
@@ -36,10 +38,10 @@ public class InputDataHandler implements Runnable {
   @Override
   public void run() {
     try {
-      System.out.println("-:input thread init:");
+      log.info("thread started");
       Message<?> msg;
       ObjectDecoderInputStream in = (ObjectDecoderInputStream) networkServiceInt.getIn();
-      while (true) {
+      while (networkServiceInt.isRunning()) {
         if (in.available() > 0) {
           msg = (Message<?>) in.readObject();
           System.out.println(msg);
@@ -60,8 +62,8 @@ public class InputDataHandler implements Runnable {
         }
       }
     } catch (IOException | ClassNotFoundException e) {
-      System.out.println("-:oops server error:");
-      serverStatusLabel.call("server error " + ClientConfig.getDefaultServer());
+      log.error(e);
+      serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
       e.printStackTrace();
     } finally {
       try {
@@ -73,7 +75,7 @@ public class InputDataHandler implements Runnable {
   }
 
   private boolean sessionIsOver(String fileName) {
-    return Arrays.stream(files.get(fileName)).allMatch(Objects::nonNull);
+    return Arrays.stream(files.get(fileName)).parallel().allMatch(Objects::nonNull);
   }
 
   private void download(DataInfo ms) throws IOException {
@@ -81,20 +83,20 @@ public class InputDataHandler implements Runnable {
     String fileName = ms.getFile();
     int chunkCount = ms.getChunkCount();
     DataInfo[] data = files.get(fileName);
-    if (data != null) {
+    if (sessionIsOver(fileName)) {
+      final File f = new File(
+          ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
+      FileUtility.writeBufferToFile(data, f);
+      progressBarCallback.call(0D);
+      serverStatusLabel.call("done");
+      refreshClientCallback.call(ClientConfig.getConfig().getDownloadDirectory().toAbsolutePath());
+      files.remove(fileName);
+    } else {
       long percentage = Arrays.stream(data)
           .filter(Objects::nonNull)
           .count();
       double count = (float) percentage / chunkCount;
       progressBarCallback.call(count);
-      if (sessionIsOver(fileName)) {
-        final File f = new File(
-            ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
-        FileUtility.writeBufferToFile(data, f);
-        progressBarCallback.call(0D);
-        serverStatusLabel.call("done");
-        refreshClientCallback.call(ClientConfig.getConfig().getDownloadDirectory().toAbsolutePath());
-      }
     }
   }
 }

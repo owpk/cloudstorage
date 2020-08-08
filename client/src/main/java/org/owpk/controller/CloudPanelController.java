@@ -5,18 +5,20 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import org.owpk.IODataHandler.IONetworkServiceImpl;
 import org.owpk.app.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
 import org.owpk.message.MessageType;
 import org.owpk.message.Message;
-import org.owpk.network.InputDataHandler;
+import org.owpk.IODataHandler.InputDataHandler;
 import org.owpk.network.NetworkServiceFactory;
 import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.FileInfo;
@@ -45,6 +47,8 @@ public class CloudPanelController {
   private Callback<List<FileInfo>> cloudTableCallback;
   private Callback<String> statusLabelCallback;
   private Callback<Double> progressBarCallback;
+
+
   /**
    * метод вызывается при нажатии на кнопку "connect"
    * {@link NetworkServiceFactory} возвращает {@link NetworkServiceInt},
@@ -60,21 +64,18 @@ public class CloudPanelController {
           protected Void call() throws InterruptedException, IOException {
             try {
               networkServiceInt = NetworkServiceFactory.getHandler(ClientConfig.getDefaultServer());
+              networkServiceInt.initCallBacks(cloudTableCallback,
+                  statusLabelCallback,
+                  progressBarCallback,
+                  mainSceneController.getClientPanelController().getRefreshPanelCallback());
               networkServiceInt.connect();
-              InputDataHandler inputDataHandler =
-                  new InputDataHandler(
-                      networkServiceInt,
-                      cloudTableCallback,
-                      statusLabelCallback,
-                      progressBarCallback,
-                      mainSceneController.getClientPanelController().getRefreshPanelCallback()
-                  );
-              networkServiceInt.initDataHandler(inputDataHandler);
               updateServerFolders();
             } catch (IOException e) {
               disconnect();
               networkServiceInt = null;
               throw new InterruptedException();
+            } catch (Exception e) {
+              e.printStackTrace();
             }
             return null;
           }
@@ -236,6 +237,9 @@ public class CloudPanelController {
     server_panel.getColumns().add(server_column_action);
   }
 
+  public void onUpBtnClicked(ActionEvent actionEvent) {
+  }
+
   public void init() {
     initListeners();
     connect();
@@ -244,4 +248,5 @@ public class CloudPanelController {
     statusLabelCallback = s -> mainSceneController.setStatusLabel(s);
     progressBarCallback = i -> Platform.runLater(() -> progress_cloud.setProgress(i));
   }
+
 }
