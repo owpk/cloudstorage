@@ -21,7 +21,7 @@ public class AuthHandler {
   private String login;
   private String password;
 
-  private static String hash(String input) {
+  private String hash(String input) {
     return DigestUtils.sha256Hex(input);
   }
 
@@ -31,21 +31,14 @@ public class AuthHandler {
       login = usernamePassword.getKey();
       password = usernamePassword.getValue();
     });
-    login = "user";
-    password = "178ueee34";
     if (result.isPresent()) {
       try {
         NetworkServiceInt serviceInt = IONetworkServiceImpl.getService();
-        System.out.println(serviceInt);
-        System.out.println(serviceInt.getIn());
-        System.out.println(serviceInt.getOut());
         ObjectDecoderInputStream in = (ObjectDecoderInputStream) serviceInt.getIn();
         ((ObjectEncoderOutputStream) IONetworkServiceImpl
             .getService()
             .getOut())
-            .writeObject(new UserInfo(MessageType.AUTH,
-                login,
-                hash(password)));
+            .writeObject(new UserInfo(MessageType.AUTH, login, hash(password)));
         Message<?> msg;
         while (true) {
           if (in.available() > 0) {

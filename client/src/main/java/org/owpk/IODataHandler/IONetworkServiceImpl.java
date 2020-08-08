@@ -19,7 +19,7 @@ import java.net.Socket;
  * по умолчанию использует параметры из конфиг файла client.properties
  */
 public class IONetworkServiceImpl implements NetworkServiceInt {
-  private static final NetworkServiceInt  service = new IONetworkServiceImpl(
+  private static final NetworkServiceInt service = new IONetworkServiceImpl(
       ClientConfig.getConfig().getHost(), ClientConfig.getConfig().getPort());
 
   private final Logger log = LogManager.getLogger(IONetworkServiceImpl.class.getName());

@@ -47,7 +47,7 @@ public class UserDialog {
   public static Optional<Pair<String, String>> loginDialog() {
     Dialog<Pair<String, String>> dialog = new Dialog<>();
     dialog.setTitle("Login Dialog");
-    dialog.setHeaderText("Look, a Custom Login Dialog");
+    dialog.setHeaderText("Authentication");
 
     ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
     dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);

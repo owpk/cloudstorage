@@ -68,8 +68,7 @@ public class CloudPanelController {
                   statusLabelCallback,
                   progressBarCallback,
                   mainSceneController.getClientPanelController().getRefreshPanelCallback());
-              networkServiceInt.connect();
-              updateServerFolders();
+                  networkServiceInt.connect();
             } catch (IOException e) {
               disconnect();
               networkServiceInt = null;

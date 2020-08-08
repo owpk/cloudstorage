@@ -37,7 +37,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
         ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
         ctx.pipeline().addLast(new MessageHandler(user));
         ctx.pipeline().remove(this);
-        log.info(ctx.channel().remoteAddress() + " accepted : user " + user);
+        log.info(ctx.channel().remoteAddress() + " verified : user " + user);
       } else ctx.writeAndFlush(new Message<>(MessageType.ERROR, "Not found, try to sign"));
     } else if (msg.getType() == MessageType.SIGN) {
       log.info("Sign request");
