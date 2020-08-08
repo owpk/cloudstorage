@@ -1,4 +1,4 @@
-package org.owpk.network;
+package org.owpk.IODataHandler;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import org.apache.logging.log4j.LogManager;
@@ -7,6 +7,7 @@ import org.owpk.app.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
 import org.owpk.message.Message;
+import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
@@ -20,19 +21,21 @@ import java.util.*;
  */
 public class InputDataHandler implements Runnable {
   private final Logger log = LogManager.getLogger(InputDataHandler.class.getName());
-  private final NetworkServiceInt networkServiceInt;
   private final Callback<String> serverStatusLabel;
   private final Callback<List<FileInfo>> tableViewCallback;
   private final Callback<Double> progressBarCallback;
   private final Callback<Path> refreshClientCallback;
-  private final Map<String, DataInfo[]> files = new HashMap<>();
+  private final Map<String, DataInfo[]> files;
+  private final NetworkServiceInt networkServiceInt;
 
-  public InputDataHandler(NetworkServiceInt networkServiceInt, Callback... callbacks) throws IOException {
+
+  public InputDataHandler(Callback... callbacks) throws IOException {
     this.tableViewCallback = callbacks[0];
     this.serverStatusLabel = callbacks[1];
     this.progressBarCallback = callbacks[2];
     this.refreshClientCallback = callbacks[3];
-    this.networkServiceInt = networkServiceInt;
+    this.networkServiceInt = IONetworkServiceImpl.getService();
+    files = new HashMap<>();
   }
 
   @Override
