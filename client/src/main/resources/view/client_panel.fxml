@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import java.lang.String?>
+<VBox fx:id="client_panel_vbox" styleClass="main_vbox" stylesheets="@../css/css_main_scene.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.owpk.controller.ClientPanelController">
+    <children>
+        <ToolBar fx:id="client_toolbar" prefWidth="200.0" styleClass="top_tool_bar" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS">
+            <items>
+                <ComboBox fx:id="disk_list" prefWidth="150.0" stylesheets="@../css/css_main_scene.css" />
+            </items>
+            <VBox.margin>
+                <Insets />
+            </VBox.margin>
+        </ToolBar>
+        <HBox styleClass="main_hbox" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS">
+            <children>
+                <Button fx:id="client_back" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="27.0" mnemonicParsing="false" onAction="#onBackInClientHistory" prefHeight="27.0" prefWidth="25.0" stylesheets="@../css/css_main_scene.css" underline="true">
+                    <font>
+                        <Font size="10.0" />
+                    </font>
+                    <styleClass>
+                        <String fx:value="back_btn" />
+                        <String fx:value="ctrl_btn" />
+                    </styleClass>
+                </Button>
+                <Button id="client_refresh_btn" fx:id="client_forward_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#onForwardInClientHistory" prefHeight="25.0" prefWidth="25.0" stylesheets="@../css/css_main_scene.css" underline="true" wrapText="true" HBox.hgrow="NEVER">
+                    <font>
+                        <Font size="10.0" />
+                    </font>
+                    <styleClass>
+                        <String fx:value="refresh_btn" />
+                        <String fx:value="ctrl_btn" />
+                    </styleClass>
+                </Button>
+                <Button fx:id="up_btn_client" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" underline="true">
+                    <font>
+                        <Font size="10.0" />
+                    </font>
+                    <styleClass>
+                        <String fx:value="up_btn" />
+                        <String fx:value="ctrl_btn" />
+                    </styleClass>
+                </Button>
+                <Button fx:id="update_btn" mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" onAction="#clientRefresh" underline="true">
+                    <font>
+                        <Font size="10.0" />
+                    </font>
+                    <styleClass>
+                        <String fx:value="update_btn" />
+                        <String fx:value="ctrl_btn" />
+                    </styleClass>
+                </Button>
+                <TextField fx:id="client_textFlow" alignment="TOP_LEFT" promptText="Path..." styleClass="main_text_flow" stylesheets="@../css/css_main_scene.css" HBox.hgrow="ALWAYS" />
+            </children>
+            <VBox.margin>
+                <Insets left="6.0" />
+            </VBox.margin>
+        </HBox>
+        <fx:include fx:id="client_panel" source="table.fxml"/>
+        <ProgressBar minHeight="12.0" prefHeight="12.0" prefWidth="200.0" progress="0.0" styleClass="progress_bar" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS" />
+    </children>
+    <properties>
+        <ctrl><fx:reference source="controller"/> </ctrl>
+    </properties>
+</VBox>
+
+
+

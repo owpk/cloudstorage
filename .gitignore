@@ -1,5 +1,8 @@
 .idea
-client/target
-server/target
-server/out
+/client/target
+#/server/client_folder/
+#/client/downloads/
+/server/target
+/server/out
+/server/log/
 *.iml

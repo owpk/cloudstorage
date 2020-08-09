@@ -1,46 +1,56 @@
 package org.owpk.core;
 
-
-import org.owpk.util.ConfigReader;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.owpk.util.ServerConfig;
 
 public class Server {
-  private static int port;
-  //TODO close connection logic
-  private boolean isActive = true;
-  private Set<ClientManager> connections;
+  private final Logger log = LogManager.getLogger(Server.class.getName());
+  private final int PORT;
 
-  public Server() {
-    port = ConfigReader.getPort();
-    connections = new HashSet<>();
+  public Server(int port) {
+    this.PORT = port;
   }
 
-  public void run() {
-    ExecutorService es = Executors.newCachedThreadPool();
-    try (ServerSocket srv = new ServerSocket(port)) {
-      System.out.println("server started");
-      while (isActive) {
-        Socket socket = srv.accept();
-        System.out.println("accepted: " + socket.getRemoteSocketAddress());
-        es.execute(() -> new ClientManager(socket, this).manage());
-      }
-    } catch (IOException e) {
-      System.out.println("server error");
+  public void run(ChannelInboundHandlerAdapter adapter,
+                  ByteToMessageDecoder... decoder) throws InterruptedException {
+    EventLoopGroup bossGroup = new NioEventLoopGroup();
+    EventLoopGroup workGroup = new NioEventLoopGroup();
+    try {
+      ServerBootstrap boot = new ServerBootstrap();
+      boot.group(bossGroup, workGroup)
+          .channel(NioServerSocketChannel.class)
+          .childHandler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel socketChannel) throws Exception {
+              socketChannel.pipeline().addLast(
+                  new ObjectEncoder(),
+                  new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
+                  adapter);
+            }
+          })
+          .option(ChannelOption.SO_BACKLOG, 128)
+          .childOption(ChannelOption.SO_KEEPALIVE, true);
+      ChannelFuture future = boot.bind(PORT).sync();
+      log.info("Server started at : " + PORT);
+      future.channel().closeFuture().sync();
+    } finally {
+      workGroup.shutdownGracefully();
+      bossGroup.shutdownGracefully();
+      log.info("server shutdown");
     }
   }
 
-  public void addAllowedUser(ClientManager cm) {
-    connections.add(cm);
-  }
-
-  public void deleteUser(ClientManager clientManager) {
-    connections.remove(clientManager);
+  public static void main(String[] args) throws InterruptedException {
+    new Server(ServerConfig.getConfig().getPort()).run(new AuthHandler());
   }
 }
