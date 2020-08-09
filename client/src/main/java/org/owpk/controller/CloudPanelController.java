@@ -12,7 +12,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import org.owpk.IODataHandler.IONetworkServiceImpl;
+import org.owpk.IODataHandler.AuthException;
+import org.owpk.IODataHandler.AuthHandler;
 import org.owpk.app.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
@@ -64,16 +65,16 @@ public class CloudPanelController {
           protected Void call() throws InterruptedException {
             try {
               networkServiceInt = NetworkServiceFactory.getHandler(ClientConfig.getDefaultServer());
-              networkServiceInt.initCallBacks(cloudTableCallback,
+              networkServiceInt.initHandlers(cloudTableCallback,
                   statusLabelCallback,
                   progressBarCallback,
                   mainSceneController.getClientPanelController().getRefreshPanelCallback());
               networkServiceInt.connect();
               updateServerFolders();
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (AuthException | IOException | ClassNotFoundException e) {
               disconnect();
               networkServiceInt = null;
-              throw new InterruptedException();
+              throw new InterruptedException(e.getMessage());
             }
             return null;
           }
@@ -87,7 +88,7 @@ public class CloudPanelController {
         mainSceneController.setStatusLabel("connected: " + networkServiceInt.getName()));
     ser.setOnFailed((WorkerStateEvent event) -> {
         mainSceneController.setStatusLabel("unable to connect");
-        UserDialog.errorDialog("Can't connect to server");
+        UserDialog.errorDialog(event.getSource().getException().getMessage());
         });
     ser.start();
   }

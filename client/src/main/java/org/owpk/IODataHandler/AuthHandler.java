@@ -14,6 +14,7 @@ import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.message.UserInfo;
 
+import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -41,7 +42,7 @@ public class AuthHandler {
     });
   }
 
-  private void initDataListener() throws IOException, ClassNotFoundException {
+  private void initDataListener() throws IOException, ClassNotFoundException, AuthException {
     log.info("Auth data listener started");
     ObjectDecoderInputStream in = (ObjectDecoderInputStream) IONetworkServiceImpl.getService().getIn();
     Message<?> msg;
@@ -51,15 +52,13 @@ public class AuthHandler {
         if (msg.getType() == MessageType.OK)
           return;
         else if (msg.getType() == MessageType.ERROR) {
-          String cause = (String) msg.getPayload();
-          System.out.println("ERROR " + cause);
-          return;
+          throw new AuthenticationException((String) msg.getPayload());
         }
       }
     }
   }
 
-  public void tryToAuth() throws IOException, ClassNotFoundException, InterruptedException {
+  public void tryToAuth() throws IOException, ClassNotFoundException, InterruptedException, AuthException {
     doneLatch.await();
       if (login != null && password != null) {
         System.out.println(login + ":"+ password);
@@ -69,6 +68,6 @@ public class AuthHandler {
             .writeObject(new UserInfo(MessageType.AUTH, login, hash(password)));
         initDataListener();
       }
-
+    throw new AuthException("Login and password should not be empty");
   }
 }

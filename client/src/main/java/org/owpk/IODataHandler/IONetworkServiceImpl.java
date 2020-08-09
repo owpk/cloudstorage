@@ -42,7 +42,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   }
 
   @Override
-  public void initCallBacks(Callback... callback) throws IOException {
+  public void initHandlers(Callback... callback) throws IOException {
     inputDataHandler = new InputDataHandler(
         callback[0],
         callback[1],
@@ -57,14 +57,14 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   }
 
   @Override
-  public void connect() throws IOException, InterruptedException, ClassNotFoundException {
+  public void connect() throws IOException, InterruptedException, ClassNotFoundException, AuthException {
     socket = new Socket(HOST, PORT);
     log.info("connected : " + socket.getRemoteSocketAddress());
     out = new ObjectEncoderOutputStream(socket.getOutputStream());
     in = new ObjectDecoderInputStream(socket.getInputStream());
     run = true;
-    authHandler.showDialog();
-    authHandler.tryToAuth();
+    authHandler.showDialog(); //sync
+    authHandler.tryToAuth();  //sync
     new Thread(inputDataHandler).start();
   }
 

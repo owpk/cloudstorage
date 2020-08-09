@@ -40,7 +40,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
         log.info(ctx.channel().remoteAddress() + " verified : user " + user);
       } else {
         log.info("Message send to user");
-        ctx.writeAndFlush(new Message<>(MessageType.ERROR, "Not found, try to sign"));
+        ctx.writeAndFlush(new Message<>(MessageType.ERROR, "User not found, try to sign"));
       }
     } else if (msg.getType() == MessageType.SIGN) {
       log.info("Sign request");
