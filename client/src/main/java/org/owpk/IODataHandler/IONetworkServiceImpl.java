@@ -70,8 +70,8 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
 
   @Override
   public void disconnect() {
-    run = false;
     log.info("disconnected : " + HOST);
+    inputDataHandler.setHandlerIsOver(true);
     try {
       socket.close();
       out.close();
@@ -82,10 +82,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
     }
   }
 
-  @Override
-  public boolean isRunning() {
-    return run;
-  }
 
   @Override
   public OutputStream getOut() {

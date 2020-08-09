@@ -47,7 +47,7 @@ public class UserDialog {
   public static Optional<Pair<String, String>> loginDialog() {
     Dialog<Pair<String, String>> dialog = new Dialog<>();
     dialog.setTitle("Login Dialog");
-    dialog.setHeaderText("Authentication");
+    dialog.setHeaderText("Authentication\nTest login: user\nTest password: 1234");
 
     ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
     dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
@@ -70,14 +70,11 @@ public class UserDialog {
     Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
     loginButton.setDisable(true);
 
-    username.textProperty().addListener((observable, oldValue, newValue) -> {
-      loginButton.setDisable(newValue.trim().isEmpty());
-    });
+    username.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
 
     dialog.getDialogPane().setContent(grid);
 
     Platform.runLater(username::requestFocus);
-
     dialog.setResultConverter(dialogButton -> {
       if (dialogButton == loginButtonType) {
         return new Pair<>(username.getText(), password.getText());

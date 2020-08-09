@@ -11,6 +11,7 @@ import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
+import javax.security.sasl.AuthenticationException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,7 +20,7 @@ import java.util.*;
 /**
  * класс обработчик входных данных
  */
-public class InputDataHandler implements Runnable {
+public class InputDataHandler extends AbsHandler implements Runnable {
   private final Logger log = LogManager.getLogger(InputDataHandler.class.getName());
   private final Callback<String> serverStatusLabel;
   private final Callback<List<FileInfo>> tableViewCallback;
@@ -42,38 +43,37 @@ public class InputDataHandler implements Runnable {
   public void run() {
     try {
       log.info("thread started");
-      Message<?> msg;
-      ObjectDecoderInputStream in = (ObjectDecoderInputStream) networkServiceInt.getIn();
-      while (networkServiceInt.isRunning()) {
-        if (in.available() > 0) {
-          msg = (Message<?>) in.readObject();
-          System.out.println(msg);
-          switch (msg.getType()) {
-            case DIR:
-              List<FileInfo> dirList = (List<FileInfo>) msg.getPayload();
-              tableViewCallback.call(dirList);
-              break;
-            case DOWNLOAD:
-              download((DataInfo) msg);
-              break;
-            case OK:
-            case ERROR:
-              System.out.println(msg.getPayload());
-              break;
-            case DEFAULT:
-          }
-        }
-      }
+     initDataListener();
     } catch (IOException | ClassNotFoundException e) {
       log.error(e);
       serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
       e.printStackTrace();
     } finally {
       try {
+        handlerIsOver = true;
         networkServiceInt.disconnect();
       } catch (IOException e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  @Override
+  protected void listen(Message<?> msg) throws IOException {
+    log.info(msg);
+    switch (msg.getType()) {
+      case DIR:
+        List<FileInfo> dirList = (List<FileInfo>) msg.getPayload();
+        tableViewCallback.call(dirList);
+        break;
+      case DOWNLOAD:
+        download((DataInfo) msg);
+        break;
+      case OK:
+      case ERROR:
+        System.out.println(msg.getPayload());
+        break;
+      case DEFAULT:
     }
   }
 

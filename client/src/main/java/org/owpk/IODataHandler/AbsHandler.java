@@ -6,13 +6,20 @@ import org.owpk.message.Message;
 import java.io.IOException;
 
 public abstract class AbsHandler {
-  protected void initListener(Message<?> msg) throws IOException, ClassNotFoundException {
+  protected boolean handlerIsOver;
+  protected void initDataListener() throws IOException, ClassNotFoundException {
     ObjectDecoderInputStream in = (ObjectDecoderInputStream) IONetworkServiceImpl.getService().getIn();
-    while (true) {
-      if (in.available() > 0)
+    Message<?> msg;
+    while (!handlerIsOver) {
+      if (in.available() > 0) {
+        msg = (Message<?>) in.readObject();
         listen(msg);
+      }
     }
   }
 
-  protected abstract void listen(Message<?> message);
+  public void setHandlerIsOver(boolean handlerIsOver) {
+    this.handlerIsOver = handlerIsOver;
+  }
+  protected abstract void listen(Message<?> message) throws IOException;
 }

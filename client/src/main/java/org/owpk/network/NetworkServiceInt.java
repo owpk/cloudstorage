@@ -12,7 +12,6 @@ public interface NetworkServiceInt {
   void connect() throws IOException, ClassNotFoundException, InterruptedException, AuthException;
   void disconnect() throws IOException;
 
-  boolean isRunning();
   String getName();
   OutputStream getOut();
   InputStream getIn();
