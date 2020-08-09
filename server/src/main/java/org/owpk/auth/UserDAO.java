@@ -1,8 +1,13 @@
 package org.owpk.auth;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.owpk.core.AuthHandler;
+
 import javax.persistence.*;
 
 public class UserDAO {
+  private final Logger log = LogManager.getLogger(UserDAO.class.getName());
   private static final EntityManagerFactory entityManagerFactory =
       Persistence.createEntityManagerFactory("p-unit");
   private final EntityManager em = entityManagerFactory.createEntityManager();
@@ -11,7 +16,12 @@ public class UserDAO {
     Query query = em.createQuery("SELECT u FROM User u WHERE u.login = :login AND u.password_hash = :pass");
     query.setParameter("login", login);
     query.setParameter("pass", pass);
-    User user = (User) query.getSingleResult();
+    User user = null;
+    try {
+      user = (User) query.getSingleResult();
+    } catch (NoResultException e) {
+      log.error(e.getMessage());
+    }
     em.close();
     return user;
   }

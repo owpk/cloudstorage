@@ -61,20 +61,19 @@ public class CloudPanelController {
       protected Task<Void> createTask() {
         return new Task<Void>() {
           @Override
-          protected Void call() throws InterruptedException, IOException {
+          protected Void call() throws InterruptedException {
             try {
               networkServiceInt = NetworkServiceFactory.getHandler(ClientConfig.getDefaultServer());
               networkServiceInt.initCallBacks(cloudTableCallback,
                   statusLabelCallback,
                   progressBarCallback,
                   mainSceneController.getClientPanelController().getRefreshPanelCallback());
-                  networkServiceInt.connect();
-            } catch (IOException e) {
+              networkServiceInt.connect();
+              updateServerFolders();
+            } catch (IOException | ClassNotFoundException e) {
               disconnect();
               networkServiceInt = null;
               throw new InterruptedException();
-            } catch (Exception e) {
-              e.printStackTrace();
             }
             return null;
           }

@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 public interface NetworkServiceInt {
   void initCallBacks(Callback... callbacks) throws IOException;
-  void connect() throws IOException, ClassNotFoundException, Exception;
+  void connect() throws IOException, ClassNotFoundException, InterruptedException;
   void disconnect() throws IOException;
 
   boolean isRunning();

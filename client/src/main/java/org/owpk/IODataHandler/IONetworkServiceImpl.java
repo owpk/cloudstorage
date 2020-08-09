@@ -7,13 +7,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owpk.app.Callback;
 import org.owpk.app.ClientConfig;
-import org.owpk.controller.UserDialog;
 import org.owpk.network.NetworkServiceInt;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+
 /**
  * Класс {@link IONetworkServiceImpl} создающий подключение,
  * по умолчанию использует параметры из конфиг файла client.properties
@@ -23,7 +23,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
       ClientConfig.getConfig().getHost(), ClientConfig.getConfig().getPort());
 
   private final Logger log = LogManager.getLogger(IONetworkServiceImpl.class.getName());
-  private final AuthHandler authHandler;
   private final String HOST;
   private final int PORT;
   private Socket socket;
@@ -31,11 +30,11 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   private ObjectEncoderOutputStream out;
   private boolean run;
   private InputDataHandler inputDataHandler;
+  private AuthHandler authHandler;
 
   public IONetworkServiceImpl(String host, int port) {
     this.PORT = port;
     this.HOST = host;
-    authHandler = new AuthHandler();
   }
 
   public static NetworkServiceInt getService() {
@@ -45,10 +44,11 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   @Override
   public void initCallBacks(Callback... callback) throws IOException {
     inputDataHandler = new InputDataHandler(
-            callback[0],
-            callback[1],
-            callback[2],
-            callback[3]);
+        callback[0],
+        callback[1],
+        callback[2],
+        callback[3]);
+    authHandler = new AuthHandler();
   }
 
   @Override
@@ -57,24 +57,19 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   }
 
   @Override
-  public void connect() throws Exception {
+  public void connect() throws IOException, InterruptedException, ClassNotFoundException {
     socket = new Socket(HOST, PORT);
     log.info("connected : " + socket.getRemoteSocketAddress());
     out = new ObjectEncoderOutputStream(socket.getOutputStream());
     in = new ObjectDecoderInputStream(socket.getInputStream());
     run = true;
-    Platform.runLater(() -> {
-      if (authHandler.tryToAuth()) {
-        UserDialog.errorDialog("Need to enter login and password");
-        disconnect();
-      } else {
-        new Thread(inputDataHandler).start();
-      }
-    });
+    authHandler.showDialog();
+    authHandler.tryToAuth();
+    new Thread(inputDataHandler).start();
   }
 
   @Override
-  public void disconnect()  {
+  public void disconnect() {
     run = false;
     log.info("disconnected : " + HOST);
     try {
