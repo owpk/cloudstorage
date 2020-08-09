@@ -1,7 +1,7 @@
 package org.owpk.network;
 
 import org.owpk.IODataHandler.AuthException;
-import org.owpk.app.Callback;
+import org.owpk.controller.Callback;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -2,10 +2,9 @@ package org.owpk.IODataHandler;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
-import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owpk.app.Callback;
+import org.owpk.controller.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.network.NetworkServiceInt;
 
@@ -28,7 +27,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   private Socket socket;
   private ObjectDecoderInputStream in;
   private ObjectEncoderOutputStream out;
-  private boolean run;
   private InputDataHandler inputDataHandler;
   private AuthHandler authHandler;
 
@@ -62,7 +60,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
     log.info("connected : " + socket.getRemoteSocketAddress());
     out = new ObjectEncoderOutputStream(socket.getOutputStream());
     in = new ObjectDecoderInputStream(socket.getInputStream());
-    run = true;
     authHandler.showDialog(); //sync
     authHandler.tryToAuth();  //sync
     new Thread(inputDataHandler).start();

@@ -24,6 +24,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
   private String hash(String input) {
     return DigestUtils.sha256Hex(input);
   }
+
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     userDAO = new UserDAO();

@@ -1,9 +1,8 @@
 package org.owpk.IODataHandler;
 
-import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owpk.app.Callback;
+import org.owpk.controller.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
 import org.owpk.message.Message;
@@ -11,7 +10,6 @@ import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
-import javax.security.sasl.AuthenticationException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
