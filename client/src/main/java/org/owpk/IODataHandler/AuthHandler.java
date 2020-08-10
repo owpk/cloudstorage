@@ -1,6 +1,5 @@
 package org.owpk.IODataHandler;
 
-import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import javafx.application.Platform;
 import javafx.util.Pair;
 import lombok.Getter;
@@ -44,11 +43,7 @@ public class AuthHandler extends AbsHandler {
   public void tryToAuth() throws IOException, ClassNotFoundException, InterruptedException, AuthException {
     doneLatch.await();
     if (login != null && password != null) {
-      System.out.println(login + ":" + password);
-      ((ObjectEncoderOutputStream) IONetworkServiceImpl
-          .getService()
-          .getOut())
-          .writeObject(new UserInfo(MessageType.AUTH, login, hash(password)));
+      writeMessage(new UserInfo(MessageType.AUTH, login, hash(password)));
       initDataListener();
     } else
       throw new AuthException("Login and password should not be empty");
