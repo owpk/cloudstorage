@@ -1,12 +1,14 @@
-package org.owpk.IODataHandler;
+package org.owpk.network;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.owpk.IODataHandler.AuthException;
+import org.owpk.IODataHandler.AuthHandler;
+import org.owpk.IODataHandler.InputDataHandler;
 import org.owpk.controller.Callback;
 import org.owpk.app.ClientConfig;
-import org.owpk.network.NetworkServiceInt;
 
 import java.io.IOException;
 import java.io.InputStream;

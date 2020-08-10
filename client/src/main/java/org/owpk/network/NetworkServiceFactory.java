@@ -1,7 +1,5 @@
 package org.owpk.network;
 
-import org.owpk.IODataHandler.IONetworkServiceImpl;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -6,6 +6,7 @@ import org.owpk.controller.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
 import org.owpk.message.Message;
+import org.owpk.network.IONetworkServiceImpl;
 import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
@@ -69,7 +70,7 @@ public class InputDataHandler extends AbsHandler implements Runnable {
         break;
       case OK:
       case ERROR:
-        System.out.println(msg.getPayload());
+        log.error(msg.getPayload());
         break;
       case DEFAULT:
     }
