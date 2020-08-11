@@ -1,4 +1,4 @@
-package org.owpk.controller;
+package org.owpk.util;
 
 public interface Callback<T> {
   void call(T s);

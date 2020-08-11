@@ -2,7 +2,7 @@ package org.owpk.IODataHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owpk.controller.Callback;
+import org.owpk.util.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
 import org.owpk.message.Message;
@@ -25,7 +25,6 @@ public class InputDataHandler extends AbsHandler implements Runnable {
   private final Callback<List<FileInfo>> tableViewCallback;
   private final Callback<Double> progressBarCallback;
   private final Callback<Path> refreshClientCallback;
-  private final Map<String, DataInfo[]> files;
   private final NetworkServiceInt networkServiceInt;
 
 
@@ -35,7 +34,6 @@ public class InputDataHandler extends AbsHandler implements Runnable {
     this.progressBarCallback = callbacks[2];
     this.refreshClientCallback = callbacks[3];
     this.networkServiceInt = IONetworkServiceImpl.getService();
-    files = new HashMap<>();
   }
 
   @Override
@@ -76,29 +74,28 @@ public class InputDataHandler extends AbsHandler implements Runnable {
     }
   }
 
-  private boolean sessionIsOver(String fileName) {
-    return Arrays.stream(files.get(fileName)).parallel().allMatch(Objects::nonNull);
-  }
-
   private void download(DataInfo ms) throws IOException {
-    FileUtility.assembleChunkedFile(ms, files);
     String fileName = ms.getFile();
-    int chunkCount = ms.getChunkCount();
-    DataInfo[] data = files.get(fileName);
-    if (sessionIsOver(fileName)) {
-      final File f = new File(
+    final File f = new File(
           ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
-      FileUtility.writeBufferToFile(data, f);
-      progressBarCallback.call(0D);
-      serverStatusLabel.call("done");
-      refreshClientCallback.call(ClientConfig.getConfig().getDownloadDirectory().toAbsolutePath());
-      files.remove(fileName);
-    } else {
-      long percentage = Arrays.stream(data)
-          .filter(Objects::nonNull)
-          .count();
-      double count = (float) percentage / chunkCount;
-      progressBarCallback.call(count);
-    }
+    FileUtility.FileWriter writer = FileUtility.FileWriter.getWriter(f.getAbsolutePath());
+    writer.assembleChunkedFile(ms);
+//    int chunkCount = ms.getChunkCount();
+//    DataInfo[] data = files.get(fileName);
+//    if (sessionIsOver(fileName)) {
+//      final File f = new File(
+//          ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
+//      FileUtility.writeBufferToFile(data, f);
+//      progressBarCallback.call(0D);
+//      serverStatusLabel.call("done");
+//      refreshClientCallback.call(ClientConfig.getConfig().getDownloadDirectory().toAbsolutePath());
+//      files.remove(fileName);
+//    } else {
+//      long percentage = Arrays.stream(data)
+//          .filter(Objects::nonNull)
+//          .count();
+//      double count = (float) percentage / chunkCount;
+//      progressBarCallback.call(count);
+//    }
   }
 }

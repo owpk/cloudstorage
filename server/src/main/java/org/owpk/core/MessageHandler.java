@@ -12,6 +12,7 @@ import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
+import org.owpk.util.OutputCallback;
 import org.owpk.util.ServerConfig;
 
 import java.io.File;
@@ -21,7 +22,6 @@ import java.util.*;
 @ChannelHandler.Sharable
 public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
   private final Logger log = LogManager.getLogger(MessageHandler.class.getName());
-  private final Map<String, DataInfo[]> files = new HashMap<>();
   private final File userFolder;
   private User user;
 
@@ -29,11 +29,6 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
   public MessageHandler(User user) {
     this.user = user;
     this.userFolder = new File(ServerConfig.getConfig().getRoot().toAbsolutePath() + "\\" + user.getServer_folder());
-  }
-
-  @Override
-  public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
   }
 
   @Override
@@ -61,27 +56,17 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
 
   private void downloadRequest(Channel channel, Message<?> ms) throws IOException {
     log.debug(ms);
+    final OutputCallback<Message<?>> out = channel::writeAndFlush;
     final File f = new File(userFolder + "\\" + ms.getPayload());
     if (f.exists()) {
-    final DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.DOWNLOAD);
-      for (DataInfo data : bufferedData) {
-        channel.writeAndFlush(data);
-      }
+    FileUtility.sendFileByChunks(out, f, MessageType.DOWNLOAD);
     }
-  }
-
-  private boolean sessionIsOver(String fileName) {
-    return Arrays.stream(files.get(fileName)).parallel().allMatch(Objects::nonNull);
   }
 
   private void uploadRequest(DataInfo ms) throws IOException {
     log.debug("package accepted: " + ms);
-    FileUtility.assembleChunkedFile(ms, files);
-    if (sessionIsOver(ms.getFile())) {
-      final File f = new File(userFolder + "\\" + ms.getFile());
-      FileUtility.writeBufferToFile(files.get(ms.getFile()), f);
-      files.remove(ms.getFile());
-    }
+    FileUtility.FileWriter writer = FileUtility.FileWriter.getWriter(userFolder + "\\" + ms.getFile());
+    writer.assembleChunkedFile(ms);
   }
 
 }

@@ -14,14 +14,15 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import org.owpk.IODataHandler.AuthException;
 import org.owpk.app.ClientConfig;
-import org.owpk.message.DataInfo;
 import org.owpk.message.MessageType;
 import org.owpk.message.Message;
 import org.owpk.IODataHandler.InputDataHandler;
 import org.owpk.network.NetworkServiceFactory;
 import org.owpk.network.NetworkServiceInt;
+import org.owpk.util.Callback;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
+import org.owpk.util.OutputCallback;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,14 +99,9 @@ public class CloudPanelController {
         return new Task<Void>() {
           @Override
           protected Void call() throws InterruptedException, IOException {
-            DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.UPLOAD);
-            float counter;
-            for (int i = 0; i < bufferedData.length; i++) {
-              sendMessage(bufferedData[i]);
-              counter = (float) i / bufferedData.length;
-              float finalCounter = counter;
-              Platform.runLater(() -> progress_cloud.setProgress(finalCounter));
-            }
+            Callback<Float> progressBarCallback = x -> Platform.runLater(() -> progress_cloud.setProgress(x));
+            OutputCallback<Message<?>> out = CloudPanelController.this::sendMessage;
+            FileUtility.sendFileByChunks(out, f, MessageType.UPLOAD, progressBarCallback);
             return null;
           }
         };
