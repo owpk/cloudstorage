@@ -58,8 +58,7 @@ public class AuthHandler extends AbsHandler {
     dialog.setHeaderText("Authentication\nTest login: user\nTest password: 1234");
 
     ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
-    ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.OTHER);
-
+    ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.RIGHT);
     dialog.getDialogPane().getButtonTypes().addAll(signButtonType, loginButtonType, ButtonType.CANCEL);
 
     GridPane grid = new GridPane();
@@ -84,10 +83,10 @@ public class AuthHandler extends AbsHandler {
     username.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
 
     dialog.getDialogPane().setContent(grid);
-//    dialog.setOnCloseRequest(x -> IONetworkServiceImpl.getService().disconnect());
 
     dialog.setResultConverter(dialogButton -> {
       if (dialogButton == loginButtonType) {
+        System.out.println(dialogButton.getButtonData());
         try {
           writeMessage(new UserInfo(MessageType.AUTH, username.getText(), hash(password.getText())));
           initDataListener();
@@ -95,12 +94,10 @@ public class AuthHandler extends AbsHandler {
           e.printStackTrace();
         }
       } else if (dialogButton == signButtonType) {
+        System.out.println(dialogButton.getButtonData());
         IONetworkServiceImpl.getService().addHandlerToPipeline(new SignHandler());
         this.handlerIsOver = true;
       }
-//      else if (dialogButton == ButtonType.CANCEL) {
-//        IONetworkServiceImpl.getService().disconnect();
-//      }
       return null;
     });
     dialog.showAndWait();

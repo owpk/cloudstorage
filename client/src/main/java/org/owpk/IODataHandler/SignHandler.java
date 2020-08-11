@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,6 +64,7 @@ public class SignHandler extends AbsHandler{
 
     ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.OK_DONE);
     dialog.getDialogPane().getButtonTypes().addAll(signButtonType, ButtonType.CANCEL);
+    Button button = new Button("Sign up");
 
     GridPane grid = new GridPane();
     grid.setHgap(10);

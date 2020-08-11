@@ -75,7 +75,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   @Override
   public void disconnect() {
     if (socket != null) {
-//      UserDialog.confirmDialog("Disconnect from server?", null);
       if (pipeline != null) clearPipeline();
       try {
         socket.close();

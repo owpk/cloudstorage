@@ -177,6 +177,7 @@ public class CloudPanelController {
   void disconnect() {
     if (networkServiceInt != null) {
         networkServiceInt.disconnect();
+        networkServiceInt = null;
     }
   }
 
@@ -225,6 +226,10 @@ public class CloudPanelController {
   private void initCallbacks() {
     statusLabelCallback = s -> Platform.runLater(() -> mainSceneController.setStatusLabel(s));
     progressBarCallback = i -> Platform.runLater(() -> progress_cloud.setProgress(i));
+  }
+
+  public NetworkServiceInt getNetworkServiceInt() {
+    return networkServiceInt;
   }
 
   public void init() {

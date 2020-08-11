@@ -63,6 +63,8 @@ public class MainSceneController implements Initializable {
 
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
+      if (cloudPanelController.getNetworkServiceInt() != null)
+        UserDialog.confirmDialog("Disconnect from server?", null);
       config.setStartPath(clientPanelController.getHistory().peek().toString());
       cloudPanelController.disconnect();
       Platform.exit();
