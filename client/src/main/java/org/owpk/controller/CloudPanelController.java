@@ -127,9 +127,8 @@ public class CloudPanelController {
   /**
    * Отправляет серверу команду {@link MessageType}
    * сервер возвращает List<FileInfo>
-   * @throws IOException
    */
-  public void updateServerFolders() throws IOException {
+  public void updateServerFolders() {
     if (networkServiceInt == null) {
       connect();
     } else
@@ -152,7 +151,6 @@ public class CloudPanelController {
 
   private void initListeners() {
     final FileInfo[] tempItem = new FileInfo[1];
-
     server_panel.setRowFactory(x -> {
       TableRow<FileInfo> row = new TableRow<>();
       row.setOnDragDropped(event -> {
@@ -202,34 +200,31 @@ public class CloudPanelController {
 
 
     javafx.util.Callback<TableColumn<FileInfo, FileInfo.FileType>, TableCell<FileInfo, FileInfo.FileType>> cellFactory
-        = param -> {
-      final TableCell<FileInfo, FileInfo.FileType> cell = new TableCell<FileInfo, FileInfo.FileType>() {
-        final Button btn = new Button();
-        {
-          btn.setMaxWidth(30);
-          btn.setPadding(Insets.EMPTY);
-          btn.setGraphic(new IconBuilder()
-              .setIconImage("download")
-              .setFitHeight(15)
-              .build());
-        }
-        @Override
-        protected void updateItem(FileInfo.FileType item, boolean empty) {
-          super.updateItem(item, empty);
-          if (empty || item == FileInfo.FileType.DIRECTORY) {
-            setGraphic(null);
-          } else {
-            btn.setOnAction(event -> {
-              FileInfo info = getTableView().getItems().get(getIndex());
-              sendMessage(new Message<>(MessageType.DOWNLOAD, info.getFilename()));
-            });
-            setGraphic(btn);
+        = param -> new TableCell<FileInfo, FileInfo.FileType>() {
+          final Button btn = new Button();
+          {
+            btn.setMaxWidth(30);
+            btn.setPadding(Insets.EMPTY);
+            btn.setGraphic(new IconBuilder()
+                .setIconImage("download")
+                .setFitHeight(15)
+                .build());
           }
-          setText(null);
-        }
-      };
-      return cell;
-    };
+          @Override
+          protected void updateItem(FileInfo.FileType item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == FileInfo.FileType.DIRECTORY) {
+              setGraphic(null);
+            } else {
+              btn.setOnAction(event -> {
+                FileInfo info = getTableView().getItems().get(getIndex());
+                sendMessage(new Message<>(MessageType.DOWNLOAD, info.getFilename()));
+              });
+              setGraphic(btn);
+            }
+            setText(null);
+          }
+        };
     server_column_action.setCellFactory(cellFactory);
     server_panel.getColumns().add(server_column_action);
   }
