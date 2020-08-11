@@ -14,10 +14,9 @@ import org.apache.logging.log4j.Logger;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.message.UserInfo;
+import org.owpk.network.IONetworkServiceImpl;
 
-import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 @Getter
@@ -25,47 +24,44 @@ import java.util.concurrent.CountDownLatch;
 public class AuthHandler extends AbsHandler {
   private final Logger log = LogManager.getLogger(AuthHandler.class.getName());
   private final CountDownLatch doneLatch = new CountDownLatch(1);
-  private boolean signRequest;
-  private String login;
-  private String pass;
 
   private String hash(String input) {
     return DigestUtils.sha256Hex(input);
   }
 
-  public void showDialog() {
+  private void showDialog() {
     Platform.runLater(()-> {
       loginDialog();
       doneLatch.countDown();
     });
   }
 
-  public boolean tryToAuth() throws IOException, ClassNotFoundException, InterruptedException, AuthException {
-    doneLatch.await();
-    if (signRequest) return true;
-    else if (login != null && pass != null) {
-      writeMessage(new UserInfo(MessageType.AUTH, login, hash(pass)));
-      initDataListener();
-      return false;
-    } else throw new AuthException("Login and password should not be empty");
-  }
-
   @Override
-  protected void listen(Message<?> msg) throws AuthenticationException {
+  protected void listen(Message<?> msg) {
     if (msg.getType() == MessageType.OK) {
       handlerIsOver = true;
+      IONetworkServiceImpl.getService().addMainDataHandler();
     } else if (msg.getType() == MessageType.ERROR) {
-      throw new AuthenticationException((String) msg.getPayload());
+      throw new AuthException((String) msg.getPayload());
     }
   }
 
+  @Override
+  public void execute() throws InterruptedException, IOException, ClassNotFoundException {
+    showDialog();
+    doneLatch.await();
+    System.out.println("DONE");
+  }
+
   private void loginDialog() {
+    System.out.println("AUTH");
     Dialog<Pair<String, String>> dialog = new Dialog<>();
     dialog.setTitle("Login");
     dialog.setHeaderText("Authentication\nTest login: user\nTest password: 1234");
 
     ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
-    ButtonType signButtonType = new ButtonType("Sign", ButtonBar.ButtonData.OTHER);
+    ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.OTHER);
+
     dialog.getDialogPane().getButtonTypes().addAll(signButtonType, loginButtonType, ButtonType.CANCEL);
 
     GridPane grid = new GridPane();
@@ -77,6 +73,7 @@ public class AuthHandler extends AbsHandler {
     username.setPromptText("Username");
     PasswordField password = new PasswordField();
     password.setPromptText("Password");
+
 
     grid.add(new Label("Username:"), 0, 0);
     grid.add(username, 1, 0);
@@ -90,21 +87,21 @@ public class AuthHandler extends AbsHandler {
 
     dialog.getDialogPane().setContent(grid);
 
-    Platform.runLater(username::requestFocus);
     dialog.setResultConverter(dialogButton -> {
       if (dialogButton == loginButtonType) {
-        return new Pair<>(username.getText(), password.getText());
+        try {
+          writeMessage(new UserInfo(MessageType.AUTH, username.getText(), hash(password.getText())));
+          initDataListener();
+        } catch (IOException | ClassNotFoundException e) {
+          e.printStackTrace();
+        }
       } else if (dialogButton == signButtonType) {
+        IONetworkServiceImpl.getService().addHandlerToPipeline(new SignHandler());
         handlerIsOver = true;
-        signRequest = true;
       }
       return null;
     });
-    Optional<Pair<String, String>> result = dialog.showAndWait();
-    result.ifPresent(usernamePassword -> {
-      login = usernamePassword.getKey();
-      pass = usernamePassword.getValue();
-    });
+    dialog.showAndWait();
   }
 
 }

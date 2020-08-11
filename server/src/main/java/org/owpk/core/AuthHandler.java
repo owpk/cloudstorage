@@ -12,15 +12,20 @@ import org.owpk.auth.UserDAO;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.message.UserInfo;
+import org.owpk.util.FileUtility;
+import org.owpk.util.ServerConfig;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ChannelHandler.Sharable
 public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
   private final Logger log = LogManager.getLogger(AuthHandler.class.getName());
   private static final ConcurrentHashMap<Channel, User> activeUsers = new ConcurrentHashMap<>();
+  private final User testUser = new User(1, "user", "1234", "\\user\\", "");
   private UserDAO userDAO;
-  private User testUser = new User(1, "/user/","1234","user","");
+
   private String hash(String input) {
     return DigestUtils.sha256Hex(input);
   }
@@ -33,34 +38,54 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Message<?> msg) throws Exception {
-    if (msg.getType() == MessageType.AUTH) {
-      log.info("Auth request: " + msg + " : " + ctx.channel().remoteAddress());
-      UserInfo info = (UserInfo) msg;
-
-      //TEST
-      if (info.getLogin().equals(testUser.getLogin()) && info.getPassword().equals(hash(testUser.getPassword_hash()))) {
-        ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
-        ctx.pipeline().addLast(new MessageHandler(testUser));
-        ctx.pipeline().remove(this);
-      } else {
-        User user = userDAO.getUserByLoginAndPassword(info.getLogin(), info.getPassword());
-        if (user != null) {
-          activeUsers.put(ctx.channel(), user);
-          ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
-          ctx.pipeline().addLast(new MessageHandler(user));
-          ctx.pipeline().remove(this);
-          log.info(ctx.channel().remoteAddress() + " verified : user " + user);
-        } else {
-          log.info("Message send to user");
-          ctx.writeAndFlush(new Message<>(MessageType.ERROR, "User not found, try to sign"));
-        }
-//      } else if (msg.getType() == MessageType.SIGN) {
-//        log.info("Sign request");
-//        final User user = new User();
-//        userDAO.addUser(user);
-//        ctx.writeAndFlush(new Message<>(MessageType.OK, "OK, Try to auth now"));
-//      }
+    log.info("Auth request: " + msg + " : " + ctx.channel().remoteAddress());
+    UserInfo info = (UserInfo) msg;
+    if (msg.getType() == MessageType.AUTH &&
+        info.getLogin().equals(testUser.getLogin()) && info.getPassword().equals(hash(testUser.getPassword_hash()))) {
+      ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
+      ctx.pipeline().addLast(new MessageHandler(testUser));
+      ctx.pipeline().remove(this);
+    } else {
+      switch (msg.getType()) {
+        case AUTH:
+          auth(info, ctx.channel());
+          break;
+        case SIGN:
+          sign(info, ctx.channel());
+          break;
       }
+    }
+  }
+
+  private void auth(UserInfo info, Channel channel) {
+    User user = userDAO.getUserByLoginAndPassword(info.getLogin(), info.getPassword());
+    if (user != null) {
+      activeUsers.put(channel, user);
+      channel.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
+      channel.pipeline().addLast(new MessageHandler(user));
+      channel.pipeline().remove(this);
+      log.info(channel.remoteAddress() + " verified : user " + user);
+    } else {
+      log.info("Message send to user");
+      channel.writeAndFlush(new Message<>(MessageType.ERROR, "User not found, try to sign"));
+    }
+  }
+
+  private void sign(UserInfo msg, Channel channel) throws IOException {
+    log.info("new sign request");
+    final User temp = userDAO.getUserByLogin(msg.getLogin());
+    if (temp == null) {
+      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + msg.getLogin());
+      final User user = new User(
+          msg.getLogin(),
+          msg.getPassword(),
+          "\\user_folder_" + msg.getLogin() + "\\",
+          msg.getEmail());
+      userDAO.addUser(user);
+      log.info("user added: " + user);
+      channel.writeAndFlush(new Message<>(MessageType.OK, "OK, Try to auth now"));
+    } else {
+      channel.writeAndFlush(new Message<>(MessageType.ERROR, "User already exist"));
     }
   }
 

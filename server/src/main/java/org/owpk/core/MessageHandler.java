@@ -56,10 +56,9 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
 
   private void downloadRequest(Channel channel, Message<?> ms) throws IOException {
     log.debug(ms);
-    final OutputCallback<Message<?>> out = channel::writeAndFlush;
     final File f = new File(userFolder + "\\" + ms.getPayload());
     if (f.exists()) {
-    FileUtility.sendFileByChunks(out, f, MessageType.DOWNLOAD);
+    FileUtility.sendFileByChunks(channel::writeAndFlush, f, MessageType.DOWNLOAD);
     }
   }
 

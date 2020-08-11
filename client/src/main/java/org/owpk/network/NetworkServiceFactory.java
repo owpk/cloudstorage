@@ -12,7 +12,7 @@ public class NetworkServiceFactory {
     map = new HashMap<>();
     map.put("localhost", IONetworkServiceImpl.getService());
   }
-  public static NetworkServiceInt getHandler(String server) {
+  public static NetworkServiceInt getService(String server) {
     return map.get(server);
   }
 }

@@ -2,6 +2,7 @@ package org.owpk.IODataHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.owpk.message.MessageType;
 import org.owpk.util.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
@@ -19,7 +20,7 @@ import java.util.*;
 /**
  * класс обработчик входных данных
  */
-public class InputDataHandler extends AbsHandler implements Runnable {
+public class InputDataHandler extends AbsHandler {
   private final Logger log = LogManager.getLogger(InputDataHandler.class.getName());
   private final Callback<String> serverStatusLabel;
   private final Callback<List<FileInfo>> tableViewCallback;
@@ -34,25 +35,6 @@ public class InputDataHandler extends AbsHandler implements Runnable {
     this.progressBarCallback = callbacks[2];
     this.refreshClientCallback = callbacks[3];
     this.networkServiceInt = IONetworkServiceImpl.getService();
-  }
-
-  @Override
-  public void run() {
-    try {
-      log.info("thread started");
-     initDataListener();
-    } catch (IOException | ClassNotFoundException e) {
-      log.error(e);
-      serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
-      e.printStackTrace();
-    } finally {
-      try {
-        handlerIsOver = true;
-        networkServiceInt.disconnect();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
   }
 
   @Override
@@ -74,6 +56,31 @@ public class InputDataHandler extends AbsHandler implements Runnable {
     }
   }
 
+  @Override
+  public void execute() {
+    new Thread(() -> {
+      try {
+        log.info("thread started");
+        writeMessage(new Message<>(MessageType.DIR));
+        initDataListener();
+      } catch (IOException | ClassNotFoundException e) {
+        log.error(e);
+        serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
+        e.printStackTrace();
+      } finally {
+        try {
+          handlerIsOver = true;
+          networkServiceInt.disconnect();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }).start();
+  }
+
+  /**
+   * @see FileUtility.FileWriter
+   */
   private void download(DataInfo ms) throws IOException {
     String fileName = ms.getFile();
     final File f = new File(

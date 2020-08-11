@@ -6,3 +6,4 @@
 /server/out
 /server/log/
 *.iml
+*.log

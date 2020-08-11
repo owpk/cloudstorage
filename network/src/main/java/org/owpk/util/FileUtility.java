@@ -26,11 +26,12 @@ public class FileUtility {
     }
   }
 
-  public static void createDirectory(String dirName) throws IOException {
+  public static File createDirectory(String dirName) throws IOException {
     File file = new File(dirName);
     if (!file.exists()) {
       file.mkdir();
     }
+    return file;
   }
 
   public static List<FileInfo> getDirectories(String currentDir) throws IOException {
