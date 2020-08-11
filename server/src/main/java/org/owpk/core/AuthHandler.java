@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
   private final Logger log = LogManager.getLogger(AuthHandler.class.getName());
   private static final ConcurrentHashMap<Channel, User> activeUsers = new ConcurrentHashMap<>();
-  private final User testUser = new User(1, "\\user\\", "1234", "user", "");
+  private final User testUser = new User(1, "user", "1234", "\\user\\", "");
   private UserDAO userDAO;
 
   private String hash(String input) {
@@ -40,7 +40,6 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
   protected void channelRead0(ChannelHandlerContext ctx, Message<?> msg) throws Exception {
     log.info("Auth request: " + msg + " : " + ctx.channel().remoteAddress());
     UserInfo info = (UserInfo) msg;
-
     if (msg.getType() == MessageType.AUTH &&
         info.getLogin().equals(testUser.getLogin()) && info.getPassword().equals(hash(testUser.getPassword_hash()))) {
       ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));

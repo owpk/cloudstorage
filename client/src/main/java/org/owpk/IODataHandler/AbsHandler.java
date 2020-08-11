@@ -35,4 +35,5 @@ public abstract class AbsHandler {
     this.handlerIsOver = handlerIsOver;
   }
   protected abstract void listen(Message<?> message) throws IOException;
+  public abstract void execute() throws InterruptedException, IOException, ClassNotFoundException;
 }

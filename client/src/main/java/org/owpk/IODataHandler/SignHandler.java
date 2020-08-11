@@ -12,9 +12,9 @@ import org.owpk.controller.UserDialog;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.message.UserInfo;
+import org.owpk.network.IONetworkServiceImpl;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 @Getter
@@ -29,7 +29,28 @@ public class SignHandler extends AbsHandler{
       signDialog();
   }
 
-  public void tryToSign() throws InterruptedException {
+
+  @Override
+  protected void listen(Message<?> message) throws IOException {
+    switch (message.getType()) {
+      case OK:
+        handlerIsOver = true;
+        doneLatch.countDown();
+        IONetworkServiceImpl.getService().addHandlerToPipeline(new AuthHandler());
+        break;
+      case ERROR:
+        Platform.runLater(() -> {
+          UserDialog.errorDialog(message.getPayload().toString());
+          showDialog();
+        });
+
+        break;
+    }
+  }
+
+  @Override
+  public void execute() throws InterruptedException {
+    System.out.println("EXECUTE");
     Platform.runLater(()-> {
       showDialog();
       try {
@@ -40,20 +61,6 @@ public class SignHandler extends AbsHandler{
       }
     });
     doneLatch.await();
-  }
-
-  @Override
-  protected void listen(Message<?> message) throws IOException {
-    switch (message.getType()) {
-      case OK:
-        handlerIsOver = true;
-        doneLatch.countDown();
-        break;
-      case ERROR:
-        UserDialog.errorDialog(message.getPayload().toString());
-        showDialog();
-        break;
-    }
   }
 
   public void signDialog() {
@@ -99,7 +106,9 @@ public class SignHandler extends AbsHandler{
         this.login = username.getText();
         this.password = password.getText();
         this.email = email.getText();
-      } else handlerIsOver = true;
+      } else {
+        handlerIsOver = true;
+      }
       return null;
     });
     dialog.showAndWait();

@@ -1,5 +1,6 @@
 package org.owpk.network;
 
+import com.sun.xml.internal.ws.util.QNameMap;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import org.apache.logging.log4j.LogManager;
@@ -12,17 +13,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Класс {@link IONetworkServiceImpl} создающий подключение,
  * по умолчанию использует параметры из конфиг файла client.properties
  */
 public class IONetworkServiceImpl implements NetworkServiceInt {
-  private static final NetworkServiceInt service = new IONetworkServiceImpl(
+  private static final IONetworkServiceImpl service = new IONetworkServiceImpl(
       ClientConfig.getConfig().getHost(), ClientConfig.getConfig().getPort());
 
   private final Logger log = LogManager.getLogger(IONetworkServiceImpl.class.getName());
@@ -32,31 +33,24 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   private ObjectDecoderInputStream in;
   private ObjectEncoderOutputStream out;
   private InputDataHandler inputDataHandler;
-  private AuthHandler authHandler;
-  private SignHandler signHandler;
-  private List<AbsHandler> pipeline;
+  private ConcurrentLinkedDeque<AbsHandler> pipeline;
 
   public IONetworkServiceImpl(String host, int port) {
     this.PORT = port;
     this.HOST = host;
   }
 
-  public static NetworkServiceInt getService() {
+  public static IONetworkServiceImpl getService() {
     return service;
   }
 
   @Override
   public void initHandlers(Callback... callback) throws IOException {
-    pipeline = new ArrayList<>();
     inputDataHandler = new InputDataHandler(
         callback[0],
         callback[1],
         callback[2],
         callback[3]);
-    authHandler = new AuthHandler();
-    signHandler = new SignHandler();
-    pipeline.add(authHandler);
-    pipeline.add(inputDataHandler);
   }
 
   @Override
@@ -70,23 +64,17 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
     System.out.println("connected : " + socket.getRemoteSocketAddress());
     out = new ObjectEncoderOutputStream(socket.getOutputStream());
     in = new ObjectDecoderInputStream(socket.getInputStream());
-    tryToAuthOrSign();
-  }
-
-  private void tryToAuthOrSign() throws InterruptedException, IOException, ClassNotFoundException {
-    if (authHandler.tryToAuth()) { //sync
-      if (signHandler.tryToSign()) { //sync
-        authHandler = new AuthHandler();
-        signHandler = new SignHandler();
-        tryToAuthOrSign();
-      }
+    pipeline = new ConcurrentLinkedDeque<>();
+    addHandlerToPipeline(new AuthHandler());
+    for (int i = 0; i < pipeline.size(); i++) {
+      pipeline.getLast().execute();
     }
   }
 
   @Override
   public void disconnect() {
     log.info("disconnected : " + HOST);
-    inputDataHandler.setHandlerIsOver(true);
+    pipeline.forEach(x -> x.setHandlerIsOver(true));
     try {
       socket.close();
       out.close();
@@ -97,6 +85,13 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
     }
   }
 
+  public void addMainDataHandler() {
+    pipeline.add(inputDataHandler);
+  }
+
+  public void addHandlerToPipeline(AbsHandler handler) {
+    pipeline.add(handler);
+  }
 
   @Override
   public OutputStream getOut() {

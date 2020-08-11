@@ -2,6 +2,7 @@ package org.owpk.IODataHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.owpk.message.MessageType;
 import org.owpk.util.Callback;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.DataInfo;
@@ -36,26 +37,6 @@ public class InputDataHandler extends AbsHandler {
     this.networkServiceInt = IONetworkServiceImpl.getService();
   }
 
-  public void run() {
-    new Thread(() -> {
-      try {
-        log.info("thread started");
-        initDataListener();
-      } catch (IOException | ClassNotFoundException e) {
-        log.error(e);
-        serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
-        e.printStackTrace();
-      } finally {
-        try {
-          handlerIsOver = true;
-          networkServiceInt.disconnect();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }).start();
-  }
-
   @Override
   protected void listen(Message<?> msg) throws IOException {
     log.info(msg);
@@ -73,6 +54,28 @@ public class InputDataHandler extends AbsHandler {
         break;
       case DEFAULT:
     }
+  }
+
+  @Override
+  public void execute() {
+    new Thread(() -> {
+      try {
+        log.info("thread started");
+        writeMessage(new Message<>(MessageType.DIR));
+        initDataListener();
+      } catch (IOException | ClassNotFoundException e) {
+        log.error(e);
+        serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
+        e.printStackTrace();
+      } finally {
+        try {
+          handlerIsOver = true;
+          networkServiceInt.disconnect();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }).start();
   }
 
   /**

@@ -67,7 +67,6 @@ public class CloudPanelController {
                   progressBarCallback,
                   mainSceneController.getClientPanelController().getRefreshPanelCallback());
               networkServiceInt.connect();
-              updateServerFolders();
             } catch (AuthException | IOException | ClassNotFoundException e) {
               disconnect();
               networkServiceInt = null;
@@ -86,6 +85,7 @@ public class CloudPanelController {
     ser.setOnFailed((WorkerStateEvent event) -> {
         mainSceneController.setStatusLabel("unable to connect");
         UserDialog.errorDialog(event.getSource().getException().getMessage());
+        event.getSource().getException().printStackTrace();
         });
     ser.start();
   }
