@@ -2,11 +2,13 @@ package org.owpk.network;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owpk.IODataHandler.AuthException;
 import org.owpk.IODataHandler.AuthHandler;
 import org.owpk.IODataHandler.InputDataHandler;
+import org.owpk.IODataHandler.SignHandler;
 import org.owpk.controller.Callback;
 import org.owpk.app.ClientConfig;
 
@@ -31,6 +33,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   private ObjectEncoderOutputStream out;
   private InputDataHandler inputDataHandler;
   private AuthHandler authHandler;
+  private SignHandler signHandler;
 
   public IONetworkServiceImpl(String host, int port) {
     this.PORT = port;
@@ -49,6 +52,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
         callback[2],
         callback[3]);
     authHandler = new AuthHandler();
+    signHandler = new SignHandler();
   }
 
   @Override
@@ -59,12 +63,22 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   @Override
   public void connect() throws IOException, InterruptedException, ClassNotFoundException, AuthException {
     socket = new Socket(HOST, PORT);
-    log.info("connected : " + socket.getRemoteSocketAddress());
+    System.out.println("connected : " + socket.getRemoteSocketAddress());
     out = new ObjectEncoderOutputStream(socket.getOutputStream());
     in = new ObjectDecoderInputStream(socket.getInputStream());
-    authHandler.showDialog(); //sync
-    authHandler.tryToAuth();  //sync
+    tryToAuthOrSign();
     new Thread(inputDataHandler).start();
+  }
+
+  private void tryToAuthOrSign() throws InterruptedException, IOException, ClassNotFoundException {
+    authHandler.showDialog();
+    if (authHandler.tryToAuth()) { //sync
+      signHandler.showDialog();
+      signHandler.tryToSign(); //sync
+      authHandler = new AuthHandler();
+      signHandler = new SignHandler();
+      tryToAuthOrSign();
+    }
   }
 
   @Override

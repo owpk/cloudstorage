@@ -45,7 +45,7 @@ public class ClientConfig extends Config {
 
   public void setStartPath(String path) {
     startPath = Paths.get(path);
-    writeProperty(ConfigParameters.LAST_DIR, path);
+    writeProperty(ConfigParameters.LAST_DIR, startPath.toAbsolutePath().toString());
   }
 
   public void writeProperty(ConfigParameters prop, String val) {
