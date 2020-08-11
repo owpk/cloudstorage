@@ -74,9 +74,9 @@ public class SignHandler extends AbsHandler{
     TextField username = new TextField();
     username.setPromptText("Username");
     TextField email = new TextField();
+    email.setPromptText("Email");
     PasswordField password = new PasswordField();
     password.setPromptText("Password");
-    username.setPromptText("Email");
     PasswordField confirmPassword = new PasswordField();
     password.setPromptText("Confirm password");
     grid.add(new Label("Username:"), 0, 0);
