@@ -14,14 +14,15 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import org.owpk.IODataHandler.AuthException;
 import org.owpk.app.ClientConfig;
-import org.owpk.message.DataInfo;
 import org.owpk.message.MessageType;
 import org.owpk.message.Message;
 import org.owpk.IODataHandler.InputDataHandler;
 import org.owpk.network.NetworkServiceFactory;
 import org.owpk.network.NetworkServiceInt;
+import org.owpk.util.Callback;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
+import org.owpk.util.OutputCallback;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,14 +99,9 @@ public class CloudPanelController {
         return new Task<Void>() {
           @Override
           protected Void call() throws InterruptedException, IOException {
-            DataInfo[] bufferedData = FileUtility.getChunkedFile(f, MessageType.UPLOAD);
-            float counter;
-            for (int i = 0; i < bufferedData.length; i++) {
-              sendMessage(bufferedData[i]);
-              counter = (float) i / bufferedData.length;
-              float finalCounter = counter;
-              Platform.runLater(() -> progress_cloud.setProgress(finalCounter));
-            }
+            Callback<Float> progressBarCallback = x -> Platform.runLater(() -> progress_cloud.setProgress(x));
+            OutputCallback<Message<?>> out = CloudPanelController.this::sendMessage;
+            FileUtility.sendFileByChunks(out, f, MessageType.UPLOAD, progressBarCallback);
             return null;
           }
         };
@@ -127,9 +123,8 @@ public class CloudPanelController {
   /**
    * Отправляет серверу команду {@link MessageType}
    * сервер возвращает List<FileInfo>
-   * @throws IOException
    */
-  public void updateServerFolders() throws IOException {
+  public void updateServerFolders() {
     if (networkServiceInt == null) {
       connect();
     } else
@@ -152,7 +147,6 @@ public class CloudPanelController {
 
   private void initListeners() {
     final FileInfo[] tempItem = new FileInfo[1];
-
     server_panel.setRowFactory(x -> {
       TableRow<FileInfo> row = new TableRow<>();
       row.setOnDragDropped(event -> {
@@ -202,34 +196,31 @@ public class CloudPanelController {
 
 
     javafx.util.Callback<TableColumn<FileInfo, FileInfo.FileType>, TableCell<FileInfo, FileInfo.FileType>> cellFactory
-        = param -> {
-      final TableCell<FileInfo, FileInfo.FileType> cell = new TableCell<FileInfo, FileInfo.FileType>() {
-        final Button btn = new Button();
-        {
-          btn.setMaxWidth(30);
-          btn.setPadding(Insets.EMPTY);
-          btn.setGraphic(new IconBuilder()
-              .setIconImage("download")
-              .setFitHeight(15)
-              .build());
-        }
-        @Override
-        protected void updateItem(FileInfo.FileType item, boolean empty) {
-          super.updateItem(item, empty);
-          if (empty || item == FileInfo.FileType.DIRECTORY) {
-            setGraphic(null);
-          } else {
-            btn.setOnAction(event -> {
-              FileInfo info = getTableView().getItems().get(getIndex());
-              sendMessage(new Message<>(MessageType.DOWNLOAD, info.getFilename()));
-            });
-            setGraphic(btn);
+        = param -> new TableCell<FileInfo, FileInfo.FileType>() {
+          final Button btn = new Button();
+          {
+            btn.setMaxWidth(30);
+            btn.setPadding(Insets.EMPTY);
+            btn.setGraphic(new IconBuilder()
+                .setIconImage("download")
+                .setFitHeight(15)
+                .build());
           }
-          setText(null);
-        }
-      };
-      return cell;
-    };
+          @Override
+          protected void updateItem(FileInfo.FileType item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == FileInfo.FileType.DIRECTORY) {
+              setGraphic(null);
+            } else {
+              btn.setOnAction(event -> {
+                FileInfo info = getTableView().getItems().get(getIndex());
+                sendMessage(new Message<>(MessageType.DOWNLOAD, info.getFilename()));
+              });
+              setGraphic(btn);
+            }
+            setText(null);
+          }
+        };
     server_column_action.setCellFactory(cellFactory);
     server_panel.getColumns().add(server_column_action);
   }
@@ -237,13 +228,17 @@ public class CloudPanelController {
   public void onUpBtnClicked(ActionEvent actionEvent) {
   }
 
+  private void initCallbacks() {
+    statusLabelCallback = s -> Platform.runLater(() -> mainSceneController.setStatusLabel(s));
+    progressBarCallback = i -> Platform.runLater(() -> progress_cloud.setProgress(i));
+  }
+
   public void init() {
     initListeners();
     connect();
     cloudTableCallback = this::serverRefresh;
     initDownloadAction();
-    statusLabelCallback = s -> mainSceneController.setStatusLabel(s);
-    progressBarCallback = i -> Platform.runLater(() -> progress_cloud.setProgress(i));
+    initCallbacks();
   }
 
 }
