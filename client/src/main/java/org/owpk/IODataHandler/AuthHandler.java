@@ -29,8 +29,8 @@ public class AuthHandler extends AbsHandler {
     return DigestUtils.sha256Hex(input);
   }
 
-  private void showDialog() {
-    Platform.runLater(()-> {
+  private void showDialog() throws AuthException {
+    Platform.runLater(() -> {
       loginDialog();
       doneLatch.countDown();
     });
@@ -47,21 +47,18 @@ public class AuthHandler extends AbsHandler {
   }
 
   @Override
-  public void execute() throws InterruptedException, IOException, ClassNotFoundException {
+  public void execute() throws InterruptedException, AuthException, IOException, ClassNotFoundException {
     showDialog();
     doneLatch.await();
-    System.out.println("DONE");
   }
 
   private void loginDialog() {
-    System.out.println("AUTH");
     Dialog<Pair<String, String>> dialog = new Dialog<>();
     dialog.setTitle("Login");
     dialog.setHeaderText("Authentication\nTest login: user\nTest password: 1234");
 
     ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
-    ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.OTHER);
-
+    ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.RIGHT);
     dialog.getDialogPane().getButtonTypes().addAll(signButtonType, loginButtonType, ButtonType.CANCEL);
 
     GridPane grid = new GridPane();
@@ -89,6 +86,7 @@ public class AuthHandler extends AbsHandler {
 
     dialog.setResultConverter(dialogButton -> {
       if (dialogButton == loginButtonType) {
+        System.out.println(dialogButton.getButtonData());
         try {
           writeMessage(new UserInfo(MessageType.AUTH, username.getText(), hash(password.getText())));
           initDataListener();
@@ -96,8 +94,9 @@ public class AuthHandler extends AbsHandler {
           e.printStackTrace();
         }
       } else if (dialogButton == signButtonType) {
+        System.out.println(dialogButton.getButtonData());
         IONetworkServiceImpl.getService().addHandlerToPipeline(new SignHandler());
-        handlerIsOver = true;
+        this.handlerIsOver = true;
       }
       return null;
     });

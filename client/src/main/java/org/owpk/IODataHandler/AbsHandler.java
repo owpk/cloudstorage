@@ -12,7 +12,7 @@ import java.io.IOException;
 public abstract class AbsHandler {
   protected boolean handlerIsOver;
 
-  protected void initDataListener() throws IOException, ClassNotFoundException {
+  protected void initDataListener() throws IOException, ClassNotFoundException, AuthException {
     System.out.println("DataListener started :  " + this.getClass().toString());
     ObjectDecoderInputStream in = (ObjectDecoderInputStream) IONetworkServiceImpl.getService().getIn();
     Message<?> msg;

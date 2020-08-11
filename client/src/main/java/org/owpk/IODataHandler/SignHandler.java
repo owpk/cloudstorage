@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,9 @@ import org.owpk.network.IONetworkServiceImpl;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Отправляет форму с данными юзера на сервер, слушает ответ
+ */
 @Getter
 @Setter
 public class SignHandler extends AbsHandler{
@@ -26,40 +30,30 @@ public class SignHandler extends AbsHandler{
   private String email;
 
   private void showDialog() {
-      signDialog();
+    Platform.runLater(this::signDialog);
   }
-
 
   @Override
   protected void listen(Message<?> message) throws IOException {
     switch (message.getType()) {
       case OK:
-        handlerIsOver = true;
-        doneLatch.countDown();
+        Platform.runLater(() -> UserDialog.confirmDialog(message.getPayload().toString(), null));
         IONetworkServiceImpl.getService().addHandlerToPipeline(new AuthHandler());
+        handlerIsOver = true;
         break;
       case ERROR:
         Platform.runLater(() -> {
           UserDialog.errorDialog(message.getPayload().toString());
           showDialog();
         });
-
         break;
     }
+    doneLatch.countDown();
   }
 
   @Override
   public void execute() throws InterruptedException {
-    System.out.println("EXECUTE");
-    Platform.runLater(()-> {
-      showDialog();
-      try {
-        writeMessage(new UserInfo(MessageType.SIGN, "login", "password", "email"));
-        initDataListener();
-      } catch (IOException | ClassNotFoundException e) {
-        e.printStackTrace();
-      }
-    });
+    showDialog();
     doneLatch.await();
   }
 
@@ -70,6 +64,7 @@ public class SignHandler extends AbsHandler{
 
     ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.OK_DONE);
     dialog.getDialogPane().getButtonTypes().addAll(signButtonType, ButtonType.CANCEL);
+    Button button = new Button("Sign up");
 
     GridPane grid = new GridPane();
     grid.setHgap(10);
@@ -93,21 +88,30 @@ public class SignHandler extends AbsHandler{
     grid.add(new Label("Confirm password:"), 0, 4);
     grid.add(confirmPassword, 1, 4);
 
-    Node loginButton = dialog.getDialogPane().lookupButton(signButtonType);
-    loginButton.setDisable(true);
-
-    username.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
-
+    Node signButton = dialog.getDialogPane().lookupButton(signButtonType);
+    signButton.setDisable(true);
+    username.textProperty().addListener((observable, oldValue, newValue) -> signButton.setDisable(newValue.trim().isEmpty()));
     dialog.getDialogPane().setContent(grid);
+    dialog.setOnCloseRequest(x -> IONetworkServiceImpl.getService().disconnect());
 
     Platform.runLater(username::requestFocus);
     dialog.setResultConverter(dialogButton -> {
       if (dialogButton == signButtonType) {
-        this.login = username.getText();
-        this.password = password.getText();
-        this.email = email.getText();
-      } else {
-        handlerIsOver = true;
+        try {
+          writeMessage(new UserInfo(MessageType.SIGN, username.getText(), password.getText(), email.getText()));
+          new Thread(() -> {
+            try {
+              handlerIsOver = false;
+              initDataListener();
+            } catch (IOException | ClassNotFoundException e) {
+              e.printStackTrace();
+            }
+          }).start();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      } else if (dialogButton == ButtonType.CANCEL) {
+        IONetworkServiceImpl.getService().disconnect();
       }
       return null;
     });

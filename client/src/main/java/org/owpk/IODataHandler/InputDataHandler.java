@@ -68,12 +68,8 @@ public class InputDataHandler extends AbsHandler {
         serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
         e.printStackTrace();
       } finally {
-        try {
-          handlerIsOver = true;
-          networkServiceInt.disconnect();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+        handlerIsOver = true;
+        networkServiceInt.disconnect();
       }
     }).start();
   }
