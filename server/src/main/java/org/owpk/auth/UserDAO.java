@@ -22,7 +22,18 @@ public class UserDAO {
     } catch (NoResultException e) {
       log.error(e.getMessage());
     }
-    em.close();
+    return user;
+  }
+
+  public User getUserByLogin(String login) {
+    Query query = em.createQuery("SELECT u FROM User u WHERE u.login = :login");
+    query.setParameter("login", login);
+    User user = null;
+    try {
+      user = (User) query.getSingleResult();
+    } catch (NoResultException e) {
+      log.error(e.getMessage());
+    }
     return user;
   }
 
@@ -30,7 +41,6 @@ public class UserDAO {
     em.getTransaction().begin();
     em.persist(user);
     em.getTransaction().commit();
-    em.close();
   }
 
 }

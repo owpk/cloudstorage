@@ -4,10 +4,7 @@ import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owpk.IODataHandler.AuthException;
-import org.owpk.IODataHandler.AuthHandler;
-import org.owpk.IODataHandler.InputDataHandler;
-import org.owpk.IODataHandler.SignHandler;
+import org.owpk.IODataHandler.*;
 import org.owpk.util.Callback;
 import org.owpk.app.ClientConfig;
 
@@ -15,6 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Класс {@link IONetworkServiceImpl} создающий подключение,
@@ -33,6 +34,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   private InputDataHandler inputDataHandler;
   private AuthHandler authHandler;
   private SignHandler signHandler;
+  private List<AbsHandler> pipeline;
 
   public IONetworkServiceImpl(String host, int port) {
     this.PORT = port;
@@ -45,6 +47,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
 
   @Override
   public void initHandlers(Callback... callback) throws IOException {
+    pipeline = new ArrayList<>();
     inputDataHandler = new InputDataHandler(
         callback[0],
         callback[1],
@@ -52,6 +55,8 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
         callback[3]);
     authHandler = new AuthHandler();
     signHandler = new SignHandler();
+    pipeline.add(authHandler);
+    pipeline.add(inputDataHandler);
   }
 
   @Override
@@ -66,17 +71,15 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
     out = new ObjectEncoderOutputStream(socket.getOutputStream());
     in = new ObjectDecoderInputStream(socket.getInputStream());
     tryToAuthOrSign();
-    new Thread(inputDataHandler).start();
   }
 
   private void tryToAuthOrSign() throws InterruptedException, IOException, ClassNotFoundException {
-    authHandler.showDialog();
     if (authHandler.tryToAuth()) { //sync
-      signHandler.showDialog();
-      signHandler.tryToSign(); //sync
-      authHandler = new AuthHandler();
-      signHandler = new SignHandler();
-      tryToAuthOrSign();
+      if (signHandler.tryToSign()) { //sync
+        authHandler = new AuthHandler();
+        signHandler = new SignHandler();
+        tryToAuthOrSign();
+      }
     }
   }
 

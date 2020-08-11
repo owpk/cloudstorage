@@ -33,7 +33,7 @@ public class AuthHandler extends AbsHandler {
     return DigestUtils.sha256Hex(input);
   }
 
-  public void showDialog() {
+  private void showDialog() {
     Platform.runLater(()-> {
       loginDialog();
       doneLatch.countDown();
@@ -41,6 +41,7 @@ public class AuthHandler extends AbsHandler {
   }
 
   public boolean tryToAuth() throws IOException, ClassNotFoundException, InterruptedException, AuthException {
+    showDialog();
     doneLatch.await();
     if (signRequest) return true;
     else if (login != null && pass != null) {
@@ -51,11 +52,11 @@ public class AuthHandler extends AbsHandler {
   }
 
   @Override
-  protected void listen(Message<?> msg) throws AuthenticationException {
+  protected void listen(Message<?> msg) {
     if (msg.getType() == MessageType.OK) {
       handlerIsOver = true;
     } else if (msg.getType() == MessageType.ERROR) {
-      throw new AuthenticationException((String) msg.getPayload());
+      throw new AuthException((String) msg.getPayload());
     }
   }
 
@@ -65,7 +66,7 @@ public class AuthHandler extends AbsHandler {
     dialog.setHeaderText("Authentication\nTest login: user\nTest password: 1234");
 
     ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
-    ButtonType signButtonType = new ButtonType("Sign", ButtonBar.ButtonData.OTHER);
+    ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.OTHER);
     dialog.getDialogPane().getButtonTypes().addAll(signButtonType, loginButtonType, ButtonType.CANCEL);
 
     GridPane grid = new GridPane();
@@ -77,6 +78,7 @@ public class AuthHandler extends AbsHandler {
     username.setPromptText("Username");
     PasswordField password = new PasswordField();
     password.setPromptText("Password");
+
 
     grid.add(new Label("Username:"), 0, 0);
     grid.add(username, 1, 0);

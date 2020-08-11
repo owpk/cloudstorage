@@ -16,7 +16,6 @@ import org.owpk.IODataHandler.AuthException;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.MessageType;
 import org.owpk.message.Message;
-import org.owpk.IODataHandler.InputDataHandler;
 import org.owpk.network.NetworkServiceFactory;
 import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.Callback;
@@ -52,8 +51,7 @@ public class CloudPanelController {
   /**
    * метод вызывается при нажатии на кнопку "connect"
    * {@link NetworkServiceFactory} возвращает {@link NetworkServiceInt},
-   * который создает подключение клиента к серверу,
-   * данные для созданного подключения обслуживает {@link InputDataHandler}
+   * который создает подключение клиента к серверу
    */
   public void connect() {
     Service<Void> ser = new Service<Void>() {
@@ -63,7 +61,7 @@ public class CloudPanelController {
           @Override
           protected Void call() throws InterruptedException {
             try {
-              networkServiceInt = NetworkServiceFactory.getHandler(ClientConfig.getDefaultServer());
+              networkServiceInt = NetworkServiceFactory.getService(ClientConfig.getDefaultServer());
               networkServiceInt.initHandlers(cloudTableCallback,
                   statusLabelCallback,
                   progressBarCallback,
@@ -122,7 +120,7 @@ public class CloudPanelController {
 
   /**
    * Отправляет серверу команду {@link MessageType}
-   * сервер возвращает List<FileInfo>
+   * сервер должен вернуть List<FileInfo>
    */
   public void updateServerFolders() {
     if (networkServiceInt == null) {
