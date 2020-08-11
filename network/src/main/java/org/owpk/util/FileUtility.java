@@ -59,7 +59,7 @@ public class FileUtility {
   @SafeVarargs
   public static void sendFileByChunks(OutputCallback<Message<?>> out, File f, MessageType type, Callback<Float>... callbacks) throws IOException {
     int chunkCount;
-    try(FileInputStream fis = new FileInputStream(f)) {
+    try (FileInputStream fis = new FileInputStream(f)) {
       byte[] buf = new byte[BUFFER_SIZE];
       chunkCount = (int) Math.ceil((float) f.length() / BUFFER_SIZE);
       int chunkIndex = 0;
@@ -67,7 +67,7 @@ public class FileUtility {
         int offset = fis.read(buf);
         byte[] chunk = Arrays.copyOf(buf, offset);
         out.call(new DataInfo(type, chunkCount, chunkIndex, f.getName(), chunk));
-        if (callbacks != null) {
+        if (callbacks.length > 0) {
           float counter;
           counter = (float) chunkIndex / chunkCount;
           callbacks[0].call(counter);
@@ -77,11 +77,13 @@ public class FileUtility {
     }
   }
 
+  /**
+   * Класс принимает пакет, находит нужный FileWriter отностительно имени файла, и записывает массив байт в файл
+   */
   public static class FileWriter {
+    private final FileOutputStream fos;
     private static final Map<String, FileWriter> writerMap = new HashMap<>();
-    private String fileName;
-    private int size;
-    private FileOutputStream fos;
+    private final String fileName;
 
     public FileWriter(String fileName) throws FileNotFoundException {
       this.fileName = fileName;
@@ -105,6 +107,7 @@ public class FileUtility {
       if (index == ms.getChunkCount() - 1) {
         writerMap.remove(fileName);
         fos.close();
+        System.out.println("DONE");
       }
     }
   }

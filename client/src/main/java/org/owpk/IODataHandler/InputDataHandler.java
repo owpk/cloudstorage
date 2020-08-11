@@ -79,23 +79,13 @@ public class InputDataHandler extends AbsHandler implements Runnable {
     final File f = new File(
           ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
     FileUtility.FileWriter writer = FileUtility.FileWriter.getWriter(f.getAbsolutePath());
+    double count = (float) ms.getChunkIndex() / ms.getChunkCount();
+    progressBarCallback.call(count);
     writer.assembleChunkedFile(ms);
-//    int chunkCount = ms.getChunkCount();
-//    DataInfo[] data = files.get(fileName);
-//    if (sessionIsOver(fileName)) {
-//      final File f = new File(
-//          ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
-//      FileUtility.writeBufferToFile(data, f);
-//      progressBarCallback.call(0D);
-//      serverStatusLabel.call("done");
-//      refreshClientCallback.call(ClientConfig.getConfig().getDownloadDirectory().toAbsolutePath());
-//      files.remove(fileName);
-//    } else {
-//      long percentage = Arrays.stream(data)
-//          .filter(Objects::nonNull)
-//          .count();
-//      double count = (float) percentage / chunkCount;
-//      progressBarCallback.call(count);
-//    }
+    if (ms.getChunkIndex() == ms.getChunkCount() - 1){
+      serverStatusLabel.call("done");
+      progressBarCallback.call(0D);
+      refreshClientCallback.call(ClientConfig.getConfig().getDownloadDirectory().toAbsolutePath());
+    }
   }
 }

@@ -228,13 +228,17 @@ public class CloudPanelController {
   public void onUpBtnClicked(ActionEvent actionEvent) {
   }
 
+  private void initCallbacks() {
+    statusLabelCallback = s -> Platform.runLater(() -> mainSceneController.setStatusLabel(s));
+    progressBarCallback = i -> Platform.runLater(() -> progress_cloud.setProgress(i));
+  }
+
   public void init() {
     initListeners();
     connect();
     cloudTableCallback = this::serverRefresh;
     initDownloadAction();
-    statusLabelCallback = s -> mainSceneController.setStatusLabel(s);
-    progressBarCallback = i -> Platform.runLater(() -> progress_cloud.setProgress(i));
+    initCallbacks();
   }
 
 }
