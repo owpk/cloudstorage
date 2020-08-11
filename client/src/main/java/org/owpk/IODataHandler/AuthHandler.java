@@ -29,8 +29,8 @@ public class AuthHandler extends AbsHandler {
     return DigestUtils.sha256Hex(input);
   }
 
-  private void showDialog() {
-    Platform.runLater(()-> {
+  private void showDialog() throws AuthException {
+    Platform.runLater(() -> {
       loginDialog();
       doneLatch.countDown();
     });
@@ -47,14 +47,12 @@ public class AuthHandler extends AbsHandler {
   }
 
   @Override
-  public void execute() throws InterruptedException, IOException, ClassNotFoundException {
+  public void execute() throws InterruptedException, AuthException, IOException, ClassNotFoundException {
     showDialog();
     doneLatch.await();
-    System.out.println("DONE");
   }
 
   private void loginDialog() {
-    System.out.println("AUTH");
     Dialog<Pair<String, String>> dialog = new Dialog<>();
     dialog.setTitle("Login");
     dialog.setHeaderText("Authentication\nTest login: user\nTest password: 1234");
@@ -86,6 +84,7 @@ public class AuthHandler extends AbsHandler {
     username.textProperty().addListener((observable, oldValue, newValue) -> loginButton.setDisable(newValue.trim().isEmpty()));
 
     dialog.getDialogPane().setContent(grid);
+//    dialog.setOnCloseRequest(x -> IONetworkServiceImpl.getService().disconnect());
 
     dialog.setResultConverter(dialogButton -> {
       if (dialogButton == loginButtonType) {
@@ -97,8 +96,11 @@ public class AuthHandler extends AbsHandler {
         }
       } else if (dialogButton == signButtonType) {
         IONetworkServiceImpl.getService().addHandlerToPipeline(new SignHandler());
-        handlerIsOver = true;
+        this.handlerIsOver = true;
       }
+//      else if (dialogButton == ButtonType.CANCEL) {
+//        IONetworkServiceImpl.getService().disconnect();
+//      }
       return null;
     });
     dialog.showAndWait();

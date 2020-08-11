@@ -10,7 +10,7 @@ import java.io.OutputStream;
 public interface NetworkServiceInt {
   void initHandlers(Callback... callbacks) throws IOException;
   void connect() throws IOException, ClassNotFoundException, InterruptedException, AuthException;
-  void disconnect() throws IOException;
+  void disconnect();
 
   String getName();
   OutputStream getOut();

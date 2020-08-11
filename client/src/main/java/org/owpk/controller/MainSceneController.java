@@ -128,7 +128,8 @@ public class MainSceneController implements Initializable {
     File p = new File(config.getDownloadDirectory().toString());
     if (!p.exists()) {
       p.mkdirs();
-      UserDialog.confirmDialog(p.getAbsolutePath());
+      UserDialog.confirmDialog("Did not found specified download directory",
+          "Create default download folder? : \n" + p.getAbsolutePath());
     }
     Path path = Paths.get(p.getAbsolutePath());
     clientPanelController.getHistory().push(path);

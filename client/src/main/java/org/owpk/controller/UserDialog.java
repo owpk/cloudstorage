@@ -23,14 +23,12 @@ public class UserDialog {
         Config.ConfigParameters.DOWNLOAD_DIR, result.get()));
   }
 
-  public static boolean confirmDialog(String folder) {
+  public static void confirmDialog(String header, String content) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.setTitle("Confirmation Dialog");
-    alert.setHeaderText("Did not found specified download directory");
-    alert.setContentText("Create default download folder? : \n" + folder);
-
-    Optional<ButtonType> result = alert.showAndWait();
-    return result.get() == ButtonType.OK;
+    alert.setHeaderText(header);
+    alert.setContentText(content);
+    alert.showAndWait();
   }
 
   public static void errorDialog(String msg) {

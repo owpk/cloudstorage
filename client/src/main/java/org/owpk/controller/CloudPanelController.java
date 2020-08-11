@@ -81,9 +81,9 @@ public class CloudPanelController {
     ser.setOnRunning((WorkerStateEvent event) ->
         mainSceneController.setStatusLabel("trying to connect " + ClientConfig.getDefaultServer() + "..."));
     ser.setOnSucceeded((WorkerStateEvent event) ->
-        mainSceneController.setStatusLabel("connected: " + networkServiceInt.getName()));
+        mainSceneController.setStatusLabel(""));
     ser.setOnFailed((WorkerStateEvent event) -> {
-        mainSceneController.setStatusLabel("unable to connect");
+        mainSceneController.setStatusLabel("connection error");
         UserDialog.errorDialog(event.getSource().getException().getMessage());
         event.getSource().getException().printStackTrace();
         });
@@ -176,11 +176,7 @@ public class CloudPanelController {
 
   void disconnect() {
     if (networkServiceInt != null) {
-      try {
         networkServiceInt.disconnect();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
     }
   }
 
