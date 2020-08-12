@@ -10,7 +10,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>client</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <commos.codec.version>1.11</commos.codec.version>
+    </properties>
+
    <dependencies>
+       <dependency>
+           <groupId>commons-codec</groupId>
+           <artifactId>commons-codec</artifactId>
+           <version>${commos.codec.version}</version>
+       </dependency>
+
        <dependency>
            <groupId>org.owpk</groupId>
            <artifactId>network</artifactId>

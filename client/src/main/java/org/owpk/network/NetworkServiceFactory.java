@@ -1,22 +1,18 @@
 package org.owpk.network;
 
-import org.owpk.app.ClientConfig;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Класс {@link IONetworkServiceImpl} создающий подключение,
- * по умолчанию использует параметры из конфиг файла client.properties
+ * Фабрика классов для взаимодействия с облачными хранилищами
  */
 public class NetworkServiceFactory {
-  private static final Map<String, IONetworkServiceImpl> map;
+  private static final Map<String, NetworkServiceInt> map;
   static {
     map = new HashMap<>();
-    map.put("localhost", new IONetworkServiceImpl(
-        ClientConfig.getConfig().getHost(), ClientConfig.getConfig().getPort()));
+    map.put("localhost", IONetworkServiceImpl.getService());
   }
-  public static NetworkServiceInt getHandler(String server) {
+  public static NetworkServiceInt getService(String server) {
     return map.get(server);
   }
 }

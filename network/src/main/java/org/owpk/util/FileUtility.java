@@ -1,6 +1,7 @@
 package org.owpk.util;
 
 import org.owpk.message.DataInfo;
+import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 
 import java.io.*;
@@ -8,9 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -25,11 +26,12 @@ public class FileUtility {
     }
   }
 
-  public static void createDirectory(String dirName) throws IOException {
+  public static File createDirectory(String dirName) throws IOException {
     File file = new File(dirName);
     if (!file.exists()) {
       file.mkdir();
     }
+    return file;
   }
 
   public static List<FileInfo> getDirectories(String currentDir) throws IOException {
@@ -55,39 +57,60 @@ public class FileUtility {
     }
   }
 
-  public static DataInfo[] getChunkedFile(File f, MessageType type) throws IOException {
-    DataInfo[] buffer;
+  @SafeVarargs
+  public static void sendFileByChunks(OutputCallback<Message<?>> out, File f, MessageType type, Callback<Float>... callbacks) throws IOException {
     int chunkCount;
-    try(FileInputStream fis = new FileInputStream(f)) {
+    try (FileInputStream fis = new FileInputStream(f)) {
       byte[] buf = new byte[BUFFER_SIZE];
       chunkCount = (int) Math.ceil((float) f.length() / BUFFER_SIZE);
-      System.out.println("Chunks : " + chunkCount + " Size: " + f.length());
-      buffer = new DataInfo[chunkCount ];
       int chunkIndex = 0;
       while (fis.available() > 0) {
         int offset = fis.read(buf);
         byte[] chunk = Arrays.copyOf(buf, offset);
-        buffer[chunkIndex] = new DataInfo(type, chunkCount, chunkIndex, f.getName(), chunk);
+        out.call(new DataInfo(type, chunkCount, chunkIndex, f.getName(), chunk));
+        if (callbacks.length > 0) {
+          float counter;
+          counter = (float) chunkIndex / chunkCount;
+          callbacks[0].call(counter);
+        }
         chunkIndex++;
       }
     }
-    return buffer;
   }
 
-  public static void assembleChunkedFile(DataInfo ms, Map<String, DataInfo[]> files) throws IOException {
-    System.out.println("Package accepted: " + ms.getChunkIndex());
-    final String fileName = ms.getFile();
-    files.computeIfAbsent(fileName, k -> new DataInfo[ms.getChunkCount()]);
-    files.get(fileName)[ms.getChunkIndex()] = ms;
-  }
+  /**
+   * Класс принимает пакет, находит нужный FileWriter отностительно имени файла, и записывает массив байт в файл
+   */
+  public static class FileWriter {
+    private final FileOutputStream fos;
+    private static final Map<String, FileWriter> writerMap = new HashMap<>();
+    private final String fileName;
 
-  public static void writeBufferToFile(DataInfo[] data, File f) {
-    try (FileOutputStream fos = new FileOutputStream(f)) {
-      for (DataInfo dataInfo : data) {
-        fos.write(dataInfo.getPayload());
+    public FileWriter(String fileName) throws FileNotFoundException {
+      this.fileName = fileName;
+      fos = new FileOutputStream(fileName, true);
+    }
+
+    public static FileWriter getWriter(String fileName) throws FileNotFoundException {
+      FileWriter writer = writerMap.get(fileName);
+      if (writer == null) {
+        writer = new FileWriter(fileName);
+        writerMap.put(fileName, writer);
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+      return writer;
+    }
+
+    public void assembleChunkedFile(DataInfo ms) throws IOException {
+      //TODO проверка индекса пакета и временная запись в буфер или выбрасывание ошибки
+      byte[] payload = ms.getPayload();
+      int index = ms.getChunkIndex();
+      fos.write(payload);
+      if (index == ms.getChunkCount() - 1) {
+        writerMap.remove(fileName);
+        fos.close();
+        System.out.println("DONE");
+      }
     }
   }
+
 }

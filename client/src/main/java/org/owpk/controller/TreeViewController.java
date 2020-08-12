@@ -7,7 +7,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.owpk.app.Callback;
+import org.owpk.util.Callback;
 import org.owpk.util.FileInfo;
 
 import java.io.File;

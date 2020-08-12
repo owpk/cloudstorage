@@ -63,7 +63,9 @@ public class MainSceneController implements Initializable {
 
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
+      if (cloudPanelController.getNetworkServiceInt() != null)
       config.setStartPath(clientPanelController.getHistory().peek().toString());
+      cloudPanelController.disconnect();
       Platform.exit();
     });
 
@@ -124,11 +126,11 @@ public class MainSceneController implements Initializable {
   }
 
   public void checkConfig() {
-    System.out.println("Checking config");
     File p = new File(config.getDownloadDirectory().toString());
     if (!p.exists()) {
       p.mkdirs();
-      UserDialog.confirmDialog(p.getAbsolutePath());
+      UserDialog.confirmDialog("Did not found specified download directory",
+          "Create default download folder? : \n" + p.getAbsolutePath());
     }
     Path path = Paths.get(p.getAbsolutePath());
     clientPanelController.getHistory().push(path);

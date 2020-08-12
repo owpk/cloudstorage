@@ -45,6 +45,15 @@
                     <String fx:value="ctrl_btn" />
                 </styleClass>
             </Button>
+            <Button fx:id="up_btn" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" underline="true">
+                <font>
+                    <Font size="10.0" />
+                </font>
+                <styleClass>
+                    <String fx:value="up_btn" />
+                    <String fx:value="ctrl_btn" />
+                </styleClass>
+            </Button>
             <Button fx:id="update_btn" mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" onAction="#updateServerFolders" underline="true">
                 <font>
                     <Font size="10.0" />

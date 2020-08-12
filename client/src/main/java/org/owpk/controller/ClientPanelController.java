@@ -11,8 +11,9 @@ import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import lombok.SneakyThrows;
-import org.owpk.app.Callback;
-import org.owpk.app.ClientConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.owpk.util.Callback;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
@@ -27,11 +28,12 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class ClientPanelController {
+  private final Logger log = LogManager.getLogger(ClientPanelController.class.getName());
   @FXML private TableView<FileInfo> client_panel;
   @FXML private Button client_forward_btn;
+  @FXML private Button client_back;
   @FXML private TextField client_textFlow;
   @FXML private ComboBox<String> disk_list;
-  @FXML private Button client_back;
   @FXML private VBox client_panel_vbox;
 
   private MainSceneController mainSceneController;
@@ -55,7 +57,6 @@ public class ClientPanelController {
       clientBackInHistoryStack.push(clientForwardInHistoryStack.pop());
       clientRefresh(p);
     }
-    showBhistory();
   }
 
   /**
@@ -68,7 +69,6 @@ public class ClientPanelController {
       Path p = clientBackInHistoryStack.peek();
       clientRefresh(p);
     }
-    showFhistory();
   }
 
   /**
@@ -76,11 +76,10 @@ public class ClientPanelController {
    */
   @FXML
   public void onUpBtnClicked(ActionEvent actionEvent) {
-    Path p = clientBackInHistoryStack.peek().getParent();
+    final Path p = clientBackInHistoryStack.peek().getParent();
     if (p != null) {
       clientRefresh(p);
       clientBackInHistoryStack.push(p);
-      showBhistory();
     }
   }
 
@@ -107,6 +106,7 @@ public class ClientPanelController {
           .collect(Collectors.toList()));
       client_panel.sort();
     } catch (IOException e) {
+      log.error(e);
       mainSceneController.setStatusLabel("can't open");
       e.printStackTrace();
     }
@@ -114,13 +114,6 @@ public class ClientPanelController {
 
   public void clientRefresh() {
     clientRefresh(clientBackInHistoryStack.peek());
-  }
-
-  private void showBhistory() {
-    System.out.println(clientBackInHistoryStack + " <--- back");
-  }
-  private void showFhistory() {
-    System.out.println(clientForwardInHistoryStack + " <--- forward");
   }
 
   private void initCallbacks() {
@@ -149,11 +142,10 @@ public class ClientPanelController {
       if (x.getClickCount() == 2 && x.getButton() == MouseButton.PRIMARY) {
         FileInfo f = client_panel.getSelectionModel().getSelectedItem();
         if (f.getFileType() == FileInfo.FileType.DIRECTORY) {
-          Path p = f.getPath();
+          final Path p = f.getPath();
           clientRefresh(p);
           client_textFlow.setText(p.toString());
           clientBackInHistoryStack.push(p);
-          showBhistory();
         } else {
           File file = f.getPath().toFile();
           if (file.exists()) {
@@ -167,19 +159,17 @@ public class ClientPanelController {
   /**
    * инициализирует DragAndDrop слушателей
    */
-
   private Path targetDirectory;
   private void initDragAndDropListeners() {
     final FileInfo[] tempItem = new FileInfo[1];
 
     client_panel.setOnDragDetected(x -> {
-      FileInfo f = client_panel.getSelectionModel().getSelectedItem();
+      final FileInfo f = client_panel.getSelectionModel().getSelectedItem();
       File from;
       if (f != null) {
         from = f.getPath().toFile();
-        System.out.println(f.getPath());
-        Dragboard db = client_panel.startDragAndDrop(TransferMode.MOVE);
-        ClipboardContent content = new ClipboardContent();
+        final Dragboard db = client_panel.startDragAndDrop(TransferMode.MOVE);
+        final ClipboardContent content = new ClipboardContent();
         content.putString(from.getAbsolutePath());
         db.setContent(content);
         x.consume();
@@ -192,10 +182,8 @@ public class ClientPanelController {
 
     //здесь отслеживается target путь, это можно сделать только через RowFactory
     client_panel.setRowFactory(x -> {
-      TableRow<FileInfo> row = new TableRow<>();
-      row.setOnDragDropped(event -> {
-        tempItem[0] = row.getItem();
-      });
+      final TableRow<FileInfo> row = new TableRow<>();
+      row.setOnDragDropped(event -> tempItem[0] = row.getItem());
       return row;
     });
 
@@ -212,24 +200,19 @@ public class ClientPanelController {
     // иначе обновляется только одна таблица на которой фокус
     client_panel.setOnDragDropped(x -> {
       x.acceptTransferModes(TransferMode.ANY);
-      Dragboard db = x.getDragboard();
+      final Dragboard db = x.getDragboard();
       boolean success = false;
       if (db.hasString()) {
-        Path source = Paths.get(db.getString());
-        Path target = tempItem[0] != null ? tempItem[0].getPath() : targetDirectory;
+        final Path source = Paths.get(db.getString());
+        final Path target = tempItem[0] != null ? tempItem[0].getPath() : targetDirectory;
         if (!source.equals(target)) {
-          System.out.println("-Move from: " + source);
-          System.out.println("-Move to: " + target);
           try {
             FileUtility.move(source, target);
             mainSceneController.refreshAllClientPanels();
             mainSceneController.setStatusLabel("done");
             success = true;
           } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Can't move file");
-            alert.setContentText(e.toString());
-            alert.showAndWait();
+            UserDialog.errorDialog("can't move file \n" + e.getLocalizedMessage());
             e.printStackTrace();
           }
         }
@@ -244,7 +227,7 @@ public class ClientPanelController {
     try {
         desktop.open(file);
     } catch (IOException ex) {
-      System.out.println(ex.getLocalizedMessage());
+      log.error(ex);
     }
   }
 
@@ -276,4 +259,5 @@ public class ClientPanelController {
     initListeners();
     client_panel.setPlaceholder(new Label(""));
   }
+
 }

@@ -1,7 +1,6 @@
 package org.owpk.controller;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import org.owpk.app.ClientConfig;
 import org.owpk.util.Config;
@@ -23,21 +22,28 @@ public class UserDialog {
         Config.ConfigParameters.DOWNLOAD_DIR, result.get()));
   }
 
-  public static boolean confirmDialog(String folder) {
+  public static void warningDialog(String header, String content) {
+    Alert alert = new Alert(Alert.AlertType.WARNING);
+    alert.setTitle("Warning");
+    alert.setHeaderText(header);
+    alert.setContentText(content);
+    alert.showAndWait();
+  }
+
+  public static void confirmDialog(String header, String content) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.setTitle("Confirmation Dialog");
-    alert.setHeaderText("Did not found specified download directory");
-    alert.setContentText("Create default download folder? : \n" + folder);
-
-    Optional<ButtonType> result = alert.showAndWait();
-    return result.get() == ButtonType.OK;
+    alert.setHeaderText(header);
+    alert.setContentText(content);
+    alert.showAndWait();
   }
 
   public static void errorDialog(String msg) {
     Alert alert = new Alert(Alert.AlertType.ERROR);
     alert.setTitle("Error");
-    alert.setHeaderText("Look, an Error Dialog");
+    alert.setHeaderText("Error");
     alert.setContentText(msg);
     alert.showAndWait();
   }
+
 }

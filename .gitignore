@@ -4,4 +4,6 @@
 #/client/downloads/
 /server/target
 /server/out
+/server/log/
 *.iml
+*.log

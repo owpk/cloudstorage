@@ -1,18 +1,18 @@
 package org.owpk.network;
 
+import org.owpk.util.Callback;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface NetworkServiceInt {
-  void initDataHandler(Runnable r);
+  void initHandlers(Callback... callbacks) throws IOException;
+  void connect() throws IOException, ClassNotFoundException, InterruptedException;
+  void disconnect();
 
   String getName();
-  void connect() throws IOException;
-  void disconnect() throws IOException;
-
   OutputStream getOut();
   InputStream getIn();
 
-  //TODO read command, read file, write command, write file
 }

@@ -2,58 +2,111 @@ package org.owpk.network;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
-import org.owpk.app.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.owpk.IODataHandler.AbsHandler;
+import org.owpk.IODataHandler.AuthHandler;
+import org.owpk.IODataHandler.InputDataHandler;
 import org.owpk.app.ClientConfig;
-import org.owpk.message.DataInfo;
-import org.owpk.message.MessageType;
-import org.owpk.message.Message;
-import org.owpk.util.FileInfo;
+import org.owpk.util.Callback;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
+/**
+ * Класс {@link IONetworkServiceImpl} создающий подключение,
+ * по умолчанию использует параметры из конфиг файла client.properties
+ * Создает pipeline из {@link AbsHandler} в качестве слушателей сообщений от сервера,
+ * при первом подключении по умаолчанию добавляется {@link AuthHandler} в качестве первого слушателя
+ * @see #connect()
+ * @see #executePipeline()
+ */
 public class IONetworkServiceImpl implements NetworkServiceInt {
+  private static final IONetworkServiceImpl service = new IONetworkServiceImpl(
+      ClientConfig.getConfig().getHost(), ClientConfig.getConfig().getPort());
+
+  private final Logger log = LogManager.getLogger(IONetworkServiceImpl.class.getName());
   private final String HOST;
   private final int PORT;
   private Socket socket;
   private ObjectDecoderInputStream in;
   private ObjectEncoderOutputStream out;
+  private InputDataHandler inputDataHandler;
+  private ConcurrentLinkedDeque<AbsHandler> pipeline;
 
   public IONetworkServiceImpl(String host, int port) {
     this.PORT = port;
     this.HOST = host;
   }
 
+  public static IONetworkServiceImpl getService() {
+    return service;
+  }
+
   @Override
-  public void initDataHandler(Runnable r) {
-    Thread t = new Thread(r);
-    t.start();
+  public void initHandlers(Callback... callback) throws IOException {
+    inputDataHandler = new InputDataHandler(
+        callback[0],
+        callback[1],
+        callback[2],
+        callback[3]);
   }
 
   @Override
   public String getName() {
-    return "localhost";
+    return HOST;
+  }
+
+  /**
+   * Создает сокет, InputStream, OutputStream и pipeline, добавляет {@link AuthHandler} в pipeline
+   */
+  @Override
+  public void connect() throws IOException, InterruptedException, ClassNotFoundException {
+    socket = new Socket(HOST, PORT);
+    System.out.println("connected : " + socket.getRemoteSocketAddress());
+    out = new ObjectEncoderOutputStream(socket.getOutputStream());
+    in = new ObjectDecoderInputStream(socket.getInputStream());
+    pipeline = new ConcurrentLinkedDeque<>();
+    addHandlerToPipeline(new AuthHandler());
+    executePipeline();
   }
 
   @Override
-  public void connect() throws IOException {
-      socket = new Socket(HOST, PORT);
-      System.out.println("-:connected:");
-      out = new ObjectEncoderOutputStream(socket.getOutputStream());
-      in = new ObjectDecoderInputStream(socket.getInputStream());
-  }
-
-  @Override
-  public void disconnect() throws IOException {
+  public void disconnect() {
     if (socket != null) {
-      out.writeObject(new Message<>(MessageType.CLOSE, ""));
-      socket.close();
-      out.close();
-      out.flush();
-      in.close();
-      System.out.println("-:disconnected:");
+      if (pipeline != null) clearPipeline();
+      try {
+        socket.close();
+        out.close();
+        out.flush();
+        in.close();
+        System.out.println("disconnected: " + HOST);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
+  }
+
+  private void executePipeline() throws InterruptedException, IOException, ClassNotFoundException {
+    for (int i = 0; i < pipeline.size(); i++) {
+      pipeline.getLast().execute();
+    }
+  }
+
+  public void addMainDataHandler() {
+    pipeline.add(inputDataHandler);
+  }
+
+  public void addHandlerToPipeline(AbsHandler handler) {
+    pipeline.add(handler);
+  }
+
+  public void clearPipeline() {
+    pipeline.forEach(x -> x.setHandlerOver(true));
+    pipeline.clear();
   }
 
   @Override

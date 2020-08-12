@@ -1,4 +1,4 @@
-package org.owpk;
+package org.owpk.core;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -9,11 +9,12 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import org.owpk.core.MessageHandler;
-import org.owpk.util.Config;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.owpk.util.ServerConfig;
 
 public class Server {
+  private final Logger log = LogManager.getLogger(Server.class.getName());
   private final int PORT;
 
   public Server(int port) {
@@ -40,18 +41,16 @@ public class Server {
           .option(ChannelOption.SO_BACKLOG, 128)
           .childOption(ChannelOption.SO_KEEPALIVE, true);
       ChannelFuture future = boot.bind(PORT).sync();
+      log.info("Server started at : " + PORT);
       future.channel().closeFuture().sync();
     } finally {
       workGroup.shutdownGracefully();
       bossGroup.shutdownGracefully();
+      log.info("server shutdown");
     }
   }
 
   public static void main(String[] args) throws InterruptedException {
-    Config config = new ServerConfig();
-    int port = config.getPort();
-    System.out.println(port);
-    new Server(port).run(new MessageHandler());
-
+    new Server(ServerConfig.getConfig().getPort()).run(new AuthHandler());
   }
 }

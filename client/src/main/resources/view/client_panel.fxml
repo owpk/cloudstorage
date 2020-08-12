@@ -51,6 +51,15 @@
                         <String fx:value="ctrl_btn" />
                     </styleClass>
                 </Button>
+                <Button fx:id="update_btn" mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" onAction="#clientRefresh" underline="true">
+                    <font>
+                        <Font size="10.0" />
+                    </font>
+                    <styleClass>
+                        <String fx:value="update_btn" />
+                        <String fx:value="ctrl_btn" />
+                    </styleClass>
+                </Button>
                 <TextField fx:id="client_textFlow" alignment="TOP_LEFT" promptText="Path..." styleClass="main_text_flow" stylesheets="@../css/css_main_scene.css" HBox.hgrow="ALWAYS" />
             </children>
             <VBox.margin>
