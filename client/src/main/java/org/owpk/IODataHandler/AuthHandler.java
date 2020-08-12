@@ -11,12 +11,15 @@ import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.owpk.controller.UserDialog;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.message.UserInfo;
 import org.owpk.network.IONetworkServiceImpl;
 
+import javax.swing.*;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 @Getter
@@ -42,7 +45,9 @@ public class AuthHandler extends AbsHandler {
       handlerIsOver = true;
       IONetworkServiceImpl.getService().addMainDataHandler();
     } else if (msg.getType() == MessageType.ERROR) {
-      throw new AuthException((String) msg.getPayload());
+      UserDialog.errorDialog((String) msg.getPayload());
+      IONetworkServiceImpl.getService().addHandlerToPipeline(new AuthHandler());
+      this.handlerIsOver = true;
     }
   }
 
@@ -53,13 +58,15 @@ public class AuthHandler extends AbsHandler {
   }
 
   private void loginDialog() {
-    Dialog<Pair<String, String>> dialog = new Dialog<>();
+    Dialog<ButtonType> dialog = new Dialog<>();
     dialog.setTitle("Login");
     dialog.setHeaderText("Authentication\nTest login: user\nTest password: 1234");
 
     ButtonType loginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
-    ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.RIGHT);
-    dialog.getDialogPane().getButtonTypes().addAll(signButtonType, loginButtonType, ButtonType.CANCEL);
+    ButtonType signUpButtonType = new ButtonType("Sign up");
+    ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+    dialog.getDialogPane().getButtonTypes().setAll(signUpButtonType, loginButtonType, buttonTypeCancel);
 
     GridPane grid = new GridPane();
     grid.setHgap(10);
@@ -70,7 +77,6 @@ public class AuthHandler extends AbsHandler {
     username.setPromptText("Username");
     PasswordField password = new PasswordField();
     password.setPromptText("Password");
-
 
     grid.add(new Label("Username:"), 0, 0);
     grid.add(username, 1, 0);
@@ -84,23 +90,22 @@ public class AuthHandler extends AbsHandler {
 
     dialog.getDialogPane().setContent(grid);
 
-    dialog.setResultConverter(dialogButton -> {
-      if (dialogButton == loginButtonType) {
-        System.out.println(dialogButton.getButtonData());
-        try {
-          writeMessage(new UserInfo(MessageType.AUTH, username.getText(), hash(password.getText())));
-          initDataListener();
-        } catch (IOException | ClassNotFoundException e) {
-          e.printStackTrace();
-        }
-      } else if (dialogButton == signButtonType) {
-        System.out.println(dialogButton.getButtonData());
-        IONetworkServiceImpl.getService().addHandlerToPipeline(new SignHandler());
-        this.handlerIsOver = true;
+    Optional<ButtonType> result = dialog.showAndWait();
+    if (result.get() == loginButtonType) {
+      try {
+        writeMessage(new UserInfo(MessageType.AUTH, username.getText(), hash(password.getText())));
+        initDataListener();
+      } catch (IOException | ClassNotFoundException e) {
+        e.printStackTrace();
       }
-      return null;
-    });
-    dialog.showAndWait();
+    }
+    else if (result.get() == signUpButtonType) {
+      System.out.println("SIGN OPTION");
+      IONetworkServiceImpl.getService().addHandlerToPipeline(new SignHandler());
+      this.handlerIsOver = true;
+    } else {
+      IONetworkServiceImpl.getService().disconnect();
+    }
   }
 
 }

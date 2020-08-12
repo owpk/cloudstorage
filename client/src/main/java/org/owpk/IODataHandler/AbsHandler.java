@@ -13,7 +13,8 @@ public abstract class AbsHandler {
   protected boolean handlerIsOver;
 
   protected void initDataListener() throws IOException, ClassNotFoundException, AuthException {
-    System.out.println("DataListener started :  " + this.getClass().toString());
+    System.out.println("DataListener started :  " + this.getClass().toString() + " : handler: " + handlerIsOver);
+    System.out.println();
     ObjectDecoderInputStream in = (ObjectDecoderInputStream) IONetworkServiceImpl.getService().getIn();
     Message<?> msg;
     while (!handlerIsOver) {

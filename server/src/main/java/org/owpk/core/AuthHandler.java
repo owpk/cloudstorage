@@ -43,6 +43,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
     if (msg.getType() == MessageType.AUTH &&
         info.getLogin().equals(testUser.getLogin()) && info.getPassword().equals(hash(testUser.getPassword_hash()))) {
       ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
+      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + testUser.getServer_folder());
       ctx.pipeline().addLast(new MessageHandler(testUser));
       ctx.pipeline().remove(this);
     } else {
@@ -75,13 +76,13 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
     log.info("new sign request");
     final User temp = userDAO.getUserByLogin(msg.getLogin());
     if (temp == null) {
-      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + msg.getLogin());
       final User user = new User(
           msg.getLogin(),
           msg.getPassword(),
           "\\user_folder_" + msg.getLogin() + "\\",
           msg.getEmail());
       userDAO.addUser(user);
+      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + user.getServer_folder());
       log.info("user added: " + user);
       channel.writeAndFlush(new Message<>(MessageType.OK, "OK, Try to auth now"));
     } else {

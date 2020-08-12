@@ -81,6 +81,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
         out.close();
         out.flush();
         in.close();
+        System.out.println("disconnected: " + HOST);
       } catch (IOException e) {
         e.printStackTrace();
       }
