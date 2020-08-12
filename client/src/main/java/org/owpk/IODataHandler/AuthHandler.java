@@ -5,7 +5,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -17,11 +16,15 @@ import org.owpk.message.MessageType;
 import org.owpk.message.UserInfo;
 import org.owpk.network.IONetworkServiceImpl;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Отпарвляет форму с данными на сервер для аутентификации, слушает ответ
+ * @see #initDataListener()
+ * @see #listen(Message)
+ */
 @Getter
 @Setter
 public class AuthHandler extends AbsHandler {
@@ -32,7 +35,7 @@ public class AuthHandler extends AbsHandler {
     return DigestUtils.sha256Hex(input);
   }
 
-  private void showDialog() throws AuthException {
+  private void showDialog() {
     Platform.runLater(() -> {
       loginDialog();
       doneLatch.countDown();
@@ -42,17 +45,18 @@ public class AuthHandler extends AbsHandler {
   @Override
   protected void listen(Message<?> msg) {
     if (msg.getType() == MessageType.OK) {
-      handlerIsOver = true;
+      setHandlerOver(true);
       IONetworkServiceImpl.getService().addMainDataHandler();
     } else if (msg.getType() == MessageType.ERROR) {
       UserDialog.errorDialog((String) msg.getPayload());
       IONetworkServiceImpl.getService().addHandlerToPipeline(new AuthHandler());
-      this.handlerIsOver = true;
+      setHandlerOver(true);
     }
   }
 
+  //sync
   @Override
-  public void execute() throws InterruptedException, AuthException, IOException, ClassNotFoundException {
+  public void execute() throws InterruptedException {
     showDialog();
     doneLatch.await();
   }
@@ -102,7 +106,7 @@ public class AuthHandler extends AbsHandler {
     else if (result.get() == signUpButtonType) {
       System.out.println("SIGN OPTION");
       IONetworkServiceImpl.getService().addHandlerToPipeline(new SignHandler());
-      this.handlerIsOver = true;
+      setHandlerOver(true);
     } else {
       IONetworkServiceImpl.getService().disconnect();
     }

@@ -5,8 +5,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
-import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import org.owpk.controller.UserDialog;
@@ -20,7 +18,9 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Отправляет форму с данными юзера на сервер, слушает ответ
+ * Отправляет форму с данными юзера на сервер для регистрации, слушает ответ
+ * @see #initDataListener()
+ * @see #listen(Message)
  */
 @Getter
 @Setter
@@ -33,14 +33,12 @@ public class SignHandler extends AbsHandler{
 
   @Override
   protected void listen(Message<?> message) throws IOException {
-    System.out.println("MESSAGE");
     switch (message.getType()) {
       case OK:
-        System.out.println("OK");
         Platform.runLater(() -> {
           UserDialog.confirmDialog(message.getPayload().toString(), null);
           IONetworkServiceImpl.getService().addHandlerToPipeline(new AuthHandler());
-          handlerIsOver = true;
+          setHandlerOver(true);
           doneLatch.countDown();
         });
         break;
@@ -54,6 +52,7 @@ public class SignHandler extends AbsHandler{
     }
   }
 
+  //sync
   @Override
   public void execute() throws InterruptedException {
     showDialog();
@@ -104,7 +103,7 @@ public class SignHandler extends AbsHandler{
           writeMessage(new UserInfo(MessageType.SIGN, username.getText(), password.getText(), email.getText()));
           new Thread(() -> {
             try {
-              handlerIsOver = false;
+              setHandlerOver(false);
               initDataListener();
             } catch (IOException | ClassNotFoundException e) {
               e.printStackTrace();

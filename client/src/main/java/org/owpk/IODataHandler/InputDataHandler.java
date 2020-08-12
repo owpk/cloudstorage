@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * класс обработчик входных данных
+ * Основной класс обработчик входных данных
  */
 public class InputDataHandler extends AbsHandler {
   private final Logger log = LogManager.getLogger(InputDataHandler.class.getName());
@@ -27,7 +27,6 @@ public class InputDataHandler extends AbsHandler {
   private final Callback<Double> progressBarCallback;
   private final Callback<Path> refreshClientCallback;
   private final NetworkServiceInt networkServiceInt;
-
 
   public InputDataHandler(Callback... callbacks) throws IOException {
     this.tableViewCallback = callbacks[0];
@@ -68,7 +67,6 @@ public class InputDataHandler extends AbsHandler {
         serverStatusLabel.call("network error: " + ClientConfig.getDefaultServer());
         e.printStackTrace();
       } finally {
-        handlerIsOver = true;
         networkServiceInt.disconnect();
       }
     }).start();

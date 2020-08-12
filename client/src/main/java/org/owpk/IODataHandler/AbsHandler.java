@@ -3,21 +3,18 @@ package org.owpk.IODataHandler;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import org.owpk.message.Message;
-import org.owpk.message.MessageType;
-import org.owpk.message.UserInfo;
 import org.owpk.network.IONetworkServiceImpl;
 
 import java.io.IOException;
 
 public abstract class AbsHandler {
-  protected boolean handlerIsOver;
+  private boolean handlerOver;
 
-  protected void initDataListener() throws IOException, ClassNotFoundException, AuthException {
-    System.out.println("DataListener started :  " + this.getClass().toString() + " : handler: " + handlerIsOver);
-    System.out.println();
+  protected void initDataListener() throws IOException, ClassNotFoundException {
+    System.out.println("DataListener started :  " + this.getClass().toString() + " : handler: " + handlerOver);
     ObjectDecoderInputStream in = (ObjectDecoderInputStream) IONetworkServiceImpl.getService().getIn();
     Message<?> msg;
-    while (!handlerIsOver) {
+    while (!handlerOver) {
       if (in.available() > 0) {
         msg = (Message<?>) in.readObject();
         listen(msg);
@@ -32,8 +29,8 @@ public abstract class AbsHandler {
         .writeObject(message);
   }
 
-  public void setHandlerIsOver(boolean handlerIsOver) {
-    this.handlerIsOver = handlerIsOver;
+  public void setHandlerOver(boolean handlerOver) {
+    this.handlerOver = handlerOver;
   }
   protected abstract void listen(Message<?> message) throws IOException;
   public abstract void execute() throws InterruptedException, IOException, ClassNotFoundException;

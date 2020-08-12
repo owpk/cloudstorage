@@ -15,7 +15,6 @@ import org.owpk.message.UserInfo;
 import org.owpk.util.FileUtility;
 import org.owpk.util.ServerConfig;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
