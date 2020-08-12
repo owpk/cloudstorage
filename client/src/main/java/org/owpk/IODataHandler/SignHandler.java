@@ -16,6 +16,7 @@ import org.owpk.message.UserInfo;
 import org.owpk.network.IONetworkServiceImpl;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -25,9 +26,6 @@ import java.util.concurrent.CountDownLatch;
 @Setter
 public class SignHandler extends AbsHandler{
   private final CountDownLatch doneLatch = new CountDownLatch(1);
-  private String login;
-  private String password;
-  private String email;
 
   private void showDialog() {
     Platform.runLater(this::signDialog);
@@ -35,20 +33,25 @@ public class SignHandler extends AbsHandler{
 
   @Override
   protected void listen(Message<?> message) throws IOException {
+    System.out.println("MESSAGE");
     switch (message.getType()) {
       case OK:
-        Platform.runLater(() -> UserDialog.confirmDialog(message.getPayload().toString(), null));
-        IONetworkServiceImpl.getService().addHandlerToPipeline(new AuthHandler());
-        handlerIsOver = true;
+        System.out.println("OK");
+        Platform.runLater(() -> {
+          UserDialog.confirmDialog(message.getPayload().toString(), null);
+          IONetworkServiceImpl.getService().addHandlerToPipeline(new AuthHandler());
+          handlerIsOver = true;
+          doneLatch.countDown();
+        });
         break;
       case ERROR:
         Platform.runLater(() -> {
           UserDialog.errorDialog(message.getPayload().toString());
           showDialog();
+          doneLatch.countDown();
         });
         break;
     }
-    doneLatch.countDown();
   }
 
   @Override
@@ -58,13 +61,14 @@ public class SignHandler extends AbsHandler{
   }
 
   public void signDialog() {
-    Dialog<Pair<String, String>> dialog = new Dialog<>();
+    Dialog<ButtonType> dialog = new Dialog<>();
     dialog.setTitle("Sign");
     dialog.setHeaderText("Please enter login and password");
 
     ButtonType signButtonType = new ButtonType("Sign up", ButtonBar.ButtonData.OK_DONE);
-    dialog.getDialogPane().getButtonTypes().addAll(signButtonType, ButtonType.CANCEL);
-    Button button = new Button("Sign up");
+    ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+    dialog.getDialogPane().getButtonTypes().setAll(signButtonType, buttonTypeCancel);
 
     GridPane grid = new GridPane();
     grid.setHgap(10);
@@ -78,7 +82,7 @@ public class SignHandler extends AbsHandler{
     PasswordField password = new PasswordField();
     password.setPromptText("Password");
     PasswordField confirmPassword = new PasswordField();
-    password.setPromptText("Confirm password");
+    confirmPassword.setPromptText("Confirm password");
     grid.add(new Label("Username:"), 0, 0);
     grid.add(username, 1, 0);
     grid.add(new Label("Email:"), 0, 1);
@@ -92,11 +96,10 @@ public class SignHandler extends AbsHandler{
     signButton.setDisable(true);
     username.textProperty().addListener((observable, oldValue, newValue) -> signButton.setDisable(newValue.trim().isEmpty()));
     dialog.getDialogPane().setContent(grid);
-    dialog.setOnCloseRequest(x -> IONetworkServiceImpl.getService().disconnect());
 
     Platform.runLater(username::requestFocus);
-    dialog.setResultConverter(dialogButton -> {
-      if (dialogButton == signButtonType) {
+    Optional<ButtonType> result = dialog.showAndWait();
+    if (result.get() == signButtonType) {
         try {
           writeMessage(new UserInfo(MessageType.SIGN, username.getText(), password.getText(), email.getText()));
           new Thread(() -> {
@@ -110,11 +113,10 @@ public class SignHandler extends AbsHandler{
         } catch (IOException e) {
           e.printStackTrace();
         }
-      } else if (dialogButton == ButtonType.CANCEL) {
-        IONetworkServiceImpl.getService().disconnect();
       }
-      return null;
-    });
-    dialog.showAndWait();
+      else {
+        IONetworkServiceImpl.getService().disconnect();
+        doneLatch.countDown();
+      }
   }
 }

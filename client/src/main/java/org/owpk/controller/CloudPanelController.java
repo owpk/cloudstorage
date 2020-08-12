@@ -61,6 +61,7 @@ public class CloudPanelController {
           @Override
           protected Void call() throws InterruptedException {
             try {
+              if (networkServiceInt != null) networkServiceInt.disconnect();
               networkServiceInt = NetworkServiceFactory.getService(ClientConfig.getDefaultServer());
               networkServiceInt.initHandlers(cloudTableCallback,
                   statusLabelCallback,
@@ -68,6 +69,7 @@ public class CloudPanelController {
                   mainSceneController.getClientPanelController().getRefreshPanelCallback());
               networkServiceInt.connect();
             } catch (AuthException | IOException | ClassNotFoundException e) {
+              e.printStackTrace();
               disconnect();
               networkServiceInt = null;
               throw new InterruptedException(e.getMessage());

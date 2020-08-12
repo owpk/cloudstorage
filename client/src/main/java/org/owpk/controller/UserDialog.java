@@ -23,6 +23,14 @@ public class UserDialog {
         Config.ConfigParameters.DOWNLOAD_DIR, result.get()));
   }
 
+  public static void warningDialog(String header, String content) {
+    Alert alert = new Alert(Alert.AlertType.WARNING);
+    alert.setTitle("Warning");
+    alert.setHeaderText(header);
+    alert.setContentText(content);
+    alert.showAndWait();
+  }
+
   public static void confirmDialog(String header, String content) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.setTitle("Confirmation Dialog");
