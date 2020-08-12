@@ -12,12 +12,11 @@ import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
-import org.owpk.util.OutputCallback;
 import org.owpk.util.ServerConfig;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 @ChannelHandler.Sharable
 public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {

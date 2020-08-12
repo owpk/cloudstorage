@@ -12,10 +12,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import org.owpk.IODataHandler.AuthException;
 import org.owpk.app.ClientConfig;
-import org.owpk.message.MessageType;
 import org.owpk.message.Message;
+import org.owpk.message.MessageType;
 import org.owpk.network.NetworkServiceFactory;
 import org.owpk.network.NetworkServiceInt;
 import org.owpk.util.Callback;
@@ -68,7 +67,7 @@ public class CloudPanelController {
                   progressBarCallback,
                   mainSceneController.getClientPanelController().getRefreshPanelCallback());
               networkServiceInt.connect();
-            } catch (AuthException | IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
               e.printStackTrace();
               disconnect();
               networkServiceInt = null;

@@ -5,11 +5,9 @@ import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owpk.IODataHandler.AbsHandler;
-import org.owpk.IODataHandler.AuthException;
 import org.owpk.IODataHandler.AuthHandler;
 import org.owpk.IODataHandler.InputDataHandler;
 import org.owpk.app.ClientConfig;
-import org.owpk.controller.UserDialog;
 import org.owpk.util.Callback;
 
 import java.io.IOException;
@@ -24,6 +22,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * Создает pipeline из {@link AbsHandler} в качестве слушателей сообщений от сервера,
  * при первом подключении по умаолчанию добавляется {@link AuthHandler} в качестве первого слушателя
  * @see #connect()
+ * @see #executePipeline()
  */
 public class IONetworkServiceImpl implements NetworkServiceInt {
   private static final IONetworkServiceImpl service = new IONetworkServiceImpl(
@@ -61,8 +60,11 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
     return HOST;
   }
 
+  /**
+   * Создает сокет, InputStream, OutputStream и pipeline, добавляет {@link AuthHandler} в pipeline
+   */
   @Override
-  public void connect() throws IOException, InterruptedException, ClassNotFoundException, AuthException {
+  public void connect() throws IOException, InterruptedException, ClassNotFoundException {
     socket = new Socket(HOST, PORT);
     System.out.println("connected : " + socket.getRemoteSocketAddress());
     out = new ObjectEncoderOutputStream(socket.getOutputStream());
@@ -103,7 +105,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   }
 
   public void clearPipeline() {
-    pipeline.forEach(x -> x.setHandlerIsOver(true));
+    pipeline.forEach(x -> x.setHandlerOver(true));
     pipeline.clear();
   }
 

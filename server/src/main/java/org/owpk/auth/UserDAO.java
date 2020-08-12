@@ -2,7 +2,6 @@ package org.owpk.auth;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.owpk.core.AuthHandler;
 
 import javax.persistence.*;
 
