@@ -13,10 +13,9 @@ import javafx.stage.Stage;
 
 
 /**
- * Ресайзер для {@link Stage}
+ * Resize helper for {@link Stage}
  */
 public class ResizeHelper {
-
 
   public static void addResizeListener(Stage stage) {
     ResizeListener resizeListener = new ResizeListener(stage);

@@ -3,7 +3,7 @@ package org.owpk.message;
 import lombok.Data;
 
 /**
- * метадата пакета
+ * Metadata of package
  */
 @Data
 public class DataInfo extends Message<byte[]> {

@@ -19,7 +19,8 @@ import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 /**
- * основной контроллер
+ * Main controller class
+ * Contains client panel, cloud panel and directory tree
  */
 public class MainSceneController implements Initializable {
   @FXML private MenuBar drag_menu;
@@ -54,8 +55,8 @@ public class MainSceneController implements Initializable {
   }
 
   /**
-   * инициализация ресайзера, кнопок управления окном
-   * и драг опции для верхнего MenuBar элемента
+   * Initialization of the resize helper, window control buttons
+   * and drag options for the top MenuBar element
    */
   public void initWindowControls(Stage stage) {
     this.stage = stage;

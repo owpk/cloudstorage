@@ -38,32 +38,6 @@ public class ConfigReaderTest {
     }
   }
 
-  public static void main(String[] args) throws IOException {
-    Path source = Paths.get("C:\\Test\\1");
-    Path target = Paths.get("C:\\Test\\2\\folder");
-      new Thread(() -> {
-        try {
-          move(source, target);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }).start();
-  }
-
-  private static void move(Path sourceFile, Path destFile) throws IOException {
-    if (Files.isDirectory(sourceFile)) {
-      String targetDirName = sourceFile.getFileName().toString();
-      Files.createDirectory(Paths.get(destFile.toString(), targetDirName));
-      File[] files = sourceFile.toFile().listFiles();
-      if (files != null && files.length != 0) {
-        for (File f : files)
-          move(f.toPath(), Paths.get(destFile.toString(), targetDirName));
-      }
-        Files.deleteIfExists(sourceFile);
-      } else
-        Files.move(sourceFile, Paths.get(destFile.toString(), sourceFile.getFileName().toString()), REPLACE_EXISTING);
-  }
-
   @Test
   public void shouldSwitchConnectOnStartupArgument() {
     String cos = properties.getProperty("connect_on_startup");

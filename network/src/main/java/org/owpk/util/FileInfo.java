@@ -15,9 +15,15 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
+/**
+ * Describing origin file
+ */
 @Data
 public class FileInfo implements Serializable {
 
+  /**
+   * File types
+   */
   public enum FileType implements Serializable {
     EXEC("icons/exe_ico.png","exe"),
     ARCH("icons/archive.png", "arch"),
@@ -61,7 +67,10 @@ public class FileInfo implements Serializable {
     }
   }
 
-  /**MIME парсер {@link Tika}, метод возвращает FileType для расширений файлов*/
+  /**
+   * MIME parser {@link Tika},
+   * @return {@code FileInfo.FileType}
+   */
   public static FileInfo.FileType parseType(Path path) {
     Tika tika = new Tika();
     String mimeType = tika.detect(path.getFileName().toString());
