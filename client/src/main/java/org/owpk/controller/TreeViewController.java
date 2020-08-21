@@ -15,11 +15,11 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Контроллер {@link TreeView} слушает события "BranchExpandedEvent" {@link #setupListeners()},
- * по событию вычисляет абсолютный путь у текущего TreeItem на котором произошел вызов и добавляет к нему
- * все папки которые удалось найти по этому пути {@link #populateItem(TreeItem)},
- * в свою очередь в каждой из этих папок проверяется наличие хотябы одной папки, если проверка пройдена,
- * добавялется пустой узел заглушка для возможности вызова события "BranchExpandedEvent"
+ * The {@link TreeView} controller listens for "BranchExpandedEvent" events {@link #setupListeners()},
+ * when event caused calculates the absolute path of the current TreeItem and adds to it
+ * all folders that could be found along this path {@link #populateItem (TreeItem)},
+ * in turn, in each of these folders, the presence of at least one folder is checked, if the check is passed,
+ * an empty stub node is added to be able to raise the "BranchExpandedEvent" event
  */
 public class TreeViewController {
   private static final String ROOT_NODE_NAME = "Local File System";
@@ -41,7 +41,7 @@ public class TreeViewController {
   }
 
   /**
-   * вызывается при первом запуске, доавляет TreeItem с названием дисков
+   * Invoking on app startup
    */
   private static void fillTreeItems() {
     Arrays.stream(File.listRoots())
@@ -66,14 +66,16 @@ public class TreeViewController {
   }
 
   /**
-   * инициализирует слушателей на события BranchExpandedEvent и OnMouseClicked
+   * initializes listeners for the BranchExpandedEvent and OnMouseClicked events
    */
   private static void setupListeners() {
     rootItem.addEventHandler(EventType.ROOT, event -> {
       if (event.getEventType().getName().equals("BranchExpandedEvent")) {
-        TreeItem<String> item = (TreeItem<String>) event.getSource();
-        item.getChildren().clear();
-        expanded(item);
+        Platform.runLater(() -> {
+          TreeItem<String> item = (TreeItem<String>) event.getSource();
+          item.getChildren().clear();
+          expanded(item);
+        });
       }
     });
     treeView.setOnMouseClicked(x -> {
@@ -89,7 +91,7 @@ public class TreeViewController {
   }
 
   /**
-   * Вычесляет абсолютный путь, собирает имена всех Parent узлов у TreeItem
+   * Computes the absolute path, collects the names of all Parent nodes from the TreeItem
    */
   private static StringBuffer sb = new StringBuffer();
   private static String getPath(TreeItem<String> item) {

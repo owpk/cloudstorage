@@ -16,7 +16,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 /**
- * Контроллер {@link TableView}
+ * Controller {@link TableView}, creates a table that stores data of the {@link FileInfo} type,
+ * calculates the size for files and last modified date
  */
 public class TableViewController implements Initializable {
   @FXML public TableView<FileInfo> table;
@@ -26,8 +27,8 @@ public class TableViewController implements Initializable {
   private TableColumn<FileInfo, String> client_column_last_changed;
 
   /**
-   * Стилизатор для колонки Type в таблице
-   * Создает иконку для ячейки в таблице в зависимости от типа файла
+   * Type column
+   * Creates an icon for a cell in a table depending on the file type
    */
   private static class TypeImageCellStylist<T> extends TableCell<T, FileInfo.FileType> {
     private ImageView image;
@@ -50,9 +51,9 @@ public class TableViewController implements Initializable {
   }
 
   /**
-   * Стилизатор для колонки Size
-   * Расчитывет единицы измерения размера файла {@link #computeSize(Long)}
-   * создает ячейку в таблице
+   * Size column
+   * Calculate file size units {@link #computeSize (Long)}
+   * creates a cell in a table
    */
   private static class SizeCellStylist extends TableCell<FileInfo, Long> {
     private final static String[] SIZES = {"B","KB","MB","GB","TB"};

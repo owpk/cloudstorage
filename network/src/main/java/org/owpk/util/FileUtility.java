@@ -57,6 +57,10 @@ public class FileUtility {
     }
   }
 
+  public static void deleteFile(Path path) throws IOException {
+    Files.deleteIfExists(path);
+  }
+
   @SafeVarargs
   public static void sendFileByChunks(OutputCallback<Message<?>> out, File f, MessageType type, Callback<Float>... callbacks) throws IOException {
     int chunkCount;

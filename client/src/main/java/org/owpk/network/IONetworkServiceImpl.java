@@ -17,10 +17,10 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
- * Класс {@link IONetworkServiceImpl} создающий подключение,
- * по умолчанию использует параметры из конфиг файла client.properties
- * Создает pipeline из {@link AbsHandler} в качестве слушателей сообщений от сервера,
- * при первом подключении по умаолчанию добавляется {@link AuthHandler} в качестве первого слушателя
+ * The {@link IONetworkServiceImpl} class creating a connection,
+ * by default uses parameters from the client.properties config file.
+ * Creates a pipeline of {@link AbsHandler} as listeners for messages from the server,
+ * the first time you connect, the default is to add {@link AuthHandler} as the first listener
  * @see #connect()
  * @see #executePipeline()
  */
@@ -28,7 +28,6 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   private static final IONetworkServiceImpl service = new IONetworkServiceImpl(
       ClientConfig.getConfig().getHost(), ClientConfig.getConfig().getPort());
 
-  private final Logger log = LogManager.getLogger(IONetworkServiceImpl.class.getName());
   private final String HOST;
   private final int PORT;
   private Socket socket;
@@ -61,7 +60,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
   }
 
   /**
-   * Создает сокет, InputStream, OutputStream и pipeline, добавляет {@link AuthHandler} в pipeline
+   * Creates a socket, InputStream, OutputStream, and pipeline, adds {@link AuthHandler} to the pipeline
    */
   @Override
   public void connect() throws IOException, InterruptedException, ClassNotFoundException {

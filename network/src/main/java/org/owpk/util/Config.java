@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * инициализирует {@link Properties}
+ * Initialize {@link Properties}
  */
 public abstract class Config {
   protected static final Properties properties;

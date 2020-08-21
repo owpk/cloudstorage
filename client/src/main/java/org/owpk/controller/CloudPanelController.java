@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
 import org.owpk.app.ClientConfig;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
@@ -84,10 +85,10 @@ public class CloudPanelController {
     ser.setOnSucceeded((WorkerStateEvent event) ->
         mainSceneController.setStatusLabel(""));
     ser.setOnFailed((WorkerStateEvent event) -> {
-        mainSceneController.setStatusLabel("connection error");
-        UserDialog.errorDialog(event.getSource().getException().getMessage());
-        event.getSource().getException().printStackTrace();
-        });
+      mainSceneController.setStatusLabel("connection error");
+      UserDialog.errorDialog(event.getSource().getException().getMessage());
+      event.getSource().getException().printStackTrace();
+    });
     ser.start();
   }
 
@@ -177,8 +178,8 @@ public class CloudPanelController {
 
   void disconnect() {
     if (networkServiceInt != null) {
-        networkServiceInt.disconnect();
-        networkServiceInt = null;
+      networkServiceInt.disconnect();
+      networkServiceInt = null;
     }
   }
 
@@ -190,33 +191,44 @@ public class CloudPanelController {
     TableColumn<FileInfo, FileInfo.FileType> server_column_action = new TableColumn<>("Action");
     server_column_action.setCellValueFactory(new PropertyValueFactory<>("fileType"));
 
-
     javafx.util.Callback<TableColumn<FileInfo, FileInfo.FileType>, TableCell<FileInfo, FileInfo.FileType>> cellFactory
         = param -> new TableCell<FileInfo, FileInfo.FileType>() {
-          final Button btn = new Button();
-          {
-            btn.setMaxWidth(30);
-            btn.setPadding(Insets.EMPTY);
-            btn.setGraphic(new IconBuilder()
-                .setIconImage("download")
-                .setFitHeight(15)
-                .build());
-          }
-          @Override
-          protected void updateItem(FileInfo.FileType item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == FileInfo.FileType.DIRECTORY) {
-              setGraphic(null);
-            } else {
-              btn.setOnAction(event -> {
-                FileInfo info = getTableView().getItems().get(getIndex());
-                sendMessage(new Message<>(MessageType.DOWNLOAD, info.getFilename()));
-              });
-              setGraphic(btn);
-            }
-            setText(null);
-          }
-        };
+      final Button downloadBtn = new Button();
+      final Button deleteBtn = new Button("✕");
+      final HBox hBox = new HBox();
+
+      {
+        hBox.setPadding(Insets.EMPTY);
+        downloadBtn.setMaxWidth(35);
+        downloadBtn.setPadding(Insets.EMPTY);
+        downloadBtn.setGraphic(new IconBuilder()
+            .setIconImage("download")
+            .setFitHeight(15)
+            .build());
+        deleteBtn.setMaxWidth(35);
+        deleteBtn.setPadding(Insets.EMPTY);
+        downloadBtn.setOnAction(event -> {
+          FileInfo info = getTableView().getItems().get(getIndex());
+          sendMessage(new Message<>(MessageType.DOWNLOAD, info.getFilename()));
+        });
+        deleteBtn.setOnAction(event -> {
+          FileInfo info = getTableView().getItems().get(getIndex());
+          sendMessage(new Message<>(MessageType.DELETE, info.getFilename()));
+        });
+        hBox.getChildren().add(downloadBtn);
+        hBox.getChildren().add(deleteBtn);
+      }
+
+      @Override
+      protected void updateItem(FileInfo.FileType item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty || item == FileInfo.FileType.DIRECTORY) {
+          setGraphic(null);
+        } else
+          setGraphic(hBox);
+        setText(null);
+      }
+    };
     server_column_action.setCellFactory(cellFactory);
     server_panel.getColumns().add(server_column_action);
   }

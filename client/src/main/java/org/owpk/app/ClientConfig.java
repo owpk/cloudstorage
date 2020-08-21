@@ -4,14 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owpk.util.Config;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * читает и перезаписывает файл {@link #CONFIG_NAME},
- * устанавливает последнюю посещенную диркеторию,
- * создает синглтон {@link ClientConfig}
+ * Class to read and overwrite the file {@link #CONFIG_NAME}.
+ * Sets the last visited directory.
+ * Creates singleton {@link ClientConfig}.
  */
 public class ClientConfig extends Config {
   private final Logger log = LogManager.getLogger(ClientConfig.class.getName());
@@ -30,10 +33,18 @@ public class ClientConfig extends Config {
     super(CONFIG_NAME);
   }
 
+  /**
+   * load parameters in a config file client.properties,
+   * sets the starting path, if it doesn't exists sets first parameter from filesystem roots list
+   */
   @Override
   public void load() {
     downloadDirectory = Paths.get(properties.getProperty(ConfigParameters.DOWNLOAD_DIR.getDescription(), null));
-    startPath = Paths.get(properties.getProperty(ConfigParameters.LAST_DIR.getDescription(), null));
+    Path p = Paths.get(ConfigParameters.LAST_DIR.getDescription());
+    if (!Files.exists(p)) {
+      p = File.listRoots()[0].toPath();
+    }
+    startPath = Paths.get(properties.getProperty(p.toAbsolutePath().toString(), null));
     port = checkPort(properties.getProperty(ConfigParameters.PORT.getDescription(), null));
     host = properties.getProperty(ConfigParameters.HOST.getDescription(), DEFAULT_SERVER);
   }
@@ -48,6 +59,9 @@ public class ClientConfig extends Config {
     writeProperty(ConfigParameters.LAST_DIR, startPath.toAbsolutePath().toString());
   }
 
+  /**
+   * write property value to client.property
+   */
   public void writeProperty(ConfigParameters prop, String val) {
     try(FileWriter fw = new FileWriter(new File(CONFIG_NAME))) {
       properties.setProperty(prop.getDescription(), val);

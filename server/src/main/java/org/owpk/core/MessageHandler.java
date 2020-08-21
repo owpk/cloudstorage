@@ -16,6 +16,7 @@ import org.owpk.util.ServerConfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 @ChannelHandler.Sharable
@@ -40,6 +41,8 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
       case UPLOAD:
         uploadRequest((DataInfo) msg);
         break;
+      case DELETE:
+        deleteRequest(msg.getPayload());
       case DIR:
         List<FileInfo> list = FileUtility.getDirectories(userFolder.getAbsolutePath());
         ctx.channel().writeAndFlush(new Message<>(MessageType.DIR, list));
@@ -51,6 +54,15 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
     log.error(cause);
     cause.printStackTrace();
     ctx.close();
+  }
+
+  private void deleteRequest(Object payload) {
+    try {
+      String path = userFolder + "\\" + payload;
+      FileUtility.deleteFile(Paths.get(path));
+    } catch (IOException e) {
+      log.error(e);
+    }
   }
 
   private void downloadRequest(Channel channel, Message<?> ms) throws IOException {

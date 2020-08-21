@@ -48,7 +48,7 @@ public class ClientPanelController {
   private Desktop desktop;
 
   /**
-   * кнопка вперед по истории
+   * go forward button
    */
   @FXML
   public void onForwardInClientHistory() {
@@ -60,7 +60,7 @@ public class ClientPanelController {
   }
 
   /**
-   * кнопка назад по истории
+   * go back button
    */
   @FXML
   public void onBackInClientHistory(ActionEvent actionEvent) {
@@ -72,7 +72,7 @@ public class ClientPanelController {
   }
 
   /**
-   * кнопка вверх по директории
+   * directory up button
    */
   @FXML
   public void onUpBtnClicked(ActionEvent actionEvent) {
@@ -92,7 +92,8 @@ public class ClientPanelController {
   }
 
   /**
-   * обновляет таблицу локальных файлов
+   * Update local table
+   * @see FileInfo
    */
   public void clientRefresh(Path p) {
     try {
@@ -157,7 +158,8 @@ public class ClientPanelController {
   }
 
   /**
-   * инициализирует DragAndDrop слушателей
+   * Initializing drag-and-drop listeners.
+   * Detect drag over, drag entered and drag dropped events.
    */
   private Path targetDirectory;
   private void initDragAndDropListeners() {
@@ -193,9 +195,9 @@ public class ClientPanelController {
         targetDirectory = clientBackInHistoryStack.peek();
     });
 
-    //если событие завершено берем source путь из TreeItem, используем Files.move(),
+    //если событие завершено, берем source путь из TreeItem, используем Files.move(),
     // в этом случае обертку FileUtils, в которой дополнительно отслеживается -
-    // перемещается папка или файл и возможные Exception,
+    // перемещается папка или файл и возможные исключения,
     // после того как все успешно переместилось обновляем оба TableView через MainController
     // иначе обновляется только одна таблица на которой фокус
     client_panel.setOnDragDropped(x -> {
