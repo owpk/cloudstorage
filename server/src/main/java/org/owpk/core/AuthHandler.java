@@ -15,6 +15,7 @@ import org.owpk.message.UserInfo;
 import org.owpk.util.FileUtility;
 import org.owpk.util.ServerConfig;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,6 +46,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
       FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + testUser.getServer_folder());
       ctx.pipeline().addLast(new MessageHandler(testUser));
       ctx.pipeline().remove(this);
+      new File(ServerConfig.getConfig().getRoot() + "\\" + testUser.getServer_folder()).mkdirs();
     } else {
       switch (msg.getType()) {
         case AUTH:

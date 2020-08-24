@@ -49,9 +49,9 @@ public class CloudPanelController {
 
 
   /**
-   * метод вызывается при нажатии на кнопку "connect"
-   * {@link NetworkServiceFactory} возвращает {@link NetworkServiceInt},
-   * который создает подключение клиента к серверу
+   * invoking when "connect" button has been clicked
+   * {@link NetworkServiceFactory} returns {@link NetworkServiceInt},
+   * which creates a client-to-server connection
    */
   public void connect() {
     Service<Void> ser = new Service<Void>() {
@@ -68,6 +68,8 @@ public class CloudPanelController {
                   progressBarCallback,
                   mainSceneController.getClientPanelController().getRefreshPanelCallback());
               networkServiceInt.connect();
+              mainSceneController.getClientPanelController().getHistory().push(ClientConfig.getConfig().getDownloadDirectory());
+              mainSceneController.getClientPanelController().clientRefresh(ClientConfig.getConfig().getDownloadDirectory());
             } catch (IOException | ClassNotFoundException e) {
               e.printStackTrace();
               disconnect();
@@ -87,6 +89,7 @@ public class CloudPanelController {
     ser.setOnFailed((WorkerStateEvent event) -> {
       mainSceneController.setStatusLabel("connection error");
       UserDialog.errorDialog(event.getSource().getException().getMessage());
+      UserDialog.showConnectionParameters();
       event.getSource().getException().printStackTrace();
     });
     ser.start();
@@ -121,8 +124,8 @@ public class CloudPanelController {
   }
 
   /**
-   * Отправляет серверу команду {@link MessageType}
-   * сервер должен вернуть List<FileInfo>
+   * Sends the {@link MessageType} command to the server
+   * server should return List<FileInfo>
    */
   public void updateServerFolders() {
     if (networkServiceInt == null) {
@@ -184,8 +187,8 @@ public class CloudPanelController {
   }
 
   /**
-   * Добавляет колонку с кнопкой "скачать" в cloud таблицу
-   * Посылает на сервер команду {@link MessageType} DOWNLOAD и имя файла
+   * Adds a column with a "download" button to the cloud table
+   * Sends the {@link MessageType} DOWNLOAD command and file name to the server
    */
   private void initDownloadAction() {
     TableColumn<FileInfo, FileInfo.FileType> server_column_action = new TableColumn<>("Action");

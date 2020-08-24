@@ -1,8 +1,9 @@
 .idea
 /client/target
-#/server/client_folder/
-#/client/downloads/
+/server/clients_folders/
+/client/Cloud Storage downloads/
 /server/target
+/network/target
 /server/out
 /server/log/
 *.iml

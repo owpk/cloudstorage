@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.owpk.app.ClientConfig;
+import org.owpk.util.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,8 +66,8 @@ public class MainSceneController implements Initializable {
     //кнопка закрыть
     shut_down_btn.setOnMouseClicked(event -> {
       if (cloudPanelController.getNetworkServiceInt() != null)
-      config.setStartPath(clientPanelController.getHistory().peek().toString());
-      cloudPanelController.disconnect();
+        cloudPanelController.disconnect();
+      config.writeProperty(Config.ConfigParameters.LAST_DIR, clientPanelController.getHistory().peek().toString());
       Platform.exit();
     });
 
@@ -126,18 +127,6 @@ public class MainSceneController implements Initializable {
     Platform.runLater(() -> TreeViewController.setupTreeView(tree_view));
   }
 
-  public void checkConfig() {
-    File p = new File(config.getDownloadDirectory().toString());
-    if (!p.exists()) {
-      p.mkdirs();
-      UserDialog.confirmDialog("Did not found specified download directory",
-          "Create default download folder? : \n" + p.getAbsolutePath());
-    }
-    Path path = Paths.get(p.getAbsolutePath());
-    clientPanelController.getHistory().push(path);
-    clientPanelController.clientRefresh(path);
-  }
-
   public ClientConfig getConfig() {
     return config;
   }
@@ -157,9 +146,8 @@ public class MainSceneController implements Initializable {
   @SneakyThrows
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    config = ClientConfig.getConfig();
-
     fillElements();
+    config = ClientConfig.getConfig();
 
     rightTabClientController = (ClientPanelController) right_local_panel_view.getProperties().get("ctrl");
     rightTabClientController.setMainSceneController(this);
@@ -173,7 +161,6 @@ public class MainSceneController implements Initializable {
     cloudPanelController.setMainSceneController(this);
     cloudPanelController.init();
 
-    Platform.runLater(this::checkConfig);
 
   }
 

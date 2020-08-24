@@ -1,8 +1,6 @@
 package org.owpk.util;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -10,6 +8,7 @@ import java.util.Properties;
  */
 public abstract class Config {
   protected static final Properties properties;
+  private final String propName;
   protected int port;
   static {
     properties = new Properties();
@@ -17,8 +16,8 @@ public abstract class Config {
 
   public enum ConfigParameters {
     PORT("port"),
-    HOST("default_server"),
-    LAST_DIR("root_directory"),
+    HOST("host"),
+    LAST_DIR("last_directory"),
     CONNECT_ON_STARTUP("connect_on_startup"),
     DOWNLOAD_DIR("download_directory"),
     SERVER_ROOT("root_folder");
@@ -34,8 +33,24 @@ public abstract class Config {
   }
 
   public Config(String propName) {
+    this.propName = propName;
     initProp(propName);
     load();
+  }
+
+  /**
+   * write property value to client.property
+   */
+  public void writeProperty(ConfigParameters prop, String val) {
+    try {
+      File f = new File("./" + propName);
+      try(FileWriter fw = new FileWriter(f.getAbsolutePath())) {
+        properties.setProperty(prop.getDescription(), val);
+        properties.store(fw, prop.getDescription());
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public abstract void load();
