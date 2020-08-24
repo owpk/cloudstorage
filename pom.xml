@@ -11,7 +11,7 @@
 
     <properties>
         <!-- https://maven.apache.org/general.html#encoding-warning -->
-        <maven.assembly.version>3.3.0</maven.assembly.version>
+        <maven.assembly.version>2.5.3</maven.assembly.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>

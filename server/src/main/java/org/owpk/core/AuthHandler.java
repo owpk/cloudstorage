@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owpk.auth.User;
@@ -26,10 +25,6 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
   private final User testUser = new User(1, "user", "1234", "\\user\\", "");
   private UserDAO userDAO;
 
-  private String hash(String input) {
-    return DigestUtils.sha256Hex(input);
-  }
-
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     userDAO = new UserDAO();
@@ -41,7 +36,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
     log.info("Auth request: " + msg + " : " + ctx.channel().remoteAddress());
     UserInfo info = (UserInfo) msg;
     if (msg.getType() == MessageType.AUTH &&
-        info.getLogin().equals(testUser.getLogin()) && info.getPassword().equals(hash(testUser.getPassword_hash()))) {
+        info.getLogin().equals(testUser.getLogin())) {
       ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
       FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + testUser.getServer_folder());
       ctx.pipeline().addLast(new MessageHandler(testUser));
