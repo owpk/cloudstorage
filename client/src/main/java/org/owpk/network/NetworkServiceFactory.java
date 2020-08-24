@@ -8,6 +8,7 @@ public class NetworkServiceFactory {
   static {
     map = new HashMap<>();
     map.put("localhost", IONetworkServiceImpl.getService());
+    map.put("79.143.31.62", IONetworkServiceImpl.getService());
   }
   public static NetworkServiceInt getService(String server) {
     return map.get(server);

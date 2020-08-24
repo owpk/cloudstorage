@@ -1,7 +1,5 @@
 package org.owpk.util;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import lombok.Data;
 import org.apache.tika.Tika;
 
@@ -52,13 +50,11 @@ public class FileInfo implements Serializable {
   private FileType fileType;
   private Long size;
   private LocalDateTime lastModified;
-  private transient ObjectProperty<FileType> imageType;
 
   public FileInfo(Path path) {
     this.filename = path.getFileName().toString();
     this.path = path;
     fileType = Files.isDirectory(path) ? FileType.DIRECTORY : parseType(path);
-    this.imageType = new SimpleObjectProperty<>(fileType);
     try {
       size = fileType == FileType.DIRECTORY ? -1L : (Files.size(path));
       lastModified = LocalDateTime.ofInstant(Files.getLastModifiedTime(path).toInstant(), ZoneOffset.ofHours(3));
@@ -96,6 +92,5 @@ public class FileInfo implements Serializable {
       return FileType.EXEC.type;
     else return app;
   }
-
 
 }

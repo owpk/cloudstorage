@@ -27,33 +27,6 @@
     </ToolBar>
     <HBox styleClass="main_hbox" stylesheets="@../css/css_main_scene.css" VBox.vgrow="ALWAYS">
         <children>
-            <Button fx:id="back_btn" mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" underline="true">
-                <font>
-                    <Font size="10.0" />
-                </font>
-                <styleClass>
-                    <String fx:value="back_btn" />
-                    <String fx:value="ctrl_btn" />
-                </styleClass>
-            </Button>
-            <Button fx:id="forward_btn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false"  prefHeight="2.0" prefWidth="25.0" stylesheets="@../css/css_main_scene.css" textFill="WHITE" underline="true" HBox.hgrow="NEVER">
-                <font>
-                    <Font size="10.0" />
-                </font>
-                <styleClass>
-                    <String fx:value="refresh_btn" />
-                    <String fx:value="ctrl_btn" />
-                </styleClass>
-            </Button>
-            <Button fx:id="up_btn" mnemonicParsing="false" onAction="#onUpBtnClicked" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" underline="true">
-                <font>
-                    <Font size="10.0" />
-                </font>
-                <styleClass>
-                    <String fx:value="up_btn" />
-                    <String fx:value="ctrl_btn" />
-                </styleClass>
-            </Button>
             <Button fx:id="update_btn" mnemonicParsing="false" stylesheets="@../css/css_main_scene.css" textOverrun="CLIP" onAction="#updateServerFolders" underline="true">
                 <font>
                     <Font size="10.0" />

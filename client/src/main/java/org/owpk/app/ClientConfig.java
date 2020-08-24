@@ -1,15 +1,11 @@
 package org.owpk.app;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import javafx.application.Platform;
+import org.owpk.controller.UserDialog;
 import org.owpk.util.Config;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Class to read and overwrite the file {@link #CONFIG_NAME}.
@@ -17,8 +13,8 @@ import java.nio.file.Paths;
  * Creates singleton {@link ClientConfig}.
  */
 public class ClientConfig extends Config {
-  private final Logger log = LogManager.getLogger(ClientConfig.class.getName());
   private static final String CONFIG_NAME = "client.properties";
+  private static final String DEFAULT_DOWNLOAD_DIR = "./Cloud Storage downloads/";
   private static final String DEFAULT_SERVER = "localhost";
   private Path downloadDirectory;
   private Path startPath;
@@ -26,7 +22,9 @@ public class ClientConfig extends Config {
   private static ClientConfig config;
 
   public static ClientConfig getConfig() {
-    return config == null? new ClientConfig() : config;
+    if (config == null)
+      config = new ClientConfig();
+    return config;
   }
 
   private ClientConfig() {
@@ -39,38 +37,24 @@ public class ClientConfig extends Config {
    */
   @Override
   public void load() {
-    downloadDirectory = Paths.get(properties.getProperty(ConfigParameters.DOWNLOAD_DIR.getDescription(), null));
-    Path p = Paths.get(ConfigParameters.LAST_DIR.getDescription());
-    if (!Files.exists(p)) {
-      p = File.listRoots()[0].toPath();
-    }
-    startPath = Paths.get(properties.getProperty(p.toAbsolutePath().toString(), null));
+    String propDwnld = properties.getProperty(ConfigParameters.DOWNLOAD_DIR.getDescription(), DEFAULT_DOWNLOAD_DIR);
+    File f = new File(propDwnld);
+    if (!f.exists()) {
+      Platform.runLater(() -> {
+        File temp = new File(DEFAULT_DOWNLOAD_DIR);
+        temp.mkdirs();
+        downloadDirectory = temp.toPath();
+        writeProperty(ConfigParameters.DOWNLOAD_DIR, downloadDirectory.toAbsolutePath().toString());
+        UserDialog.infoDialog("Could not find download directory","Default download folder created:\n" + temp.getAbsolutePath());
+      });
+    } else downloadDirectory = f.toPath();
+    String strPath = properties.getProperty(ConfigParameters.LAST_DIR.getDescription());
+    File temp = new File(strPath);
+    if (strPath.isEmpty() || !temp.exists())
+      startPath = File.listRoots()[0].toPath();
+    else startPath = temp.toPath();
     port = checkPort(properties.getProperty(ConfigParameters.PORT.getDescription(), null));
     host = properties.getProperty(ConfigParameters.HOST.getDescription(), DEFAULT_SERVER);
-  }
-
-  public void setDownloadDirectory(String path) {
-    downloadDirectory = Paths.get(path);
-    writeProperty(ConfigParameters.DOWNLOAD_DIR, path);
-  }
-
-  public void setStartPath(String path) {
-    startPath = Paths.get(path);
-    writeProperty(ConfigParameters.LAST_DIR, startPath.toAbsolutePath().toString());
-  }
-
-  /**
-   * write property value to client.property
-   */
-  public void writeProperty(ConfigParameters prop, String val) {
-    try(FileWriter fw = new FileWriter(new File(CONFIG_NAME))) {
-      properties.setProperty(prop.getDescription(), val);
-      properties.store(fw, prop.getDescription());
-      log.info(properties.getProperty(prop.getDescription()) + " -- " + prop.getDescription() + " : new property");
-    } catch (IOException e) {
-      log.error(e);
-      e.printStackTrace();
-    }
   }
 
   public static String getDefaultServer() {
@@ -87,5 +71,9 @@ public class ClientConfig extends Config {
 
   public String getHost() {
     return host;
+  }
+
+  public static String getDefaultDownloadDir() {
+    return DEFAULT_DOWNLOAD_DIR;
   }
 }

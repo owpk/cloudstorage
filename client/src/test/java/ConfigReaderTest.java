@@ -25,7 +25,7 @@ public class ConfigReaderTest {
     properties = new Properties();
     try (InputStream in =
              ClientConfig.class.getClassLoader()
-                 .getResourceAsStream("client.properties")) {
+                 .getResourceAsStream("test.properties")) {
       properties.load(in);
       source = properties.getProperty("root_directory");
       System.out.println(source);
