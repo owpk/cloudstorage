@@ -28,7 +28,7 @@ The server implements the netty framework 4.1.51.
 * The server uses MySQL connection to authorize and add a new user, in project root you can find a DDL script to build your own database server, connection properties described in /server/src/resources/META-INF/persistence.xml file.
 * You can also connect to the server with "test user" login and password.
 
-##Docker
+## Docker
 * You can run the server in docker
   - Install Docker on the machine you want to run it.
   - Go to project root and run the commands below by using console
