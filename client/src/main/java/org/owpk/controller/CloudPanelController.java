@@ -62,7 +62,7 @@ public class CloudPanelController {
           protected Void call() throws InterruptedException {
             try {
               if (networkServiceInt != null) networkServiceInt.disconnect();
-              networkServiceInt = NetworkServiceFactory.getService(ClientConfig.getDefaultServer());
+              networkServiceInt = NetworkServiceFactory.getService(ClientConfig.getConfig().getHost());
               networkServiceInt.initHandlers(cloudTableCallback,
                   statusLabelCallback,
                   progressBarCallback,

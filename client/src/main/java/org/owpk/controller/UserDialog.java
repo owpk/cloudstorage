@@ -54,7 +54,7 @@ public class UserDialog {
     dialog.setTitle("Connection configuration");
     dialog.setHeaderText("Please, input connection parameters: ");
 
-    ButtonType okBtn = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
+    ButtonType okBtn = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
     ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
     dialog.getDialogPane().getButtonTypes().setAll(okBtn, cancelBtn);

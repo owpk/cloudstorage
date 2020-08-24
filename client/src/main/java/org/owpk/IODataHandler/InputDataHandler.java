@@ -38,7 +38,7 @@ public class InputDataHandler extends AbsHandler {
 
   @Override
   protected void listen(Message<?> msg) throws IOException {
-    log.info(msg);
+    System.out.println(msg);
     switch (msg.getType()) {
       case DIR:
         List<FileInfo> dirList = (List<FileInfo>) msg.getPayload();
