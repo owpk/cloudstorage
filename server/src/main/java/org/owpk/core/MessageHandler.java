@@ -46,6 +46,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
       case DIR:
         List<FileInfo> list = FileUtility.getDirectories(userFolder.getAbsolutePath());
         ctx.channel().writeAndFlush(new Message<>(MessageType.DIR, list));
+        log.info(userFolder);
     }
   }
 
