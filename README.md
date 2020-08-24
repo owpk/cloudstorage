@@ -20,7 +20,7 @@ The server implements the netty framework 4.1.51.
     From the project root, run ./mvnw clean install.
 ```
 **Open client/target and server/target folder and run "jar-with-dependencies.jar" files by using console.**
-for example:
+**For example:**
 ```sh
     server/target> $java -jar server-1.0-jar-with-dependencies.jar
 ```
