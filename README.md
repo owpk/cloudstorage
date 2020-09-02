@@ -42,7 +42,7 @@ The server implements the netty framework 4.1.51.
     Or just pull it from repository
     $docker pull vzvz4/java-app:cloud
     And run it
-    $docker run vzvz4/java-app:cloud -p 8190:8190/tcp
+    $docker run -p 8190:8190/tcp vzvz4/java-app:cloud
 ```
    
 
