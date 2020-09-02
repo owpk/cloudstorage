@@ -11,6 +11,7 @@ import org.owpk.auth.UserDAO;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
 import org.owpk.message.UserInfo;
+import org.owpk.util.Config;
 import org.owpk.util.FileUtility;
 import org.owpk.util.ServerConfig;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
   private final Logger log = LogManager.getLogger(AuthHandler.class.getName());
   private static final ConcurrentHashMap<Channel, User> activeUsers = new ConcurrentHashMap<>();
-  private final User testUser = new User(1, "user", "1234", "\\user\\", "");
+  private final User testUser = new User(1, "user", "1234", "user" + Config.getLineSeparator(), "");
   private UserDAO userDAO;
 
   @Override
@@ -38,10 +39,10 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
     if (msg.getType() == MessageType.AUTH &&
         info.getLogin().equals(testUser.getLogin())) {
       ctx.writeAndFlush(new Message<>(MessageType.OK, "Auth ok"));
-      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + testUser.getServer_folder());
+      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + Config.getLineSeparator() + testUser.getServer_folder());
       ctx.pipeline().addLast(new MessageHandler(testUser));
       ctx.pipeline().remove(this);
-      new File(ServerConfig.getConfig().getRoot() + "\\" + testUser.getServer_folder()).mkdirs();
+      new File(ServerConfig.getConfig().getRoot() + Config.getLineSeparator() + testUser.getServer_folder()).mkdirs();
     } else {
       switch (msg.getType()) {
         case AUTH:
@@ -75,10 +76,10 @@ public class AuthHandler extends SimpleChannelInboundHandler<Message<?>> {
       final User user = new User(
           msg.getLogin(),
           msg.getPassword(),
-          "\\user_folder_" + msg.getLogin() + "\\",
+              Config.getLineSeparator()+ "user_folder_" + msg.getLogin() + Config.getLineSeparator(),
           msg.getEmail());
       userDAO.addUser(user);
-      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + "\\" + user.getServer_folder());
+      FileUtility.createDirectory(ServerConfig.getConfig().getRoot() + Config.getLineSeparator() + user.getServer_folder());
       log.info("user added: " + user);
       channel.writeAndFlush(new Message<>(MessageType.OK, "OK, Try to auth now"));
     } else {

@@ -9,6 +9,7 @@ import org.owpk.message.DataInfo;
 import org.owpk.message.Message;
 import org.owpk.network.IONetworkServiceImpl;
 import org.owpk.network.NetworkServiceInt;
+import org.owpk.util.Config;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 
@@ -78,7 +79,7 @@ public class InputDataHandler extends AbsHandler {
   private void download(DataInfo ms) throws IOException {
     String fileName = ms.getFile();
     final File f = new File(
-          ClientConfig.getConfig().getDownloadDirectory().toString() + "\\" + fileName);
+          ClientConfig.getConfig().getDownloadDirectory().toString() + Config.getLineSeparator() + fileName);
     FileUtility.FileWriter writer = FileUtility.FileWriter.getWriter(f.getAbsolutePath());
     double count = (float) ms.getChunkIndex() / ms.getChunkCount();
     progressBarCallback.call(count);

@@ -14,7 +14,7 @@ import java.nio.file.Path;
  */
 public class ClientConfig extends Config {
   private static final String CONFIG_NAME = "client.properties";
-  private static final String DEFAULT_DOWNLOAD_DIR = "./Cloud Storage downloads/";
+  private static final String DEFAULT_DOWNLOAD_DIR = "./Cloud Storage downloads";
   private static final String DEFAULT_SERVER = "localhost";
   private Path downloadDirectory;
   private Path startPath;

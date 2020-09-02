@@ -10,6 +10,7 @@ import org.owpk.auth.User;
 import org.owpk.message.DataInfo;
 import org.owpk.message.Message;
 import org.owpk.message.MessageType;
+import org.owpk.util.Config;
 import org.owpk.util.FileInfo;
 import org.owpk.util.FileUtility;
 import org.owpk.util.ServerConfig;
@@ -28,7 +29,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
 
   public MessageHandler(User user) {
     this.user = user;
-    this.userFolder = new File(ServerConfig.getConfig().getRoot().toAbsolutePath() + "\\" + user.getServer_folder());
+    this.userFolder = new File(ServerConfig.getConfig().getRoot().toAbsolutePath() + Config.getLineSeparator() + user.getServer_folder());
   }
 
   @Override
@@ -59,7 +60,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
 
   private void deleteRequest(Object payload) {
     try {
-      String path = userFolder + "\\" + payload;
+      String path = userFolder + Config.getLineSeparator() + payload;
       FileUtility.deleteFile(Paths.get(path));
     } catch (IOException e) {
       log.error(e);
@@ -68,7 +69,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
 
   private void downloadRequest(Channel channel, Message<?> ms) throws IOException {
     log.debug(ms);
-    final File f = new File(userFolder + "\\" + ms.getPayload());
+    final File f = new File(userFolder + Config.getLineSeparator() + ms.getPayload());
     if (f.exists()) {
     FileUtility.sendFileByChunks(channel::writeAndFlush, f, MessageType.DOWNLOAD);
     }
@@ -76,7 +77,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<Message<?>> {
 
   private void uploadRequest(DataInfo ms) throws IOException {
     log.debug("package accepted: " + ms);
-    FileUtility.FileWriter writer = FileUtility.FileWriter.getWriter(userFolder + "\\" + ms.getFile());
+    FileUtility.FileWriter writer = FileUtility.FileWriter.getWriter(userFolder + Config.getLineSeparator() + ms.getFile());
     writer.assembleChunkedFile(ms);
   }
 

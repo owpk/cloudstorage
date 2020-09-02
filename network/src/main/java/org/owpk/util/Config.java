@@ -1,12 +1,18 @@
 package org.owpk.util;
 
 import java.io.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.util.Properties;
 
 /**
  * Initialize {@link Properties}
  */
 public abstract class Config {
+  private static final String LINE_SEPARATOR = FileSystems.getDefault().getSeparator();;
+  static {
+    System.out.println(LINE_SEPARATOR);
+  }
   protected static final Properties properties;
   private final String propName;
   protected int port;
@@ -80,5 +86,9 @@ public abstract class Config {
 
   public void setPort(int port) {
     this.port = port;
+  }
+
+  public static String getLineSeparator() {
+    return LINE_SEPARATOR;
   }
 }
