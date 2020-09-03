@@ -11,7 +11,7 @@ The server implements the netty framework 4.1.51.
 
 #### Prerequisites:
 
- 1. Java (JDK) 8.
+ 1. Java (JDK/JRE) 8.
  
 #### Build
 
