@@ -2,8 +2,6 @@ package org.owpk.network;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.owpk.IODataHandler.AbsHandler;
 import org.owpk.IODataHandler.AuthHandler;
 import org.owpk.IODataHandler.InputDataHandler;
@@ -47,11 +45,7 @@ public class IONetworkServiceImpl implements NetworkServiceInt {
 
   @Override
   public void initHandlers(Callback... callback) throws IOException {
-    inputDataHandler = new InputDataHandler(
-        callback[0],
-        callback[1],
-        callback[2],
-        callback[3]);
+    inputDataHandler = new InputDataHandler(callback);
   }
 
   @Override

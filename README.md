@@ -11,18 +11,19 @@ The server implements the netty framework 4.1.51.
 
 #### Prerequisites:
 
- 1. Java (JDK) 8.
+ 1. Java (oracle jdk) 8.
+    <p>Installation guide for Arch linux :
+    <a href="https://linuxhint.com/install-oracle-jdk-10-on-arch-linux/">here, but you should download java 8 version</a></p>
  
 #### Build
-
+**Go to the project root and run**
 ```sh
-    You can use Maven to build the app:
-    From the project root, run ./mvnw clean install.
+    ./mvnw package
 ```
 **Open client/target and server/target folder and run "jar-with-dependencies.jar" files by using console.**
 **For example:**
 ```sh
-    server/target> $java -jar server-1.0-jar-with-dependencies.jar
+    ...clint/target$ java -jar client-1.0-jar-with-dependencies.jar
 ```
 **You should see "[main] INFO  org.owpk.core.Server - Server started at : 8190" message from the server and "connected : localhost/127.0.0.1:8190" message from the client if everything is ok.**
     
